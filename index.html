@@ -2,66 +2,141 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>你好呀</title>
   <style>
+    :root {
+      --bg-start: #74ebd5;
+      --bg-end: #acb6e5;
+      --text: #333;
+      --panel-bg: rgba(255,255,255,0.85);
+      --primary: #4a90e2;
+      --primary-hover: #357ABD;
+      --shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #eaeaea;
+        --panel-bg: rgba(20,20,20,0.7);
+        --shadow: 0 10px 24px rgba(0,0,0,0.4);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
     body {
       margin: 0;
       padding: 0;
-      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      color: #333;
+      min-height: 100vh;
+      color: var(--text);
+      background-size: 200% 200%;
+      animation: bgShift 20s ease infinite;
     }
     .container {
       text-align: center;
-      background: rgba(255, 255, 255, 0.85);
+      background: var(--panel-bg);
       padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      transition: transform 0.3s ease;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      transition: transform 0.24s ease, box-shadow 0.24s ease;
+      max-width: 640px;
+      margin: 16px;
+      backdrop-filter: blur(8px) saturate(140%);
+      -webkit-backdrop-filter: blur(8px) saturate(140%);
     }
     .container:hover {
-      transform: scale(1.05);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.18);
     }
     h1 {
-      font-size: 3em;
-      margin: 0 0 20px;
-      color: #4a90e2;
+      font-size: clamp(2.2rem, 4vw, 3rem);
+      margin: 0 0 16px;
+      color: var(--primary);
+      letter-spacing: 0.02em;
     }
     p {
-      font-size: 1.2em;
+      font-size: clamp(1rem, 2.2vw, 1.25rem);
       margin: 0;
+      opacity: 0.9;
     }
     button {
-      margin-top: 30px;
-      padding: 10px 20px;
-      font-size: 1em;
+      margin-top: 28px;
+      padding: 12px 22px;
+      font-size: 1rem;
       border: none;
-      border-radius: 6px;
-      background: #4a90e2;
-      color: white;
+      border-radius: 10px;
+      background: var(--primary);
+      color: #fff;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: transform 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+      box-shadow: 0 6px 18px rgba(74,144,226,0.35);
+      will-change: transform;
     }
     button:hover {
-      background: #357ABD;
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 14px rgba(74,144,226,0.4);
+    }
+    button:focus-visible {
+      outline: 3px solid #98c6f3;
+      outline-offset: 3px;
+    }
+    @keyframes bgShift {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+      .container:hover { transform: none; box-shadow: var(--shadow); }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <main class="container" role="main" aria-live="polite">
     <h1>你好呀 👋</h1>
     <p>欢迎来到我的小站</p>
-    <button onclick="sayHello()">点我试试</button>
-  </div>
+    <button id="greet-btn" type="button" aria-label="点击问候">点我试试</button>
+  </main>
 
   <script>
-    function sayHello() {
-      alert("你好呀！祝你今天心情愉快 🌸");
-    }
+    (function () {
+      var h1 = document.querySelector('h1');
+      var p = document.querySelector('p');
+      var btn = document.getElementById('greet-btn');
+      function greeting() {
+        var h = new Date().getHours();
+        if (h < 11) return '早上好';
+        if (h < 13) return '中午好';
+        if (h < 18) return '下午好';
+        return '晚上好';
+      }
+      var count = 1;
+      try {
+        var key = 'visitCount';
+        var raw = localStorage.getItem(key);
+        count = raw ? parseInt(raw, 10) + 1 : 1;
+        localStorage.setItem(key, String(count));
+      } catch (e) {}
+      if (h1) h1.textContent = greeting() + ' 👋';
+      if (p) p.textContent = '欢迎来到我的小站，这是你第 ' + count + ' 次访问';
+      if (btn) {
+        var locked = false;
+        btn.addEventListener('click', function () {
+          if (locked) return;
+          locked = true;
+          setTimeout(function () { locked = false; }, 600);
+          alert(greeting() + '！祝你今天心情愉快 🌸');
+        });
+      }
+    })();
   </script>
 </body>
 </html>
