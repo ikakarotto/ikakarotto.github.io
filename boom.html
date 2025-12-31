@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 跨年烟花倒计时 🎆</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Microsoft YaHei', sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        .content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+        .countdown {
+            display: flex;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .time-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        }
+        .num {
+            font-size: 4rem;
+            font-weight: bold;
+            text-shadow: 0 0 15px #fff;
+        }
+        .label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .message {
+            font-size: 1.5rem;
+            max-width: 800px;
+            line-height: 1.8;
+            margin: 2rem auto;
+            opacity: 0.9;
+        }
+        .tip {
+            font-size: 1.2rem;
+            margin-top: 2rem;
+            opacity: 0.8;
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .countdown { gap: 1rem; }
+            .num { font-size: 3rem; }
+            .time-box { padding: 0.8rem 1.2rem; }
+            .message { font-size: 1.2rem; padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="content">
+        <h1>2026 新年快乐 🎉</h1>
+        <div class="countdown" id="countdown">
+            <div class="time-box"><div class="num" id="days">00</div><div class="label">天</div></div>
+            <div class="time-box"><div class="num" id="hours">00</div><div class="label">时</div></div>
+            <div class="time-box"><div class="num" id="minutes">00</div><div class="label">分</div></div>
+            <div class="time-box"><div class="num" id="seconds">00</div><div class="label">秒</div></div>
+        </div>
+        <div class="message">
+            祝你：所期皆所念 所念皆所愿<br>
+            所愿皆所得 所得皆所盼<br>
+            唯愿烟花像星辰 祝你所愿皆成真 ✨
+        </div>
+        <div class="tip">点击或连击屏幕，发射更多烟花哦 🧨</div>
+    </div>
+
+    <script>
+        // 倒计时到 2026-01-01 00:00:00
+        const newYear = new Date('2026-01-01T00:00:00').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = newYear - now;
+
+            if (distance < 0) {
+                document.getElementById('countdown').innerHTML = '<h2 style="font-size:3rem;">新年快乐！🎆</h2>';
+                launchFireworksIntense(); // 新年到来时狂放烟花
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // 烟花动画（经典 Canvas 烟花代码，点击发射 + 自动随机发射）
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        let particles = [];
+        let fireworks = [];
+
+        class Particle {
+            constructor(x, y, color, velocity) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.velocity = velocity;
+                this.alpha = 1;
+                this.friction = 0.98;
+                this.gravity = 0.08;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+            update() {
+                this.velocity.x *= this.friction;
+                this.velocity.y *= this.friction;
+                this.velocity.y += this.gravity;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.008;
+            }
+        }
+
+        function createFirework(x = Math.random() * canvas.width, y = Math.random() * canvas.height / 2) {
+            const color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+            const particleCount = 80;
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (Math.PI * 2 / particleCount) * i;
+                const velocity = {
+                    x: Math.cos(angle) * (Math.random() * 6 + 2),
+                    y: Math.sin(angle) * (Math.random() * 6 + 2)
+                };
+                particles.push(new Particle(x, y, color, velocity));
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((p, i) => {
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    p.update();
+                    p.draw();
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // 点击发射烟花
+        canvas.addEventListener('click', (e) => {
+            createFirework(e.clientX, e.clientY);
+        });
+
+        // 自动随机发射
+        setInterval(() => {
+            createFirework();
+        }, 1500);
+
+        // 新年到来狂欢
+        function launchFireworksIntense() {
+            const intense = setInterval(() => {
+                for (let i = 0; i < 5; i++) {
+                    createFirework();
+                }
+            }, 200);
+            setTimeout(() => clearInterval(intense), 30000); // 狂欢30秒
+        }
+    </script>
+</body>
+</html>
