@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>逐光而行 · 记录点滴</title>
+  <!-- 添加Google Fonts加载思源黑体 -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-start: #74ebd5;
@@ -57,6 +59,7 @@
       margin: 0 0 16px;
       color: var(--primary);
       letter-spacing: 0.02em;
+      font-family: "Microsoft YaHei", "微软雅黑", "Noto Sans SC", "思源黑体", "STHeiti", "华文黑体", "sans-serif";
     }
     p {
       font-size: clamp(1rem, 2.2vw, 1.25rem);
@@ -93,6 +96,43 @@
       outline: 3px solid #98c6f3;
       outline-offset: 3px;
     }
+
+    /* 字体切换按钮样式 */
+    .font-selector {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .font-btn {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--primary);
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .font-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .font-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+    
+    /* 加载状态指示器 */
+    .font-loading {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      opacity: 0.7;
+      color: var(--primary);
+    }
+    
     @keyframes bgShift {
       0% { background-position: 0% 0%; }
       50% { background-position: 100% 100%; }
@@ -110,14 +150,52 @@
     <p>欢迎来到我的小站</p>
     <p id="date" class="date"></p>
     <button id="greet-btn" type="button" aria-label="点击问候">点我试试</button>
+    
+    <!-- 字体切换按钮 -->
+    <div class="font-selector">
+      <button class="font-btn" data-font-system="Microsoft YaHei,微软雅黑">微软雅黑</button>
+      <button class="font-btn" data-font-system="Noto Sans SC,思源黑体">思源黑体</button>
+      <button class="font-btn" data-font-system="STHeiti,华文黑体,Heiti SC">华文黑体</button>
+      <button class="font-btn" data-font-system="sans-serif">默认字体</button>
+    </div>
+    
+    <!-- 字体加载状态提示 -->
+    <div id="font-status" class="font-loading"></div>
   </main>
 
   <script>
     (function () {
-      var h1 = document.querySelector('h1');
-      var p = document.querySelector('p');
-      var btn = document.getElementById('greet-btn');
-      var dateEl = document.getElementById('date');
+      // 安全获取DOM元素的辅助函数
+      function safeGetElement(selector) {
+        try {
+          return document.querySelector(selector);
+        } catch (e) {
+          console.error('获取元素失败:', e);
+          return null;
+        }
+      }
+      
+      // 安全获取DOM元素ID的辅助函数
+      function safeGetElementById(id) {
+        try {
+          return document.getElementById(id);
+        } catch (e) {
+          console.error('获取元素失败:', e);
+          return null;
+        }
+      }
+      
+      var h1 = safeGetElement('h1');
+      var p = safeGetElement('p');
+      var btn = safeGetElementById('greet-btn');
+      var dateEl = safeGetElementById('date');
+      var fontStatus = safeGetElementById('font-status');
+      
+      // 如果关键元素不存在，显示错误信息
+      if (!h1) {
+        console.error('无法获取h1元素，字体切换功能将无法正常工作');
+      }
+      
       function greeting() {
         var h = new Date().getHours();
         if (h < 11) return '早上好';
@@ -125,9 +203,11 @@
         if (h < 18) return '下午好';
         return '晚上好';
       }
+      
       function pick(arr) {
         return arr[Math.floor(Math.random() * arr.length)];
       }
+      
       var messages = [
         '愿你今天收获满满 🌟',
         '保持好奇，探索世界 🔍',
@@ -179,7 +259,7 @@
         '别让完美主义绊住脚步 👣',
         '你已经走了很远，别放弃 🛤️',
         '允许自己偶尔“电量不足” 🔋',
-        '好奇心是通往未来的钥匙 🔑',
+        '好奇­心是通往未来的钥匙 🔑',
         '你的节奏，就是最好的节奏 🎶',
         '做自己的太阳，无需借光 🌞',
         '每一次尝试，都是胜利 🥇',
@@ -261,6 +341,7 @@
         '世界因多样性而美丽 🌈',
         '你的努力，终将照亮前路 💡'
       ];
+      
       function formatDate(d) {
         var y = d.getFullYear();
         var m = String(d.getMonth() + 1).padStart(2, '0');
@@ -268,14 +349,20 @@
         var w = ['日','一','二','三','四','五','六'][d.getDay()];
         return y + '年' + m + '月' + dd + '日 星期' + w;
       }
+      
       var count = 1;
       try {
         var key = 'visitCount';
         var raw = localStorage.getItem(key);
         count = raw ? parseInt(raw, 10) + 1 : 1;
         localStorage.setItem(key, String(count));
-      } catch (e) {}
+      } catch (e) {
+        console.error('localStorage操作失败:', e);
+        // 即使localStorage失败，也继续执行，不影响主要功能
+      }
+      
       if (h1) h1.textContent = greeting() + '，' + pick(messages);
+      
       if (p) {
         if (count === 1) {
           p.textContent = '✨ 欢迎来到我的小站！这是我们的第一次相遇，希望这里能带给你一些惊喜～';
@@ -287,7 +374,9 @@
           p.textContent = `💫 哇！这是你第 ${count} 次来访了！你是我最忠实的访客，这份情谊让我感动不已～`;
         }
       }
+      
       if (dateEl) dateEl.textContent = '今天：' + formatDate(new Date());
+      
       if (btn) {
         var locked = false;
         btn.addEventListener('click', function () {
@@ -297,6 +386,119 @@
           alert(greeting() + '，' + pick(messages));
         });
       }
+      
+      // 字体加载检测函数
+      function checkFontLoaded(fontName) {
+        // 创建一个测试元素
+        var testElement = document.createElement('div');
+        testElement.style.position = 'absolute';
+        testElement.style.left = '-9999px';
+        testElement.style.fontSize = '24px';
+        testElement.style.fontFamily = fontName;
+        testElement.textContent = '测试字体加载';
+        document.body.appendChild(testElement);
+        
+        // 检查字体是否加载完成
+        var isLoaded = false;
+        try {
+          var computedFont = window.getComputedStyle(testElement).fontFamily;
+          isLoaded = computedFont.includes(fontName.split(',')[0].trim());
+        } catch (e) {
+          console.error('检测字体加载失败:', e);
+        }
+        
+        // 移除测试元素
+        document.body.removeChild(testElement);
+        return isLoaded;
+      }
+      
+      // 字体切换功能
+      const fontBtns = document.querySelectorAll('.font-btn');
+      
+      // 字体配置映射，为每种字体提供跨平台支持
+      const fontConfig = {
+        'Microsoft YaHei,微软雅黑': {
+          name: '微软雅黑',
+          family: 'Microsoft YaHei,微软雅黑,sans-serif'
+        },
+        'Noto Sans SC,思源黑体': {
+          name: '思源黑体',
+          family: 'Noto Sans SC,思源黑体,sans-serif'
+        },
+        'STHeiti,华文黑体,Heiti SC': {
+          name: '华文黑体',
+          family: 'STHeiti,华文黑体,Heiti SC,sans-serif'
+        },
+        'sans-serif': {
+          name: '默认字体',
+          family: 'sans-serif'
+        }
+      };
+      
+      // 检查思源黑体是否加载完成
+      setTimeout(function() {
+        if (fontStatus) {
+          if (checkFontLoaded('Noto Sans SC')) {
+            fontStatus.textContent = '思源黑体加载完成 ✅';
+            // 2秒后隐藏加载状态
+            setTimeout(function() {
+              if (fontStatus) fontStatus.style.display = 'none';
+            }, 2000);
+          } else {
+            fontStatus.textContent = '思源黑体加载可能需要一些时间...';
+            // 5秒后隐藏加载状态
+            setTimeout(function() {
+              if (fontStatus) fontStatus.style.display = 'none';
+            }, 5000);
+          }
+        }
+      }, 1000);
+      
+      // 默认选中第一个字体按钮
+      if (fontBtns.length > 0) {
+        fontBtns[0].classList.add('active');
+      }
+      
+      fontBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          try {
+            // 移除所有按钮的active类
+            fontBtns.forEach(b => b.classList.remove('active'));
+            // 给当前按钮添加active类
+            btn.classList.add('active');
+            // 获取选中的字体配置
+            const fontSystem = btn.getAttribute('data-font-system');
+            const config = fontConfig[fontSystem];
+            
+            if (config && h1) {
+              // 设置h1的字体
+              h1.style.fontFamily = config.family;
+              
+              // 如果是思源黑体，检查是否加载
+              if (config.name === '思源黑体' && !checkFontLoaded('Noto Sans SC')) {
+                if (fontStatus) {
+                  fontStatus.textContent = '思源黑体正在加载中...';
+                  fontStatus.style.display = 'block';
+                  // 3秒后隐藏提示
+                  setTimeout(function() {
+                    if (fontStatus) fontStatus.style.display = 'none';
+                  }, 3000);
+                }
+              }
+            }
+          } catch (e) {
+            console.error('字体切换失败:', e);
+            if (fontStatus) {
+              fontStatus.textContent = '字体切换失败，请稍后重试';
+              fontStatus.style.display = 'block';
+              // 3秒后隐藏错误信息
+              setTimeout(function() {
+                if (fontStatus) fontStatus.style.display = 'none';
+              }, 3000);
+            }
+          }
+        });
+      });
     })();
   </script>
 </body>
