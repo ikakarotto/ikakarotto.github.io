@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>摸鱼办提醒</title>
+  <style>
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      margin: 20px;
+      line-height: 1.6;
+    }
+    .header {
+      background: #ffcc00;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .section {
+      margin-top: 15px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      white-space: pre-line;
+    }
+    .highlight {
+      color: #d9534f;
+      font-weight: bold;
+    }
+    .footer {
+      margin-top: 20px;
+      font-style: italic;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="header" id="header"></div>
+
+  <div class="section" id="reminder"></div>
+  <div class="section" id="holidays"></div>
+  <div class="section" id="progress"></div>
+  <div class="section" id="salary"></div>
+  <div class="section" id="retire"></div>
+  <div class="section" id="english"></div>
+
+  <div class="footer">—— 摸鱼办温馨提示</div>
+
+<script>
+// 改成向上取整，避免出现 0 天的情况
+function daysBetween(d1, d2) {
+  const diff = d2 - d1;
+  return Math.ceil(diff / (1000*60*60*24));
+}
+
+function render() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth()+1;
+  const day = now.getDate();
+  const weekDay = ["周日","周一","周二","周三","周四","周五","周六"][now.getDay()];
+
+  document.getElementById("header").innerText =
+    `【摸鱼办】提醒您：${year}年${month}月${day}日，${weekDay}`;
+
+  // 随机提示库
+  const tips = [
+    "喝一杯水，补充能量。",
+    "伸展一下身体，放松肩颈。",
+    "看看窗外，休息眼睛。",
+    "走动几步，促进血液循环。",
+    "深呼吸三次，缓解压力。",
+    "整理一下桌面，换个心情。",
+    "听一首喜欢的歌，放松一下。",
+    "写下今天的一个小目标。",
+    "和同事聊两句，舒缓心情。",
+    "闭眼休息一分钟，恢复精神。",
+    "站起来伸个懒腰，舒展筋骨。",
+    "喝杯热茶，温暖身心。",
+    "眺望远方，让眼睛放松。",
+    "做几次深呼吸新鲜空气。",
+    "轻轻按摩太阳穴，缓解头痛。",
+    "播放轻音乐，舒缓神经。",
+    "整理文件，让工作环境更清爽。",
+    "给自己一个微笑，保持好心情。",
+    "走动一下，避免久坐带来的不适。",
+    "吃个水果，补充维生素。",
+    "眺望窗外的绿植，缓解眼疲劳。",
+    "做几下手部放松操。",
+    "泡一杯咖啡，享受片刻宁静。",
+    "翻翻喜欢的相册，回忆美好时光。",
+    "给绿植浇浇水，感受生命气息。",
+    "做做眼保健操，保护眼睛。",
+    "读几句喜欢的句子，滋养心灵。",
+    "整理一下抽屉，断舍离无用之物。",
+    "打个哈欠，伸个懒腰。",
+    "拍拍脸颊，让自己清醒。",
+    "揉揉肩膀，缓解紧张感。",
+    "涂个唇膏，护理一下自己。",
+    "整理发型，让自己更精神。",
+    "给自己泡杯柠檬水，清爽一下。",
+    "给家人发条消息，表达关心。",
+    "看看墙上的照片，回顾一下过往。",
+    "打开窗户通风透气。",
+    "做几组手指操，防止鼠标手。",
+    "品一块小零食，满足味蕾。",
+    "闭上眼睛小憩五分钟。",
+    "揉揉太阳穴，提神醒脑。",
+    "做做颈部运动，防止颈椎病。",
+    "听听鸟叫声，感受自然。",
+    "翻翻相册里的照片，回忆美好时光。",
+    "给自己揉揉肩颈。",
+    "翻几页喜欢的书。",
+    "写下今天感恩的三件事。",
+    "整理一下电脑桌面文件。",
+    "做一次深呼吸练习。",
+    "给自己倒杯温水。",
+    "看看窗外的云朵，放空大脑。",
+    "摆弄一下桌上的小摆件。",
+    "调整一下坐姿，保持舒适。",
+    "给手机充充电，保持电量充足。",
+    "闻一闻喜欢的香氛。",
+    "做一次简短的冥想。",
+    "伸直双腿，促进血液流动。",
+    "转动脚踝，活动一下关节。",
+    "活动一下手腕。",
+    "拍拍手臂，放松肌肉。",
+    "用指尖轻轻按摩头皮。",
+    "做几次扩胸运动。",
+    "轻轻敲打背部。",
+    "用手掌画圈按摩腹部。",
+    "活动一下腰部。",
+    "抖动双腿，放松肌肉。",
+    "闭上眼睛，听听周围的声音。",
+    "深呼吸，排出浊气。",
+    "喝一口温热的饮品。",
+    "看看天空的颜色。",
+    "调整显示器的高度。",
+    "整理一下键盘缝隙。",
+    "清洁一下鼠标垫，使用更顺畅。",
+    "欣赏一下桌上的绿植，放松心情。",
+    "转动腰部，活动脊椎。",
+    "用手背蹭蹭脸，放松面部。",
+    "揉揉耳朵，促进耳部循环。",
+    "做几次张嘴闭嘴的动作。",
+    "用手指轻轻按压眉心。",
+    "活动一下眼球，看远看近。",
+    "拍拍大腿外侧。",
+    "抖动双手，释放紧张。",
+    "转转脖子，注意动作轻柔。",
+    "做一次全面的身体扫描放松。",
+    "给自己一个拥抱。",
+    "微笑面对屏幕。",
+    "喝一口凉白开，清爽解渴。",
+    "起身倒杯水，活动一下。",
+    "整理一下桌面的小物件。",
+    "去接杯水，补充一下水分。",
+    "打开抽屉拿个小零食。",
+    "翻看一下日历，规划一下。",
+    "用笔在本子上画几笔。",
+    "打开窗户看看外面。",
+    "整理一下衣领。",
+    "调整一下椅子高度。",
+    "把脚尖朝上活动一下脚踝。",
+    "给自己扇扇风。",
+    "用凉水拍拍脸，清醒一下。",
+    "揉揉鼻子，疏通呼吸道。",
+    "做几次吸屏气的练习。",
+    "轻轻拍打胸部。",
+    "给抽屉里的小植物浇点水。",
+    "用便签纸写个小提醒。",
+    "整理一下数据线。",
+    "翻看一张老照片。",
+    "给绿植转个方向。",
+    "把椅子换个方向坐坐。",
+    "用手指在空中画圈。",
+    "做几次踮脚尖的动作。",
+    "闭上眼睛转动眼球。",
+    "把桌面收拾整洁，心情更舒畅。",
+    "整理一下笔筒。",
+    "欣赏一下自己的指甲，护理一下。",
+    "给台灯换个角度。",
+    "把文件夹重新排列整齐。",
+    "做一次八段锦的前两式。",
+    "揉揉虎口，保健养生。",
+    "给自己泡杯枸杞茶。",
+    "把空调温度调高一度。",
+    "打开窗帘让阳光进来。",
+    "翻翻喜欢的杂志，放松一下。",
+    "换一双舒适的拖鞋。",
+    "把水杯放到另一只手边。",
+    "给朋友发个表情包。",
+    "给桌面喷点清新剂，清新空气。",
+    "调整一下显示器的亮度。",
+    "数一数窗外的树叶。",
+    "用冷水浸湿的手帕敷敷眼睛。",
+    "做一次颈部轻柔的拉伸。",
+    "整理一下桌面上的书本。",
+    "欣赏一下自己的文具。",
+    "给自己一个微笑的理由。",
+    "给植物叶片喷点水。",
+    "用手指梳理一下头发。",
+    "抖抖双臂，放松肩膀。",
+    "调整坐姿让背部挺直。",
+    "望望窗外，看看街景。",
+    "整理一下抽屉里的票据。",
+    "做一次胸腔的扩张运动。",
+    "把笔帽盖好。",
+    "给窗台上的植物转个方向。",
+    "整理一下抽屉里的小物品。",
+    "整理一下桌面上的便签纸。",
+    "整理一下桌面小摆件。",
+    "做一次肩部环绕运动。",
+    "把椅子靠背调整一下。",
+    "给绿萝摘掉黄叶。",
+    "整理一下数据线的收纳。",
+    "深呼吸，感受此刻的宁静。",
+    "看看手机上的今天日程。",
+    "留意一下窗外的天气变化。",
+    "看看白板上的内容，换换思路。",
+    "活动一下小指头。",
+    "站起来踢踢腿。",
+    "把空调的出风口调整一下。",
+    "翻看一下未读的消息。",
+    "用冷水洗个手。",
+    "给自己一个肯定的眼神。",
+    "转动一下台灯的角度。",
+    "欣赏一下手机壁纸，回忆美好。",
+    "看看窗外的风景，放松眼睛。",
+    "看一眼窗外的天空，放松眼睛。",
+    "欣赏一下多肉植物的可爱形态。",
+    "整理一下抽屉里的小杂物。",
+    "深呼吸，感受此刻的平静。",
+    "给桌面植物转个方向，让它均匀生长。",
+    "用冷水拍拍脸清醒一下。",
+    "整理一下包里的文件。",
+    "翻翻喜欢的杂志，放松一下。",
+    "深呼吸，感恩此刻的安宁。"
+  ];
+  const tipIdx = Math.floor(Math.random() * tips.length);
+  const randomTip = tips[tipIdx];
+
+  // 随机开头语库
+  const greetings = [
+    "大家好，工作虽然辛苦，但也不要忘了休息，",
+    "亲爱的小伙伴们，忙碌的同时记得善待自己，",
+    "各位打工人注意啦，适当的休息能让效率翻倍，",
+    "温馨提示：再忙也要照顾好自己，",
+    "工作中的你最美，但别忘了适时放松，",
+    "给自己一个喘息的空隙吧，",
+    "忙碌之余，别忘了给身心放个假，",
+    "每一份努力都值得被珍重，记得劳逸结合，",
+    "工作再忙，也要给自己留一杯茶的时间，",
+    "打工人加油，但别忘了适时停下来充充电，",
+    "辛苦啦！记得给自己一个小小的奖励，",
+    "工作是一场马拉松，学会中途休息才能跑更远，",
+    "别让忙碌偷走了你的好心情，",
+    "适时放松，是为了更好地出发，",
+    "每一位认真工作的人，都值得被温柔以待，",
+    "记得多喝水，多眨眼，多站起来走动，",
+    "屏幕前的你，辛苦啦，",
+    "工作的间隙，给自己的心情放个假，",
+    "再忙也要记得微笑哦，",
+    "适当放空，才能装进更多美好，"
+  ];
+
+  // 随机结尾语库
+  const endings = [
+    "祝愿所有打工人愉快地度过每一天...",
+    "愿你今天的努力都有回报，记得好好休息...",
+    "愿你工作顺利，生活愉快，别忘了爱自己...",
+    "祝大家每天都元气满满，心情美美...",
+    "愿所有付出都不被辜负，休息是为了走更远的路...",
+    "祝各位小伙伴工作开心，生活顺意...",
+    "愿你被世界温柔以待，记得适时休息...",
+    "愿每一份忙碌都有意义，记得照顾好自己...",
+    "祝大家工作愉快，生活幸福，梦想成真...",
+    "愿你眼里有光，心里有梦，身边有人陪...",
+    "记得多喝水，早点睡，身体是革命的本钱...",
+    "愿你今天的辛苦都能变成明天的笑容...",
+    "打工人冲鸭！但别忘了休息哦...",
+    "愿所有美好都如期而至，记得微笑面对...",
+    "祝大家心情舒畅，工作顺利，万事如意...",
+    "愿你每一天都值得期待，记得犒劳自己...",
+    "工作很重要，但健康和快乐更重要...",
+    "愿你活成自己喜欢的样子，记得劳逸结合...",
+    "打工人最棒！记得好好吃饭，好好休息..."
+  ];
+
+  const greetingIdx = Math.floor(Math.random() * greetings.length);
+  const endingIdx = Math.floor(Math.random() * endings.length);
+  const greeting = greetings[greetingIdx];
+  const ending = endings[endingIdx];
+
+  document.getElementById("reminder").innerText =
+    greeting + randomTip + ending;
+
+  // 节日目标日期
+  const holidays = {
+    "清明": new Date(year, 3, 4),
+    "五一": new Date(year, 4, 1),
+    "端午": new Date(year, 5, 11),
+    "中秋": new Date(year, 8, 25),
+    "国庆": new Date(year, 9, 1),
+    "元旦": new Date(year+1, 0, 1),
+    "小年": new Date(year+1, 0, 20),
+    "春节": new Date(year+1, 0, 29)
+  };
+  let holidayText = "";
+  for (let h in holidays) {
+    holidayText += `距离【${h}】还有 ${daysBetween(now, holidays[h])} 天\n`;
+  }
+  document.getElementById("holidays").innerText = holidayText;
+
+  // 周一、月初、年初进度
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - now.getDay() + 1);
+  const monthStart = new Date(year, month-1, 1);
+  const yearStart = new Date(year, 0, 1);
+
+  const progressText =
+    `距离【周一】过去 ${daysBetween(monday, now)} 天\n` +
+    `距离【月初】过去 ${daysBetween(monthStart, now)} 天\n` +
+    `距离【年初】过去 ${daysBetween(yearStart, now)} 天\n`;
+  document.getElementById("progress").innerText = progressText;
+
+  // 工资日
+  const salaryDays = [1,5,7,10,12,15,20,25,30];
+  let salaryText = "";
+  for (let d of salaryDays) {
+    let target = new Date(year, month-1, d);
+    if (target < now) target = new Date(year, month, d);
+    salaryText += `距离【发工资】(${d}号)还有 ${daysBetween(now, target)} 天\n`;
+  }
+  document.getElementById("salary").innerText = salaryText;
+
+  // 退休（1995年出生）
+  const birthYear = 1995;
+  const retire58 = new Date(birthYear+58, 0, 1);
+  const retire63 = new Date(birthYear+63, 0, 1);
+  const retireText =
+    `距离【退休】还有 ${daysBetween(now, retire58)} 天 (1995年58岁退休)\n` +
+    `距离【退休】还有 ${daysBetween(now, retire63)} 天 (1995年63岁退休)\n`;
+  document.getElementById("retire").innerText = retireText;
+
+  // 每日英语句子库
+  const englishSentences = [
+    ["Open the door and let the new light in.","打开门，让新的光芒进来。"],
+    ["Keep going, no matter how hard it gets.","坚持下去，无论有多难。"],
+    ["Small steps lead to big changes.","小步伐也能带来大改变。"],
+    ["Smile, and the world smiles with you.","你微笑，世界也会与你同笑。"],
+    ["Dream big, start small, act now.","梦想要大，起步要小，行动要快。"],
+    ["Hope is the heartbeat of the soul.","希望是灵魂的心跳。"],
+    ["Courage is not the absence of fear.","勇气不是没有恐惧。"],
+    ["Every day is a new beginning.","每一天都是新的开始。"],
+    ["Knowledge is power.","知识就是力量。"],
+    ["Time waits for no one.","时间不等人。"],
+    ["You are stronger than you think.","你比你想象的更强大。"],
+    ["Believe in yourself and your dreams.","相信自己，相信梦想。"],
+    ["A journey of a thousand miles begins with a single step.","千里之行，始于足下。"],
+    ["The best time to plant a tree was twenty years ago. The second best time is now.","种一棵树最好的时间是二十年前，其次是现在。"],
+    ["What we think, we become.","我们想什么，就会成为什么。"],
+    ["The only way to do great work is to love what you do.","成就伟大工作的唯一方法是热爱你所做的。"],
+    ["Stay positive, stay happy.","保持积极，保持快乐。"],
+    ["Every moment is a fresh beginning.","每一个瞬间都是新的开始。"],
+    ["Life is what happens when you're busy making other plans.","生活就是当你忙于制定其他计划时发生的事情。"],
+    ["You make the world a better place.","你让世界变得更美好。"],
+    ["Be kind, you never know what someone is going through.","善良一点，你不知道别人正在经历什么。"],
+    ["The sun always comes out after the rain.","雨后总会有阳光。"],
+    ["Take a deep breath and relax.","深呼吸，放松一下。"],
+    ["You deserve all the good things.","你值得所有美好的事物。"],
+    ["Focus on the good in your life.","专注于生活中的美好。"],
+    ["Today is a perfect day to be happy.","今天是快乐的最佳日子。"],
+    ["Your smile can light up someone's day.","你的微笑可以照亮某人的一天。"],
+    ["Don't worry, be happy.","别担心，要快乐。"],
+    ["Every day is a chance to start anew.","每一天都是重新开始的机会。"],
+    ["You are exactly where you need to be.","你正是处于你需要在的位置。"],
+    ["Trust the timing of your life.","相信你人生的时机。"],
+    ["Be grateful for what you have.","感恩你所拥有的。"],
+    ["Today will be a good day.","今天会是美好的一天。"],
+    ["You are capable of amazing things.","你能做出惊人的事情。"],
+    ["Embrace the little joys of life.","拥抱生活中的小确幸。"],
+    ["Let your light shine.","让你的光芒闪耀。"],
+    ["You are loved and appreciated.","你被爱着，也被欣赏着。"],
+    ["Today is a day of new possibilities.","今天是充满新可能的一天。"],
+    ["Believe good things are coming.","相信美好的事情即将到来。"],
+    ["You make a difference in this world.","你让这个世界变得不同。"],
+    ["Take it one step at a time.","一步一步来。"],
+    ["You are enough.","你已经足够了。"],
+    ["Find beauty in the ordinary.","在平凡中发现美。"],
+    ["Be present in the moment.","活在当下。"],
+    ["Your potential is limitless.","你的潜力是无限的。"],
+    ["Choose happiness every day.","每天选择快乐。"],
+    ["You are an inspiration to others.","你是他人的灵感来源。"],
+    ["Today bring fresh opportunities.","今天带来新的机会。"],
+    ["Embrace who you are.","拥抱真实的自己。"],
+    ["You create your own sunshine.","你自己创造阳光。"],
+    ["Be the reason someone smiles today.","成为今天某人微笑的原因。"],
+    ["Your energy creates your world.","你的能量创造你的世界。"],
+    ["Enjoy the little things.","享受小事物。"],
+    ["You are braver than you believe.","你比你认为的更勇敢。"],
+    ["Hope is always available.","希望总是触手可及。"],
+    ["Let go of what you can't control.","放下你无法控制的。"],
+    ["Today is full of possibilities.","今天充满可能性。"],
+    ["You are worthy of good things.","你值得美好的事物。"],
+    ["Make today amazing.","让今天变得精彩。"],
+    ["Your hard work will pay off.","你的努力会有回报的。"],
+    ["Be patient with yourself.","对自己耐心一点。"],
+    ["You bring unique value to the world.","你为世界带来独特的价值。"],
+    ["Celebrate your progress.","庆祝你的进步。"],
+    ["You are making a difference.","你正在产生影响。"],
+    ["Good things are coming your way.","美好的事物正在向你走来。"],
+    ["Today is a gift, that's why it's called the present.","今天是礼物，所以它被称为现在。"],
+    ["You are stronger every day.","你每天都更强大。"],
+    ["Keep your face always toward the sunshine.","永远面向阳光。"],
+    ["You are a beacon of hope.","你是希望的灯塔。"],
+    ["Embrace each new day with enthusiasm.","热情地拥抱每一天。"],
+    ["Your kindness matters.","你的善良很重要。"],
+    ["You are more than enough.","你已经远超足够。"],
+    ["Find peace in the present moment.","在当下找到平静。"],
+    ["You deserve to be happy.","你值得快乐。"],
+    ["Today is another chance to grow.","今天是又一次成长的机会。"],
+    ["Your presence makes a difference.","你的存在会产生影响。"],
+    ["Choose joy over worry.","选择喜悦而非忧虑。"],
+    ["You are beautifully made.","你是如此美丽地被创造。"],
+    ["Embrace the journey.","拥抱这段旅程。"],
+    ["Your dreams are valid.","你的梦想是有效的。"],
+    ["Be gentle with yourself.","对自己温柔一点。"],
+    ["You are doing great things.","你正在做很棒的事情。"],
+    ["Today is full of potential.","今天充满潜力。"],
+    ["Trust your instincts.","相信你的直觉。"],
+    ["You are worthy of love and respect.","你值得被爱和尊重。"],
+    ["Let your joy be contagious.","让你的快乐具有感染力。"],
+    ["You have the power to change.","你有改变的力量。"],
+    ["Find happiness in the simple things.","在简单的事物中找到快乐。"],
+    ["You are a masterpiece in progress.","你是一件正在进展的杰作。"],
+    ["Be proud of how far you've come.","为你已经走了多远而自豪。"],
+    ["Your effort inspires others.","你的努力激励着他人。"],
+    ["Today is full of reasons to smile.","今天有无数微笑的理由。"],
+    ["You are deserving of all good things.","你应得所有美好的事物。"],
+    ["Embrace your unique journey.","拥抱你独特的旅程。"],
+    ["You bring light to those around you.","你为身边的人带来光亮。"],
+    ["Today is a fresh start.","今天是新的开始。"],
+    ["Your resilience is admirable.","你的韧性令人钦佩。"],
+    ["Be thankful for this moment.","感恩这一刻。"],
+    ["You are creating the life you want.","你正在创造你想要的生活。"],
+    ["Find beauty in every day.","在每一天中发现美。"],
+    ["You are unstoppable.","你是不可阻挡的。"],
+    ["Let peace fill your heart.","让平静充满你的心。"],
+    ["You are exactly right where you should be.","你正恰在其位。"],
+    ["Today brings new adventures.","今天带来新的冒险。"],
+    ["Your spirit is unbreakable.","你的精神是不可战胜的。"],
+    ["Embrace the gift of today.","拥抱今天的礼物。"],
+    ["You are surrounded by love.","你被爱包围着。"],
+    ["Make today count.","让今天变得有意义。"],
+    ["Your joy is valid.","你的快乐是正当的。"],
+    ["You are a gift to this world.","你是对这个世界的馈赠。"],
+    ["Be open to the good that's coming.","对未来可能到来的美好保持开放。"],
+    ["You are enough, just as you are.","你就是这样，已经足够。"],
+    ["Today is waiting for your magic.","今天等待着你的魔法。"],
+    ["Your dreams matter.","你的梦想很重要。"],
+    ["Be a lantern of positivity.","做一盏积极的灯笼。"],
+    ["You are creating beautiful memories.","你正在创造美好的回忆。"],
+    ["Today is yours to embrace.","今天属于你去拥抱。"],
+    ["Your kindness creates ripples.","你的善良会产生涟漪。"],
+    ["You deserve rest and peace.","你值得休息和平安。"],
+    ["See the good in every situation.","在每种情况下看到好的一面。"],
+    ["You are full of potential.","你充满潜力。"],
+    ["Today bring new reasons to hope.","今天带来新的希望理由。"],
+    ["Your authenticity is your power.","你的真实性就是你的力量。"],
+    ["Let gratitude fill your day.","让感恩充满你的一天。"],
+    ["You are making progress every day.","你每天都在进步。"],
+    ["Embrace the miracle of now.","拥抱当下的奇迹。"],
+    ["You light up every room you enter.","你照亮你进入的每个房间。"],
+    ["Today is a canvas of possibilities.","今天是可能性的画布。"],
+    ["Your hard work builds futures.","你的努力构建未来。"],
+    ["Be a source of positive energy.","成为正能量的源泉。"],
+    ["You are exactly what the world needs.","你正是世界所需要的。"],
+    ["Today is yours to make wonderful.","今天是你的，可以让它变得精彩。"],
+    ["Your journey is unique and valuable.","你的旅程是独特而有价值的。"],
+    ["You are writing your own story.","你正在书写自己的故事。"],
+    ["Find strength in the quiet moments.","在安静的时刻找到力量。"],
+    ["You are braver than you know.","你比你知道的更勇敢。"],
+    ["Let your heart guide you.","让你的心引导你。"],
+    ["You are worthy of every success.","你值得每一次成功。"],
+    ["Today is a new chapter waiting to be written.","今天是等待书写的新篇章。"],
+    ["Your presence is a gift to others.","你的存在是给他人的礼物。"],
+    ["Be gentle with your soul.","对你的灵魂温柔一点。"],
+    ["You are creating something beautiful.","你正在创造美好的事物。"],
+    ["Today offers countless blessings.","今天提供了无数的祝福。"],
+    ["Your determination inspires.","你的决心激励人心。"],
+    ["Find joy in the ordinary moments.","在平凡的时刻找到快乐。"],
+    ["You are becoming the best version of yourself.","你正在成为最好的自己。"],
+    ["Today is a reason to celebrate.","今天是值得庆祝的理由。"],
+    ["Your resilience builds character.","你的韧性塑造性格。"],
+    ["Be open to life's surprises.","对生活的惊喜保持开放。"],
+    ["You are creating lasting impact.","你正在创造持久的影响。"],
+    ["Today is a stepping stone to your dreams.","今天是通往梦想的垫脚石。"],
+    ["Your spirit shines bright.","你的精神闪耀着光芒。"],
+    ["Embrace the adventure of each day.","拥抱每天的冒险。"],
+    ["You are surrounded by endless possibilities.","你被无限的可能性包围着。"],
+    ["Make today one to remember.","让今天成为一个值得记住的日子。"],
+    ["Your courage moves mountains.","你的勇气可以移山。"],
+    ["You are deserving of happiness and peace.","你值得快乐和平安。"],
+    ["Today is a treasure waiting to be opened.","今天是等待打开的宝藏。"],
+    ["Your dreams are within reach.","你的梦想触手可及。"],
+    ["Be a beacon of hope and love.","成为希望和爱的灯塔。"],
+    ["You are rewriting your destiny.","你正在重写你的命运。"],
+    ["Today is the start of something wonderful.","今天是美好事物的开始。"],
+    ["Your kindness changes the world.","你的善良改变世界。"],
+    ["You are a source of endless inspiration.","你是无尽灵感的源泉。"],
+    ["Let today's joy fill your soul.","让今天的快乐充满你的灵魂。"],
+    ["You are ready for great things.","你已经准备好成就伟大。"],
+    ["Today is yours to shine.","今天是你的，去闪耀吧。"]
+  ];
+  const idx = Math.floor(Math.random() * englishSentences.length);
+  const [en, cn] = englishSentences[idx];
+  document.getElementById("english").innerHTML =
+    `<strong>【每日英语】</strong><br>${en}<br>${cn}`;
+}
+
+render();
+</script>
+</body>
+</html>
