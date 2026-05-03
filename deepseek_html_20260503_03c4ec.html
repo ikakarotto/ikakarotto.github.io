@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code 完全入门指南 · Claude How To</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #1a1a2e;
+            line-height: 1.7;
+            display: flex;
+            min-height: 100vh;
+        }
+        /* 侧边栏 */
+        aside.sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 2rem 1.2rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid #1e293b;
+        }
+        aside.sidebar h2 {
+            font-size: 1.15rem;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.5rem;
+        }
+        aside.sidebar nav a {
+            display: block;
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.35rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+            transition: all 0.2s;
+        }
+        aside.sidebar nav a:hover {
+            background: #1e293b;
+            color: #ffffff;
+            padding-left: 0.75rem;
+        }
+        aside.sidebar nav a.sub {
+            padding-left: 1.5rem;
+            font-size: 0.82rem;
+        }
+        aside.sidebar nav a.sub:hover {
+            padding-left: 1.7rem;
+        }
+        /* 内容区 */
+        main.content {
+            flex: 1;
+            padding: 2rem 3rem;
+            max-width: 960px;
+            overflow-y: auto;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 0.4rem;
+        }
+        h2 {
+            font-size: 1.6rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+            border-left: 4px solid #3b82f6;
+            padding-left: 0.8rem;
+        }
+        h3 {
+            font-size: 1.25rem;
+            margin-top: 1.8rem;
+            margin-bottom: 0.8rem;
+            color: #334155;
+        }
+        p, li {
+            margin-bottom: 0.8rem;
+        }
+        code {
+            background: #e2e8f0;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-family: 'Fira Code', 'Courier New', monospace;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.2rem 1.5rem;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 1.2rem 0;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2rem 0;
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 0.7rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #334155;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            border: 1px solid #e2e8f0;
+        }
+        .badge {
+            display: inline-block;
+            background: #3b82f6;
+            color: #fff;
+            padding: 0.15rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-right: 0.3rem;
+        }
+        .tips {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem 1.2rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.2rem 0;
+        }
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        hr {
+            margin: 2rem 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            aside.sidebar { width: 100%; min-width: 100%; height: auto; position: relative; }
+            main.content { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <aside class="sidebar">
+        <h2>📘 快速导航</h2>
+        <nav>
+            <a href="#intro">🚀 项目简介</a>
+            <a href="#roadmap">🗺️ 学习路线图</a>
+            <a href="#catalog">📇 功能目录</a>
+            <a href="#mod1" class="sub">01 · Slash Commands</a>
+            <a href="#mod2" class="sub">02 · Memory</a>
+            <a href="#mod3" class="sub">03 · Skills</a>
+            <a href="#mod4" class="sub">04 · Subagents</a>
+            <a href="#mod5" class="sub">05 · MCP 协议</a>
+            <a href="#mod6" class="sub">06 · Hooks</a>
+            <a href="#mod7" class="sub">07 · Plugins</a>
+            <a href="#mod8" class="sub">08 · Checkpoints</a>
+            <a href="#mod9" class="sub">09 · 高级功能</a>
+            <a href="#mod10" class="sub">10 · CLI 参考</a>
+            <a href="#contribute">🤝 参与贡献</a>
+        </nav>
+    </aside>
+
+    <!-- 主要内容 -->
+    <main class="content">
+        <!-- 标题 -->
+        <h1 id="intro">用一个周末掌握 Claude Code</h1>
+        <p>从输入 <code>claude</code> 开始，到编排 agents、hooks、skills 和 MCP servers，全程配有可视化教程、可直接复制粘贴的模板，以及循序渐进的学习路径。</p>
+        <p><strong>仓库地址：</strong><a href="https://github.com/luongnv89/claude-howto" target="_blank">luongnv89/claude-howto</a> · MIT 许可证 · 中文版</p>
+
+        <div class="card">
+            <h3>🎯 这份指南解决的问题</h3>
+            <ul>
+                <li><strong>官方文档只介绍功能，不会教你组合它们。</strong> 你知道 slash commands 存在，但不知道怎样把它们和 hooks、memory、subagents 串起来。</li>
+                <li><strong>没有清晰的学习路径。</strong> 应该先学 MCP 还是 hooks？先学 skills 还是 subagents？结果每样都看了一点，没有一个真正掌握。</li>
+                <li><strong>示例太基础。</strong> 一个 "hello world" 级别的 slash command 并不能帮你构建生产环境的代码审查流水线。</li>
+            </ul>
+        </div>
+
+        <!-- 学习路线图 -->
+        <h2 id="roadmap">🗺️ 学习路线图</h2>
+        <p>无论你是完全新手，还是经验丰富的开发者，都可以先做自我评估，找到最适合自己的起点。</p>
+
+        <div class="card">
+            <h3>自我评估测验</h3>
+            <p>请诚实回答下面的问题（勾选数决定你的起点）：</p>
+            <ol>
+                <li>我可以启动 Claude Code 并与它对话（<code>claude</code>）</li>
+                <li>我创建或编辑过 <code>CLAUDE.md</code></li>
+                <li>我至少使用过 3 个内置 slash command（例如 <code>/help</code>、<code>/compact</code>、<code>/model</code>）</li>
+                <li>我创建过自定义 slash command 或 skill（<code>SKILL.md</code>）</li>
+                <li>我配置过 MCP server（例如 GitHub、数据库）</li>
+                <li>我在 <code>~/.claude/settings.json</code> 中设置过 hooks</li>
+                <li>我创建或使用过自定义 subagents（<code>.claude/agents/</code>）</li>
+                <li>我使用过 print mode（<code>claude -p</code>）做脚本或 CI/CD</li>
+            </ol>
+            <table>
+                <tr><th>勾选数</th><th>水平</th><th>完成时间</th></tr>
+                <tr><td>0-2</td><td>Level 1：Beginner</td><td>约 3 小时</td></tr>
+                <tr><td>3-5</td><td>Level 2：Intermediate</td><td>约 5 小时</td></tr>
+                <tr><td>6-8</td><td>Level 3：Advanced</td><td>约 5 小时</td></tr>
+            </table>
+            <p>💡 <strong>提示：</strong>不确定时宁可从低一级开始。在 Claude Code 中运行 <code>/self-assessment</code> 可获得交互式引导。</p>
+        </div>
+
+        <h3>学习路径概览</h3>
+        <pre><code>Level 1：Beginner
+├── 1A：第一个命令与 Memory（Slash Commands + Memory）
+└── 1B：安全探索（Checkpoints + CLI Basics）
+
+Level 2：Intermediate
+├── 2A：自动化（Skills + Hooks）
+└── 2B：集成（MCP + Subagents）
+
+Level 3：Advanced
+├── 3A：高级功能（Planning + Permissions）
+└── 3B：团队与分发（Plugins + CLI 精通）</code></pre>
+
+        <!-- 功能目录 -->
+        <h2 id="catalog">📇 功能目录</h2>
+        <table>
+            <tr><th>功能</th><th>内置</th><th>示例</th><th>总数</th></tr>
+            <tr><td>Slash Commands</td><td>55+</td><td>8</td><td>63+</td></tr>
+            <tr><td>Subagents</td><td>6</td><td>10</td><td>16</td></tr>
+            <tr><td>Skills</td><td>5 个内置</td><td>4</td><td>9</td></tr>
+            <tr><td>Plugins</td><td>-</td><td>3</td><td>3</td></tr>
+            <tr><td>MCP Servers</td><td>1</td><td>8</td><td>9</td></tr>
+            <tr><td>Hooks</td><td>25 个事件</td><td>7</td><td>7</td></tr>
+            <tr><td>Memory</td><td>7 种类型</td><td>3</td><td>3</td></tr>
+            <tr><td><strong>总计</strong></td><td><strong>99</strong></td><td><strong>43</strong></td><td><strong>117</strong></td></tr>
+        </table>
+
+        <h3>功能选择指南</h3>
+        <table>
+            <tr><th>需求</th><th>推荐功能</th><th>原因</th></tr>
+            <tr><td>快捷命令</td><td>Slash Command</td><td>手动、立即执行</td></tr>
+            <tr><td>持久上下文</td><td>Memory</td><td>自动加载</td></tr>
+            <tr><td>复杂自动化</td><td>Skill</td><td>自动触发</td></tr>
+            <tr><td>专门任务</td><td>Subagent</td><td>隔离上下文</td></tr>
+            <tr><td>外部数据</td><td>MCP Server</td><td>实时访问</td></tr>
+            <tr><td>事件自动化</td><td>Hook</td><td>事件触发</td></tr>
+            <tr><td>完整解决方案</td><td>Plugin</td><td>一体化打包</td></tr>
+        </table>
+
+        <div class="tips">
+            <strong>⚡ 15 分钟快速上手：</strong><br>
+            <code>cp 01-slash-commands/optimize.md .claude/commands/</code><br>
+            然后在 Claude Code 中运行 <code>/optimize</code>，即可获得第一个立竿见影的成果。
+        </div>
+
+        <!-- 模块 1：Slash Commands -->
+        <h2 id="mod1">01 · Slash Commands（斜杠命令）</h2>
+        <p>Slash command 是你在 Claude 交互式会话中用来控制行为的快捷方式，主要分为内置命令、Skills 和插件命令。</p>
+
+        <h3>常用内置命令速查</h3>
+        <table>
+            <tr><th>命令</th><th>作用</th></tr>
+            <tr><td><code>/help</code></td><td>显示帮助信息</td></tr>
+            <tr><td><code>/clear</code></td><td>清空对话历史</td></tr>
+            <tr><td><code>/compact</code></td><td>压缩对话，可附带聚焦指令</td></tr>
+            <tr><td><code>/config</code></td><td>打开设置</td></tr>
+            <tr><td><code>/cost</code></td><td>查看 token 使用统计</td></tr>
+            <tr><td><code>/diff</code></td><td>查看未提交更改的交互式 diff</td></tr>
+            <tr><td><code>/doctor</code></td><td>检查安装健康状态</td></tr>
+            <tr><td><code>/export</code></td><td>将当前对话导出为文件</td></tr>
+            <tr><td><code>/init</code></td><td>初始化 CLAUDE.md</td></tr>
+            <tr><td><code>/mcp</code></td><td>管理 MCP servers</td></tr>
+            <tr><td><code>/model</code></td><td>选择模型</td></tr>
+            <tr><td><code>/plan</code></td><td>进入规划模式</td></tr>
+            <tr><td><code>/rewind</code></td><td>回退到 checkpoint</td></tr>
+            <tr><td><code>/sandbox</code></td><td>切换 sandbox 模式</td></tr>
+            <tr><td><code>/status</code></td><td>显示会话状态</td></tr>
+        </table>
+
+        <p><strong>提示：</strong>在 Claude Code 中输入 <code>/</code> 即可查看所有命令，也可以输入 <code>/</code> 后继续键入字母进行筛选。</p>
+
+        <!-- 模块 2：Memory -->
+        <h2 id="mod2">02 · Memory（记忆系统）</h2>
+        <p>Memory 让 Claude Code 在不同会话之间保留上下文。你可以把团队规范、项目规则、个人偏好写进 <code>CLAUDE.md</code>。</p>
+
+        <h3>Memory 层级</h3>
+        <table>
+            <tr><th>层级</th><th>作用范围</th><th>典型内容</th></tr>
+            <tr><td>受管策略</td><td>组织级</td><td>合规、安全、统一流程</td></tr>
+            <tr><td>项目记忆</td><td>单个项目</td><td>架构、编码标准、工作流</td></tr>
+            <tr><td>目录记忆</td><td>子目录</td><td>模块约束、局部规范</td></tr>
+            <tr><td>用户记忆</td><td>单个用户</td><td>个人偏好、默认设置</td></tr>
+        </table>
+
+        <pre><code># 快速上手：初始化 Memory
+/init
+
+# 快速更新记忆（在输入前加 #）
+# 这个项目始终使用 TypeScript 严格模式
+# 优先使用 async/await，而不是 promise 链
+# 每次提交前都运行 npm test
+
+# 使用 /memory 打开记忆编辑器
+/memory</code></pre>
+
+        <!-- 模块 3：Skills -->
+        <h2 id="mod3">03 · Skills（技能）</h2>
+        <p>Skills 是可以复用、可自动触发的能力包。一个 skill 通常包含 <code>SKILL.md</code>、参考文件、脚本和模板。Claude 在合适的场景下会自动加载它。</p>
+
+        <h3>三层加载机制（渐进式披露）</h3>
+        <ol>
+            <li><strong>只看描述：</strong>先判断这个 skill 是否相关</li>
+            <li><strong>加载 SKILL.md：</strong>读取核心说明</li>
+            <li><strong>按需加载支持文件：</strong>脚本、模板、参考资料</li>
+        </ol>
+
+        <h3>创建自定义 Skill</h3>
+        <pre><code>my-skill/
+└── SKILL.md</code></pre>
+        <pre><code>---
+name: my-skill
+description: 这个 skill 的用途，以及什么时候触发
+---
+# Your Skill Name
+
+## Instructions
+
+## Examples</code></pre>
+
+        <p><strong>最佳实践：</strong>描述要具体、保持聚焦、包含触发词、SKILL.md 控制在 500 行以内。</p>
+
+        <!-- 模块 4：Subagents -->
+        <h2 id="mod4">04 · Subagents（子代理）</h2>
+        <p>Subagents 是专门处理某类任务的独立 AI 助手。它们拥有隔离的上下文、自己的提示词和工具权限，适合把复杂工作拆分给不同角色。</p>
+
+        <h3>配置示例</h3>
+        <pre><code>---
+name: code-reviewer
+description: 审查代码质量和安全问题
+tools: Read, Grep, Bash
+---
+# Code Reviewer</code></pre>
+
+        <p><strong>内置 Subagents：</strong>通用助手、Planning agent、Explore agent、Bash agent 等。</p>
+
+        <p><strong>管理命令：</strong><code>/agents</code> 列出可用 agents；<code>claude agents</code> 在 CLI 中查看。</p>
+
+        <!-- 模块 5：MCP -->
+        <h2 id="mod5">05 · MCP（Model Context Protocol）</h2>
+        <p>MCP 是 Claude Code 访问外部工具、服务和 API 的标准协议。你可以把 GitHub、数据库、文件系统等都接到 Claude 里。</p>
+
+        <h3>常见 MCP Servers</h3>
+        <table>
+            <tr><th>Server</th><th>说明</th><th>安装</th></tr>
+            <tr><td>GitHub</td><td>PR 管理、issues、代码</td><td><code>claude mcp add github -- npx -y @modelcontextprotocol/server-github</code></td></tr>
+            <tr><td>Database</td><td>SQL 查询、数据访问</td><td><code>claude mcp add db -- npx -y @modelcontextprotocol/server-postgres</code></td></tr>
+            <tr><td>Filesystem</td><td>高级文件操作</td><td><code>claude mcp add fs -- npx -y @modelcontextprotocol/server-filesystem</code></td></tr>
+        </table>
+
+        <pre><code># 快速安装 GitHub MCP
+export GITHUB_TOKEN="your_token" && claude mcp add github -- npx -y @modelcontextprotocol/server-github</code></pre>
+
+        <!-- 模块 6：Hooks -->
+        <h2 id="mod6">06 · Hooks（事件钩子）</h2>
+        <p>Hooks 是在 Claude Code 事件发生时自动执行的 shell 命令，用来做格式化、校验、通知、审计等自动化工作。</p>
+
+        <h3>Hook 事件类型</h3>
+        <ul>
+            <li><strong>Tool Hooks：</strong>PreToolUse、PostToolUse、PostToolUseFailure、PermissionRequest</li>
+            <li><strong>Session Hooks：</strong>SessionStart、SessionEnd、Stop、StopFailure、SubagentStart、SubagentStop</li>
+            <li><strong>Task Hooks：</strong>UserPromptSubmit、TaskCompleted、TaskCreated、TeammateIdle</li>
+            <li><strong>Lifecycle Hooks：</strong>ConfigChange、CwdChanged、FileChanged、PreCompact、PostCompact 等</li>
+        </ul>
+
+        <pre><code># 安装 hooks
+mkdir -p ~/.claude/hooks
+cp 06-hooks/*.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/*.sh
+
+# 在 ~/.claude/settings.json 中配置：
+{
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "Write",
+      "hooks": ["~/.claude/hooks/format-code.sh"]
+    }]
+  }
+}</code></pre>
+
+        <!-- 模块 7：Plugins -->
+        <h2 id="mod7">07 · Plugins（插件）</h2>
+        <p>Claude Code 插件是把 slash commands、subagents、MCP servers 和 hooks 组合在一起的功能集合，可以通过一条命令安装。</p>
+
+        <h3>示例插件</h3>
+        <table>
+            <tr><th>Plugin</th><th>说明</th><th>安装</th></tr>
+            <tr><td>pr-review</td><td>PR 审查工作流</td><td><code>/plugin install pr-review</code></td></tr>
+            <tr><td>devops-automation</td><td>部署与监控</td><td><code>/plugin install devops-automation</code></td></tr>
+            <tr><td>documentation</td><td>文档生成套件</td><td><code>/plugin install documentation</code></td></tr>
+        </table>
+
+        <!-- 模块 8：Checkpoints -->
+        <h2 id="mod8">08 · Checkpoints & Rewind（检查点与回退）</h2>
+        <p>Checkpoints 可以让你保存对话状态，并在 Claude Code 会话中回退到之前的时间点。无论你是在探索不同方案、修复错误，还是比较多个实现路径，这个能力都非常有用。</p>
+
+        <h3>核心概念</h3>
+        <table>
+            <tr><th>概念</th><th>说明</th></tr>
+            <tr><td>Checkpoint</td><td>保存消息、文件和上下文的对话快照</td></tr>
+            <tr><td>Rewind</td><td>回到之前的 checkpoint，并丢弃之后的更改</td></tr>
+            <tr><td>Branch Point</td><td>从同一个 checkpoint 出发，探索多个方案</td></tr>
+        </table>
+
+        <h3>使用方法</h3>
+        <ul>
+            <li><strong>快捷键：</strong>按两次 Esc（Esc + Esc）打开 checkpoint 界面</li>
+            <li><strong>命令：</strong><code>/rewind</code> 或 <code>/checkpoint</code></li>
+        </ul>
+
+        <h3>Rewind 选项</h3>
+        <ol>
+            <li>恢复代码和对话</li>
+            <li>恢复对话（只回退消息）</li>
+            <li>恢复代码（只回退文件修改）</li>
+            <li>从这里开始总结</li>
+            <li>算了（取消）</li>
+        </ol>
+
+        <div class="tips">
+            <strong>💡 自动 Checkpoints：</strong>每次用户输入都会自动创建 checkpoint，跨会话保留，30 天后自动清理。
+        </div>
+
+        <!-- 模块 9：高级功能 -->
+        <h2 id="mod9">09 · 高级功能</h2>
+        <p>Claude Code 的高级功能把基础能力扩展到了规划、推理、自动化和控制层面。</p>
+
+        <h3>核心高级功能</h3>
+        <ul>
+            <li><strong>Planning Mode：</strong>先写详细实现计划，再开始编码（<code>/plan</code>）</li>
+            <li><strong>Extended Thinking：</strong>对复杂问题进行更深入的推理（Alt+T / Option+T 切换）</li>
+            <li><strong>Background Tasks：</strong>长时间任务不阻塞对话</li>
+            <li><strong>Permission Modes：</strong>default、acceptEdits、plan、auto、dontAsk、bypassPermissions</li>
+            <li><strong>Print Mode：</strong>非交互式运行，适合自动化和 CI/CD（<code>claude -p</code>）</li>
+            <li><strong>Session Management：</strong><code>/resume</code>、<code>/rename</code>、<code>/fork</code> 等</li>
+            <li><strong>Voice Dictation：</strong>按住说话，支持 20 种语言的语音识别</li>
+            <li><strong>Agent Teams：</strong>多个 agent 协同处理复杂任务</li>
+            <li><strong>Auto Mode：</strong>由后台安全分类器在每一步执行前进行审查</li>
+        </ul>
+
+        <!-- 模块 10：CLI 参考 -->
+        <h2 id="mod10">10 · CLI 参考</h2>
+        <p>Claude Code 的 CLI（命令行接口）是与 Claude Code 交互的主要方式。</p>
+
+        <h3>核心命令</h3>
+        <table>
+            <tr><th>命令</th><th>说明</th><th>示例</th></tr>
+            <tr><td><code>claude</code></td><td>启动交互式 REPL</td><td><code>claude</code></td></tr>
+            <tr><td><code>claude "query"</code></td><td>带初始提示启动 REPL</td><td><code>claude "解释这个项目"</code></td></tr>
+            <tr><td><code>claude -p "query"</code></td><td>打印模式，查询后退出</td><td><code>claude -p "解释这个函数"</code></td></tr>
+            <tr><td><code>cat file | claude -p</code></td><td>处理管道传入的内容</td><td><code>cat logs.txt | claude -p "解释这些日志"</code></td></tr>
+            <tr><td><code>claude -c</code></td><td>继续最近一次会话</td><td><code>claude -c</code></td></tr>
+            <tr><td><code>claude -r</code></td><td>通过 ID 或名称恢复会话</td><td><code>claude -r "auth-refactor"</code></td></tr>
+            <tr><td><code>claude update</code></td><td>更新到最新版本</td><td><code>claude update</code></td></tr>
+            <tr><td><code>claude mcp</code></td><td>配置 MCP servers</td><td><code>claude mcp add github -- ...</code></td></tr>
+        </table>
+
+        <h3>核心标志</h3>
+        <table>
+            <tr><th>参数</th><th>说明</th></tr>
+            <tr><td><code>-p, --print</code></td><td>不进入交互式模式，直接输出结果</td></tr>
+            <tr><td><code>-c, --continue</code></td><td>加载最近一次会话</td></tr>
+            <tr><td><code>-r, --resume</code></td><td>按 ID 或名称恢复指定会话</td></tr>
+            <tr><td><code>-v, --version</code></td><td>输出版本号</td></tr>
+            <tr><td><code>-w, --worktree</code></td><td>在隔离的 git worktree 中启动</td></tr>
+            <tr><td><code>-n, --name</code></td><td>设置会话显示名称</td></tr>
+        </table>
+
+        <!-- 参与贡献 -->
+        <h2 id="contribute">🤝 参与贡献</h2>
+        <p>Claude How To 是一份面向 Claude Code 的可视化、以示例驱动的学习指南。我们欢迎各种形式的贡献。</p>
+
+        <h3>贡献类型</h3>
+        <ol>
+            <li><strong>新示例或新模板：</strong>为已有功能补充可复制粘贴的代码示例</li>
+            <li><strong>文档改进：</strong>澄清容易混淆的内容、修复拼写和语法问题</li>
+            <li><strong>功能指南：</strong>为新的 Claude Code 功能编写分步骤教程和架构图</li>
+            <li><strong>Bug 报告：</strong>报告期望行为、实际结果和复现步骤</li>
+            <li><strong>反馈与建议：</strong>建议更好的解释方式、指出覆盖不足的地方</li>
+        </ol>
+
+        <h3>快速开始</h3>
+        <pre><code># 1. Fork 并克隆
+git clone https://github.com/luongnv89/claude-howto.git
+cd claude-howto
+
+# 2. 创建分支
+git checkout -b add/feature-name
+
+# 3. 安装依赖并启用 pre-commit hooks
+pip install uv
+uv venv
+source .venv/bin/activate
+uv pip install -r scripts/requirements-dev.txt
+uv pip install pre-commit
+pre-commit install
+
+# 4. 验证配置
+pre-commit run --all-files</code></pre>
+
+        <hr>
+        <p style="text-align: center; color: #64748b; font-size: 0.9rem;">
+            📘 文档基于 <a href="https://github.com/luongnv89/claude-howto" target="_blank">luongnv89/claude-howto</a> 仓库 zh 文件夹内容整理 · MIT 许可证 · 最后更新：2026 年 4 月
+        </p>
+    </main>
+</body>
+</html>
