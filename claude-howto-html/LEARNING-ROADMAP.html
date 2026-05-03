@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Roadmap - Claude How To</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-code: #f1f3f5;
+  --text: #1a1a2e;
+  --text-secondary: #495057;
+  --accent: #22c55e;
+  --accent-dark: #16a34a;
+  --accent-bg: #f0fdf4;
+  --border: #e5e7eb;
+  --sidebar-w: 280px;
+  --header-h: 56px;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  z-index: 100;
+}
+.site-header .logo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.site-header .logo span { color: var(--accent); }
+.site-header nav { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.site-header nav a {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.site-header nav a:hover,
+.site-header nav a.active {
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 20px 0;
+  z-index: 50;
+  scrollbar-width: thin;
+}
+.sidebar::-webkit-scrollbar { width: 5px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.sidebar-section {
+  margin-bottom: 8px;
+}
+.sidebar-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  padding: 8px 20px 4px;
+}
+.sidebar a {
+  display: block;
+  padding: 6px 20px 6px 28px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+  line-height: 1.5;
+}
+.sidebar a:hover {
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+}
+.sidebar a.active {
+  border-left-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+.sidebar .module-num {
+  display: inline-block;
+  width: 22px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ---------- Main content ---------- */
+.main-content {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--header-h);
+  min-height: calc(100vh - var(--header-h));
+}
+.content-wrapper {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+}
+
+/* ---------- Typography ---------- */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  color: var(--text);
+}
+h1 { font-size: 2rem; margin-top: 0; border-bottom: 2px solid var(--accent); padding-bottom: 0.3em; }
+h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.2rem; }
+h4 { font-size: 1.05rem; }
+
+h1:first-child { margin-top: 0; }
+
+p { margin-bottom: 1em; }
+
+a { color: var(--accent-dark); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+strong { font-weight: 700; }
+
+/* ---------- Lists ---------- */
+ul, ol { margin: 0.5em 0 1em 1.5em; }
+li { margin-bottom: 0.35em; }
+li > ul, li > ol { margin-top: 0.3em; margin-bottom: 0.3em; }
+
+/* ---------- Code ---------- */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--bg-code);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: #d63384;
+}
+pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  margin: 1em 0 1.2em;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  box-shadow: var(--shadow);
+}
+pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Pygments dark theme override */
+.highlight { background: #1e293b; border-radius: var(--radius); margin: 1em 0 1.2em; overflow-x: auto; }
+.highlight pre { margin: 0; box-shadow: none; }
+code.language-mermaid { display: block; background: #f8fafc; color: #334155; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); white-space: pre-wrap; font-size: 0.85rem; }
+
+/* ---------- Tables ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0 1.2em;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+thead { background: var(--accent-bg); }
+th {
+  font-weight: 700;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent-dark);
+}
+td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) { background: var(--bg-secondary); }
+tr:hover { background: var(--accent-bg); }
+
+/* ---------- Blockquote ---------- */
+blockquote {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-bg);
+  padding: 12px 16px;
+  margin: 1em 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text-secondary);
+}
+blockquote p:last-child { margin-bottom: 0; }
+
+/* ---------- HR ---------- */
+hr {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 2em 0;
+}
+
+/* ---------- Images ---------- */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+
+/* ---------- Details / Collapsible ---------- */
+details {
+  margin: 1em 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0;
+  overflow: hidden;
+}
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid transparent;
+  transition: background 0.15s;
+}
+details summary:hover { background: var(--accent-bg); }
+details[open] summary { border-bottom-color: var(--border); }
+details > *:not(summary) { padding: 0 16px; }
+details > *:last-child { padding-bottom: 16px; }
+
+/* ---------- Badges / Images ---------- */
+p > img[src*="shields.io"] { display: inline-block; margin: 2px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; }
+  .content-wrapper { padding: 24px 16px 60px; }
+  .site-header nav { display: none; }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  .sidebar, .site-header { display: none; }
+  .main-content { margin: 0; }
+  .content-wrapper { max-width: 100%; padding: 0; }
+  pre { white-space: pre-wrap; word-break: break-all; }
+}
+
+/* ---------- TOC (in-page) ---------- */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 1.5em 0;
+}
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc > ul > li { margin-bottom: 4px; }
+.toc a { font-size: 0.9rem; }
+.toc ul ul { padding-left: 1.2em; }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #1e293b;  background: #272822; color: #F8F8F2 }
+.highlight .c { color: #959077 } /* Comment */
+.highlight .err { color: #ED007E; background-color: #1E0010 } /* Error */
+.highlight .esc { color: #F8F8F2 } /* Escape */
+.highlight .g { color: #F8F8F2 } /* Generic */
+.highlight .k { color: #66D9EF } /* Keyword */
+.highlight .l { color: #AE81FF } /* Literal */
+.highlight .n { color: #F8F8F2 } /* Name */
+.highlight .o { color: #FF4689 } /* Operator */
+.highlight .x { color: #F8F8F2 } /* Other */
+.highlight .p { color: #F8F8F2 } /* Punctuation */
+.highlight .ch { color: #959077 } /* Comment.Hashbang */
+.highlight .cm { color: #959077 } /* Comment.Multiline */
+.highlight .cp { color: #959077 } /* Comment.Preproc */
+.highlight .cpf { color: #959077 } /* Comment.PreprocFile */
+.highlight .c1 { color: #959077 } /* Comment.Single */
+.highlight .cs { color: #959077 } /* Comment.Special */
+.highlight .gd { color: #FF4689 } /* Generic.Deleted */
+.highlight .ge { color: #F8F8F2; font-style: italic } /* Generic.Emph */
+.highlight .ges { color: #F8F8F2; font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #F8F8F2 } /* Generic.Error */
+.highlight .gh { color: #F8F8F2 } /* Generic.Heading */
+.highlight .gi { color: #A6E22E } /* Generic.Inserted */
+.highlight .go { color: #66D9EF } /* Generic.Output */
+.highlight .gp { color: #FF4689; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { color: #F8F8F2; font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #959077 } /* Generic.Subheading */
+.highlight .gt { color: #F8F8F2 } /* Generic.Traceback */
+.highlight .kc { color: #66D9EF } /* Keyword.Constant */
+.highlight .kd { color: #66D9EF } /* Keyword.Declaration */
+.highlight .kn { color: #FF4689 } /* Keyword.Namespace */
+.highlight .kp { color: #66D9EF } /* Keyword.Pseudo */
+.highlight .kr { color: #66D9EF } /* Keyword.Reserved */
+.highlight .kt { color: #66D9EF } /* Keyword.Type */
+.highlight .ld { color: #E6DB74 } /* Literal.Date */
+.highlight .m { color: #AE81FF } /* Literal.Number */
+.highlight .s { color: #E6DB74 } /* Literal.String */
+.highlight .na { color: #A6E22E } /* Name.Attribute */
+.highlight .nb { color: #F8F8F2 } /* Name.Builtin */
+.highlight .nc { color: #A6E22E } /* Name.Class */
+.highlight .no { color: #66D9EF } /* Name.Constant */
+.highlight .nd { color: #A6E22E } /* Name.Decorator */
+.highlight .ni { color: #F8F8F2 } /* Name.Entity */
+.highlight .ne { color: #A6E22E } /* Name.Exception */
+.highlight .nf { color: #A6E22E } /* Name.Function */
+.highlight .nl { color: #F8F8F2 } /* Name.Label */
+.highlight .nn { color: #F8F8F2 } /* Name.Namespace */
+.highlight .nx { color: #A6E22E } /* Name.Other */
+.highlight .py { color: #F8F8F2 } /* Name.Property */
+.highlight .nt { color: #FF4689 } /* Name.Tag */
+.highlight .nv { color: #F8F8F2 } /* Name.Variable */
+.highlight .ow { color: #FF4689 } /* Operator.Word */
+.highlight .pm { color: #F8F8F2 } /* Punctuation.Marker */
+.highlight .w { color: #F8F8F2 } /* Text.Whitespace */
+.highlight .mb { color: #AE81FF } /* Literal.Number.Bin */
+.highlight .mf { color: #AE81FF } /* Literal.Number.Float */
+.highlight .mh { color: #AE81FF } /* Literal.Number.Hex */
+.highlight .mi { color: #AE81FF } /* Literal.Number.Integer */
+.highlight .mo { color: #AE81FF } /* Literal.Number.Oct */
+.highlight .sa { color: #E6DB74 } /* Literal.String.Affix */
+.highlight .sb { color: #E6DB74 } /* Literal.String.Backtick */
+.highlight .sc { color: #E6DB74 } /* Literal.String.Char */
+.highlight .dl { color: #E6DB74 } /* Literal.String.Delimiter */
+.highlight .sd { color: #E6DB74 } /* Literal.String.Doc */
+.highlight .s2 { color: #E6DB74 } /* Literal.String.Double */
+.highlight .se { color: #AE81FF } /* Literal.String.Escape */
+.highlight .sh { color: #E6DB74 } /* Literal.String.Heredoc */
+.highlight .si { color: #E6DB74 } /* Literal.String.Interpol */
+.highlight .sx { color: #E6DB74 } /* Literal.String.Other */
+.highlight .sr { color: #E6DB74 } /* Literal.String.Regex */
+.highlight .s1 { color: #E6DB74 } /* Literal.String.Single */
+.highlight .ss { color: #E6DB74 } /* Literal.String.Symbol */
+.highlight .bp { color: #F8F8F2 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #A6E22E } /* Name.Function.Magic */
+.highlight .vc { color: #F8F8F2 } /* Name.Variable.Class */
+.highlight .vg { color: #F8F8F2 } /* Name.Variable.Global */
+.highlight .vi { color: #F8F8F2 } /* Name.Variable.Instance */
+.highlight .vm { color: #F8F8F2 } /* Name.Variable.Magic */
+.highlight .il { color: #AE81FF } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="site-header">
+  <a class="logo" href="README.html"><span>&gt;_</span> Claude How To</a>
+  <nav><a href="README.html">首页</a> <a href="LEARNING-ROADMAP.html">学习路线</a> <a href="QUICK_REFERENCE.html">速查手册</a> <a href="CATALOG.html">功能目录</a> <a href="claude_concepts_guide.html">概念总览</a></nav>
+</header>
+<aside class="sidebar">
+<div class="sidebar-section">
+<div class="sidebar-section-title">入门</div>
+<a href="README.html" class="">首页</a>
+<a href="LEARNING-ROADMAP.html" class=" active">学习路线图</a>
+<a href="QUICK_REFERENCE.html" class="">速查手册</a>
+<a href="CATALOG.html" class="">功能目录</a>
+<a href="INDEX.html" class="">完整索引</a>
+<a href="claude_concepts_guide.html" class="">概念总览</a>
+<a href="clean-code-rules.html" class="">整洁代码规范</a>
+<a href="resources.html" class="">资源汇总</a>
+<a href="CONTRIBUTING.html" class="">参与贡献</a>
+<a href="CHANGELOG.html" class="">更新日志</a>
+</div>
+<div class="sidebar-section">
+<div class="sidebar-section-title">教程模块</div>
+<a href="01-slash-commands/README.html" class=""><span class="module-num">01</span>sh Commands 斜杠命令</a>
+<a href="01-slash-commands/commit.html" class="" style="padding-left:44px;font-size:0.8rem;">Commit</a>
+<a href="01-slash-commands/doc-refactor.html" class="" style="padding-left:44px;font-size:0.8rem;">Doc Refactor</a>
+<a href="01-slash-commands/generate-api-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Api Docs</a>
+<a href="01-slash-commands/optimize.html" class="" style="padding-left:44px;font-size:0.8rem;">Optimize</a>
+<a href="01-slash-commands/pr.html" class="" style="padding-left:44px;font-size:0.8rem;">Pr</a>
+<a href="01-slash-commands/push-all.html" class="" style="padding-left:44px;font-size:0.8rem;">Push All</a>
+<a href="01-slash-commands/setup-ci-cd.html" class="" style="padding-left:44px;font-size:0.8rem;">Setup Ci Cd</a>
+<a href="01-slash-commands/unit-test-expand.html" class="" style="padding-left:44px;font-size:0.8rem;">Unit Test Expand</a>
+<a href="02-memory/README.html" class=""><span class="module-num">02</span>ory 记忆系统</a>
+<a href="02-memory/directory-api-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Directory Api Claude</a>
+<a href="02-memory/personal-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Personal Claude</a>
+<a href="02-memory/project-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Project Claude</a>
+<a href="03-skills/README.html" class=""><span class="module-num">03</span>lls 技能</a>
+<a href="03-skills/blog-draft/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="03-skills/blog-draft/templates/draft-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Draft Template</a>
+<a href="03-skills/blog-draft/templates/outline-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Outline Template</a>
+<a href="03-skills/brand-voice/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="03-skills/brand-voice/tone-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Tone Examples</a>
+<a href="03-skills/claude-md/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="03-skills/code-review/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="03-skills/code-review/templates/finding-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Finding Template</a>
+<a href="03-skills/code-review/templates/review-checklist.html" class="" style="padding-left:44px;font-size:0.8rem;">Review Checklist</a>
+<a href="03-skills/doc-generator/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="03-skills/refactor/references/code-smells.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Smells</a>
+<a href="03-skills/refactor/references/refactoring-catalog.html" class="" style="padding-left:44px;font-size:0.8rem;">Refactoring Catalog</a>
+<a href="03-skills/refactor/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="03-skills/refactor/templates/refactoring-plan.html" class="" style="padding-left:44px;font-size:0.8rem;">Refactoring Plan</a>
+<a href="04-subagents/README.html" class=""><span class="module-num">04</span>agents 子代理</a>
+<a href="04-subagents/clean-code-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Clean Code Reviewer</a>
+<a href="04-subagents/code-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Reviewer</a>
+<a href="04-subagents/data-scientist.html" class="" style="padding-left:44px;font-size:0.8rem;">Data Scientist</a>
+<a href="04-subagents/debugger.html" class="" style="padding-left:44px;font-size:0.8rem;">Debugger</a>
+<a href="04-subagents/documentation-writer.html" class="" style="padding-left:44px;font-size:0.8rem;">Documentation Writer</a>
+<a href="04-subagents/implementation-agent.html" class="" style="padding-left:44px;font-size:0.8rem;">Implementation Agent</a>
+<a href="04-subagents/secure-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Secure Reviewer</a>
+<a href="04-subagents/test-engineer.html" class="" style="padding-left:44px;font-size:0.8rem;">Test Engineer</a>
+<a href="05-mcp/README.html" class=""><span class="module-num">05</span> 协议</a>
+<a href="06-hooks/README.html" class=""><span class="module-num">06</span>ks 钩子</a>
+<a href="07-plugins/README.html" class=""><span class="module-num">07</span>gins 插件</a>
+<a href="07-plugins/devops-automation/agents/alert-analyzer.html" class="" style="padding-left:44px;font-size:0.8rem;">Alert Analyzer</a>
+<a href="07-plugins/devops-automation/agents/deployment-specialist.html" class="" style="padding-left:44px;font-size:0.8rem;">Deployment Specialist</a>
+<a href="07-plugins/devops-automation/agents/incident-commander.html" class="" style="padding-left:44px;font-size:0.8rem;">Incident Commander</a>
+<a href="07-plugins/devops-automation/commands/deploy.html" class="" style="padding-left:44px;font-size:0.8rem;">Deploy</a>
+<a href="07-plugins/devops-automation/commands/incident.html" class="" style="padding-left:44px;font-size:0.8rem;">Incident</a>
+<a href="07-plugins/devops-automation/commands/rollback.html" class="" style="padding-left:44px;font-size:0.8rem;">Rollback</a>
+<a href="07-plugins/devops-automation/commands/status.html" class="" style="padding-left:44px;font-size:0.8rem;">Status</a>
+<a href="07-plugins/documentation/agents/api-documenter.html" class="" style="padding-left:44px;font-size:0.8rem;">Api Documenter</a>
+<a href="07-plugins/documentation/agents/code-commentator.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Commentator</a>
+<a href="07-plugins/documentation/agents/example-generator.html" class="" style="padding-left:44px;font-size:0.8rem;">Example Generator</a>
+<a href="07-plugins/documentation/commands/generate-api-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Api Docs</a>
+<a href="07-plugins/documentation/commands/generate-readme.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Readme</a>
+<a href="07-plugins/documentation/commands/sync-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Sync Docs</a>
+<a href="07-plugins/documentation/commands/validate-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Validate Docs</a>
+<a href="07-plugins/documentation/templates/adr-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Adr Template</a>
+<a href="07-plugins/documentation/templates/api-endpoint.html" class="" style="padding-left:44px;font-size:0.8rem;">Api Endpoint</a>
+<a href="07-plugins/documentation/templates/function-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Function Docs</a>
+<a href="07-plugins/pr-review/agents/performance-analyzer.html" class="" style="padding-left:44px;font-size:0.8rem;">Performance Analyzer</a>
+<a href="07-plugins/pr-review/agents/security-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Security Reviewer</a>
+<a href="07-plugins/pr-review/agents/test-checker.html" class="" style="padding-left:44px;font-size:0.8rem;">Test Checker</a>
+<a href="07-plugins/pr-review/commands/check-security.html" class="" style="padding-left:44px;font-size:0.8rem;">Check Security</a>
+<a href="07-plugins/pr-review/commands/check-tests.html" class="" style="padding-left:44px;font-size:0.8rem;">Check Tests</a>
+<a href="07-plugins/pr-review/commands/review-pr.html" class="" style="padding-left:44px;font-size:0.8rem;">Review Pr</a>
+<a href="08-checkpoints/README.html" class=""><span class="module-num">08</span>ckpoints 检查点</a>
+<a href="08-checkpoints/checkpoint-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Checkpoint Examples</a>
+<a href="09-advanced-features/README.html" class=""><span class="module-num">09</span>anced Features 高级功能</a>
+<a href="09-advanced-features/planning-mode-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Planning Mode Examples</a>
+<a href="10-cli/README.html" class=""><span class="module-num">10</span> Reference 命令行参考</a>
+</div>
+</aside>
+<main class="main-content">
+  <div class="content-wrapper">
+<h1 id="claude-code">📚 Claude Code 学习路线图</h1>
+<p><strong>刚接触 Claude Code？</strong> 这份指南会帮你按照自己的节奏掌握 Claude Code 的各项功能。无论你是完全新手，还是经验丰富的开发者，都可以先做下面的自我评估测验，找到最适合自己的起点。</p>
+<hr />
+<p><a id="find-your-level"></a></p>
+<h2 id="_1">🧭 找到你的水平</h2>
+<p>每个人的起点都不同。先做一份快速自我评估，确认最适合你的入口。</p>
+<p><strong>请诚实回答下面的问题：</strong></p>
+<ul>
+<li>[ ] 我可以启动 Claude Code 并与它对话（<code>claude</code>）</li>
+<li>[ ] 我创建或编辑过 <code>CLAUDE.md</code></li>
+<li>[ ] 我至少使用过 3 个内置 slash command（例如 <code>/help</code>、<code>/compact</code>、<code>/model</code>）</li>
+<li>[ ] 我创建过自定义 slash command 或 skill（<code>SKILL.md</code>）</li>
+<li>[ ] 我配置过 MCP server（例如 GitHub、数据库）</li>
+<li>[ ] 我在 <code>~/.claude/settings.json</code> 中设置过 hooks</li>
+<li>[ ] 我创建或使用过自定义 subagents（<code>.claude/agents/</code>）</li>
+<li>[ ] 我使用过 print mode（<code>claude -p</code>）做脚本或 CI/CD</li>
+</ul>
+<p><strong>你的水平：</strong></p>
+<table>
+<thead>
+<tr>
+<th>勾选数</th>
+<th>水平</th>
+<th>从这里开始</th>
+<th>完成时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0-2</td>
+<td><strong>Level 1：Beginner</strong> - 从这里开始</td>
+<td><a href="#里程碑-1a第一个命令与-memory">里程碑 1A</a></td>
+<td>约 3 小时</td>
+</tr>
+<tr>
+<td>3-5</td>
+<td><strong>Level 2：Intermediate</strong> - 构建工作流</td>
+<td><a href="#里程碑-2a自动化skills--hooks">里程碑 2A</a></td>
+<td>约 5 小时</td>
+</tr>
+<tr>
+<td>6-8</td>
+<td><strong>Level 3：Advanced</strong> - 高阶用户与团队负责人</td>
+<td><a href="#里程碑-3a高级功能">里程碑 3A</a></td>
+<td>约 5 小时</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>提示</strong>：如果不确定，宁可从低一级开始。先回顾熟悉内容，总比漏掉基础概念更划算。</p>
+<p><strong>交互式版本</strong>：在 Claude Code 中运行 <code>/self-assessment</code>，就能得到一份引导式、交互式测验，会覆盖全部 10 个功能领域，并生成个性化学习路径。</p>
+</blockquote>
+<hr />
+<h2 id="_2">🎯 学习理念</h2>
+<p>本仓库里的文件夹是按照<strong>推荐学习顺序</strong>编号的，背后有 3 个原则：</p>
+<ol>
+<li><strong>依赖关系</strong> - 先学基础概念</li>
+<li><strong>复杂度</strong> - 先学简单功能，再学高级功能</li>
+<li><strong>使用频率</strong> - 先学最常用的功能</li>
+</ol>
+<p>这样可以让你一边建立扎实基础，一边尽快获得实际收益。</p>
+<hr />
+<h2 id="_3">🗺️ 你的学习路径</h2>
+<div class="highlight"><pre><span></span><code>graph TD
+    Q[&quot;🧭 自我评估测验&lt;br/&gt;找到你的水平&quot;] --&gt; L1
+    Q --&gt; L2
+    Q --&gt; L3
+
+    subgraph L1[&quot;🟢 Level 1：Beginner - 从这里开始&quot;]
+        direction LR
+        A[&quot;1A：第一个命令与 Memory&lt;br/&gt;Slash Commands + Memory&quot;] --&gt; B[&quot;1B：安全探索&lt;br/&gt;Checkpoints + CLI Basics&quot;]
+    end
+
+    subgraph L2[&quot;🔵 Level 2：Intermediate - 构建工作流&quot;]
+        direction LR
+        C[&quot;2A：自动化&lt;br/&gt;Skills + Hooks&quot;] --&gt; D[&quot;2B：集成&lt;br/&gt;MCP + Subagents&quot;]
+    end
+
+    subgraph L3[&quot;🔴 Level 3：Advanced - 高阶用户&quot;]
+        direction LR
+        E[&quot;3A：高级功能&lt;br/&gt;Planning + Permissions&quot;] --&gt; F[&quot;3B：团队与分发&lt;br/&gt;Plugins + CLI 精通&quot;]
+    end
+
+    L1 --&gt; L2
+    L2 --&gt; L3
+
+    style Q fill:#6A1B9A,color:#fff,stroke:#9C27B0,stroke-width:2px
+    style A fill:#2E7D32,color:#fff
+    style B fill:#2E7D32,color:#fff
+    style C fill:#1565C0,color:#fff
+    style D fill:#F57C00,color:#fff
+    style E fill:#C62828,color:#fff
+    style F fill:#B71C1C,color:#fff
+</code></pre></div>
+
+<p><strong>颜色说明：</strong>
+- 💜 紫色：自我评估测验
+- 🟢 绿色：Level 1 - Beginner 路线
+- 🔵 蓝色 / 🟡 金色：Level 2 - Intermediate 路线
+- 🔴 红色：Level 3 - Advanced 路线</p>
+<hr />
+<h2 id="_4">📊 完整路线图表</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>功能</th>
+<th>复杂度</th>
+<th>时间</th>
+<th>水平</th>
+<th>依赖</th>
+<th>为什么学它</th>
+<th>关键收益</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td><a href="01-slash-commands/README.html">Slash Commands</a></td>
+<td>⭐ Beginner</td>
+<td>30 分钟</td>
+<td>Level 1</td>
+<td>无</td>
+<td>快速获得生产力提升（55+ 内置命令 + 5 个 bundled skills）</td>
+<td>立即自动化、统一团队规范</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><a href="02-memory/README.html">Memory</a></td>
+<td>⭐⭐ Beginner+</td>
+<td>45 分钟</td>
+<td>Level 1</td>
+<td>无</td>
+<td>所有功能的基础</td>
+<td>持久上下文、偏好设置</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><a href="08-checkpoints/README.html">Checkpoints</a></td>
+<td>⭐⭐ Intermediate</td>
+<td>45 分钟</td>
+<td>Level 1</td>
+<td>会话管理</td>
+<td>安全探索</td>
+<td>试验、恢复</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td><a href="10-cli/README.html">CLI Basics</a></td>
+<td>⭐⭐ Beginner+</td>
+<td>30 分钟</td>
+<td>Level 1</td>
+<td>无</td>
+<td>核心 CLI 用法</td>
+<td>交互式与 print mode</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td><a href="03-skills/README.html">Skills</a></td>
+<td>⭐⭐ Intermediate</td>
+<td>1 小时</td>
+<td>Level 2</td>
+<td>Slash Commands</td>
+<td>自动化专业能力</td>
+<td>可复用能力、一致性</td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td><a href="06-hooks/README.html">Hooks</a></td>
+<td>⭐⭐ Intermediate</td>
+<td>1 小时</td>
+<td>Level 2</td>
+<td>工具、命令</td>
+<td>工作流自动化（25 个事件、4 种类型）</td>
+<td>校验、质量门禁</td>
+</tr>
+<tr>
+<td><strong>7</strong></td>
+<td><a href="05-mcp/README.html">MCP</a></td>
+<td>⭐⭐⭐ Intermediate+</td>
+<td>1 小时</td>
+<td>Level 2</td>
+<td>配置</td>
+<td>实时数据访问</td>
+<td>实时集成、API</td>
+</tr>
+<tr>
+<td><strong>8</strong></td>
+<td><a href="04-subagents/README.html">Subagents</a></td>
+<td>⭐⭐⭐ Intermediate+</td>
+<td>1.5 小时</td>
+<td>Level 2</td>
+<td>Memory、命令</td>
+<td>处理复杂任务（包含 Bash 在内的 6 个内置 agent）</td>
+<td>委派、专业分工</td>
+</tr>
+<tr>
+<td><strong>9</strong></td>
+<td><a href="09-advanced-features/README.html">Advanced Features</a></td>
+<td>⭐⭐⭐⭐⭐ Advanced</td>
+<td>2-3 小时</td>
+<td>Level 3</td>
+<td>前面所有内容</td>
+<td>高阶工具</td>
+<td>Planning、自动模式（Auto Mode）、通道（Channels）、语音输入、权限控制</td>
+</tr>
+<tr>
+<td><strong>10</strong></td>
+<td><a href="07-plugins/README.html">Plugins</a></td>
+<td>⭐⭐⭐⭐ Advanced</td>
+<td>2 小时</td>
+<td>Level 3</td>
+<td>前面所有内容</td>
+<td>完整解决方案</td>
+<td>团队入职、分发</td>
+</tr>
+<tr>
+<td><strong>11</strong></td>
+<td><a href="10-cli/README.html">CLI Mastery</a></td>
+<td>⭐⭐⭐ Advanced</td>
+<td>1 小时</td>
+<td>Level 3</td>
+<td>建议：全部</td>
+<td>掌握命令行用法</td>
+<td>脚本、CI/CD、自动化</td>
+</tr>
+</tbody>
+</table>
+<p><strong>总学习时间</strong>：约 11-13 小时（或者直接跳到你的水平，节省时间）</p>
+<hr />
+<h2 id="level-1beginner-">🟢 Level 1：Beginner - 从这里开始</h2>
+<p><strong>适合</strong>：测验勾选数 0-2
+<strong>时间</strong>：约 3 小时
+<strong>重点</strong>：立刻提升生产力，理解基础概念
+<strong>结果</strong>：可以熟练日常使用，并准备进入 Level 2</p>
+<p><a id="milestone-1a-first-commands-memory"></a></p>
+<h3 id="1a-memory">里程碑 1A：第一个命令与 Memory</h3>
+<p><strong>主题</strong>：Slash Commands + Memory
+<strong>时间</strong>：1-2 小时
+<strong>复杂度</strong>：⭐ Beginner
+<strong>目标</strong>：通过自定义命令和持久上下文，快速提升效率</p>
+<h4 id="_5">你将完成什么</h4>
+<p>✅ 为重复性任务创建自定义 slash commands
+✅ 为团队规范设置项目 memory
+✅ 配置个人偏好
+✅ 理解 Claude 如何自动加载上下文</p>
+<h4 id="_6">实战练习</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 练习 1：安装你的第一个 slash command</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>.claude/commands
+cp<span class="w"> </span><span class="m">01</span>-slash-commands/optimize.md<span class="w"> </span>.claude/commands/
+
+<span class="c1"># 练习 2：创建项目 memory</span>
+cp<span class="w"> </span><span class="m">02</span>-memory/project-CLAUDE.md<span class="w"> </span>./CLAUDE.md
+
+<span class="c1"># 练习 3：试用一下</span>
+<span class="c1"># 在 Claude Code 中输入：/optimize</span>
+</code></pre></div>
+
+<h4 id="_7">成功标准</h4>
+<ul>
+<li>[ ] 成功执行 <code>/optimize</code></li>
+<li>[ ] Claude 记住了 <code>CLAUDE.md</code> 中的项目规范</li>
+<li>[ ] 你知道什么时候用 slash command，什么时候用 memory</li>
+</ul>
+<h4 id="_8">下一步</h4>
+<p>熟悉之后，请阅读：
+- <a href="01-slash-commands/README.html">01-slash-commands/README.md</a>
+- <a href="02-memory/README.html">02-memory/README.md</a></p>
+<blockquote>
+<p><strong>检查理解</strong>：在 Claude Code 中运行 <code>/lesson-quiz slash-commands</code> 或 <code>/lesson-quiz memory</code>，检验你学会了多少。</p>
+</blockquote>
+<hr />
+<h3 id="1b">里程碑 1B：安全探索</h3>
+<p><strong>主题</strong>：Checkpoints + CLI Basics
+<strong>时间</strong>：1 小时
+<strong>复杂度</strong>：⭐⭐ Beginner+
+<strong>目标</strong>：学会安全试验，并使用核心 CLI 命令</p>
+<h4 id="_9">你将完成什么</h4>
+<p>✅ 创建和恢复 checkpoints，安全试验
+✅ 理解交互模式与 print mode
+✅ 使用基本 CLI 参数和选项
+✅ 通过管道处理文件</p>
+<h4 id="_10">实战练习</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 练习 1：尝试 checkpoint 工作流</span>
+<span class="c1"># 在 Claude Code 中：</span>
+<span class="c1"># 做一些实验性修改，然后按 Esc+Esc 或使用 /rewind</span>
+<span class="c1"># 选择你实验之前的 checkpoint</span>
+<span class="c1"># 选择“恢复代码和对话”返回</span>
+
+<span class="c1"># 练习 2：交互模式 vs 输出模式（Print mode）</span>
+claude<span class="w"> </span><span class="s2">&quot;explain this project&quot;</span><span class="w">           </span><span class="c1"># 交互模式</span>
+claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;explain this function&quot;</span><span class="w">       </span><span class="c1"># 输出模式（非交互）</span>
+
+<span class="c1"># 练习 3：通过管道处理文件内容</span>
+cat<span class="w"> </span>error.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;explain this error&quot;</span>
+</code></pre></div>
+
+<h4 id="_11">成功标准</h4>
+<ul>
+<li>[ ] 成功创建并回退到一个 checkpoint</li>
+<li>[ ] 使用过交互模式和 print mode</li>
+<li>[ ] 把文件通过管道传给 Claude 做分析</li>
+<li>[ ] 明白什么时候该用 checkpoints 做安全试验</li>
+</ul>
+<h4 id="_12">下一步</h4>
+<ul>
+<li>阅读：<a href="08-checkpoints/README.html">08-checkpoints/README.md</a></li>
+<li>阅读：<a href="10-cli/README.html">10-cli/README.md</a></li>
+<li><strong>准备进入 Level 2！</strong> 继续看 <a href="#里程碑-2a自动化skills--hooks">里程碑 2A</a></li>
+</ul>
+<blockquote>
+<p><strong>检查理解</strong>：运行 <code>/lesson-quiz checkpoints</code> 或 <code>/lesson-quiz cli</code>，确认你准备好进入 Level 2。</p>
+</blockquote>
+<hr />
+<h2 id="level-2intermediate-">🔵 Level 2：Intermediate - 构建工作流</h2>
+<p><strong>适合</strong>：测验勾选数 3-5
+<strong>时间</strong>：约 5 小时
+<strong>重点</strong>：自动化、集成、任务委派
+<strong>结果</strong>：可以构建自动化工作流、接入外部服务，并准备进入 Level 3</p>
+<h3 id="_13">前置条件检查</h3>
+<p>开始 Level 2 之前，先确认你已经掌握这些 Level 1 内容：</p>
+<ul>
+<li>[ ] 会创建和使用 slash commands（<a href="01-slash-commands/README.html">01-slash-commands/README.md</a>）</li>
+<li>[ ] 会通过 <code>CLAUDE.md</code> 设置项目 memory（<a href="02-memory/README.html">02-memory/README.md</a>）</li>
+<li>[ ] 知道如何创建和恢复 checkpoints（<a href="08-checkpoints/README.html">08-checkpoints/README.md</a>）</li>
+<li>[ ] 会在命令行使用 <code>claude</code> 和 <code>claude -p</code>（<a href="10-cli/README.html">10-cli/README.md</a>）</li>
+</ul>
+<blockquote>
+<p><strong>有空缺？</strong> 继续之前，先回顾上面的链接教程。</p>
+</blockquote>
+<hr />
+<p><a id="milestone-2a-automation-skills-hooks"></a></p>
+<h3 id="2askills-hooks">里程碑 2A：自动化（Skills + Hooks）</h3>
+<p><strong>主题</strong>：Skills + Hooks
+<strong>时间</strong>：2-3 小时
+<strong>复杂度</strong>：⭐⭐ Intermediate
+<strong>目标</strong>：自动化常见工作流和质量检查</p>
+<h4 id="_14">你将完成什么</h4>
+<p>✅ 通过 YAML frontmatter 自动触发专门能力（包含 <code>effort</code> 和 <code>shell</code> 字段）
+✅ 在 25 个 hook 事件上设置事件驱动自动化
+✅ 使用 4 种 hook 类型（command、http、prompt、agent）
+✅ 强制执行代码质量标准
+✅ 为自己的工作流创建自定义 hooks</p>
+<h4 id="_15">实战练习</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 练习 1：安装一个 skill</span>
+cp<span class="w"> </span>-r<span class="w"> </span><span class="m">03</span>-skills/code-review<span class="w"> </span>~/.claude/skills/
+
+<span class="c1"># 练习 2：设置 hooks</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>~/.claude/hooks
+cp<span class="w"> </span><span class="m">06</span>-hooks/pre-tool-check.sh<span class="w"> </span>~/.claude/hooks/
+chmod<span class="w"> </span>+x<span class="w"> </span>~/.claude/hooks/pre-tool-check.sh
+
+<span class="c1"># 练习 3：在 settings 中配置 hooks</span>
+<span class="c1"># 添加到 ~/.claude/settings.json：</span>
+<span class="o">{</span>
+<span class="w">  </span><span class="s2">&quot;hooks&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="s2">&quot;PreToolUse&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">      </span><span class="o">{</span>
+<span class="w">        </span><span class="s2">&quot;matcher&quot;</span>:<span class="w"> </span><span class="s2">&quot;Bash&quot;</span>,
+<span class="w">        </span><span class="s2">&quot;hooks&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">          </span><span class="o">{</span>
+<span class="w">            </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;command&quot;</span>,
+<span class="w">            </span><span class="s2">&quot;command&quot;</span>:<span class="w"> </span><span class="s2">&quot;~/.claude/hooks/pre-tool-check.sh&quot;</span>
+<span class="w">          </span><span class="o">}</span>
+<span class="w">        </span><span class="o">]</span>
+<span class="w">      </span><span class="o">}</span>
+<span class="w">    </span><span class="o">]</span>
+<span class="w">  </span><span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div>
+
+<h4 id="_16">成功标准</h4>
+<ul>
+<li>[ ] 在相关场景下，代码审查 skill 会自动触发</li>
+<li>[ ] PreToolUse hook 会在工具执行前运行</li>
+<li>[ ] 你理解 skill 自动触发和 hook 事件触发的区别</li>
+</ul>
+<h4 id="_17">下一步</h4>
+<ul>
+<li>创建你自己的 custom skill</li>
+<li>为工作流增加更多 hooks</li>
+<li>阅读：<a href="03-skills/README.html">03-skills/README.md</a></li>
+<li>阅读：<a href="06-hooks/README.html">06-hooks/README.md</a></li>
+</ul>
+<blockquote>
+<p><strong>检查理解</strong>：在继续之前，运行 <code>/lesson-quiz skills</code> 或 <code>/lesson-quiz hooks</code> 测试你的理解。</p>
+</blockquote>
+<hr />
+<h3 id="2bmcp-subagents">里程碑 2B：集成（MCP + Subagents）</h3>
+<p><strong>主题</strong>：MCP + Subagents
+<strong>时间</strong>：2-3 小时
+<strong>复杂度</strong>：⭐⭐⭐ Intermediate+
+<strong>目标</strong>：集成外部服务，并把复杂任务委派出去</p>
+<h4 id="_18">你将完成什么</h4>
+<p>✅ 从 GitHub、数据库等位置访问实时数据
+✅ 把工作委派给专门化 AI agents
+✅ 明白什么时候该用 MCP，什么时候该用 subagents
+✅ 构建集成式工作流</p>
+<h4 id="_19">实战练习</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 练习 1：设置 GitHub MCP</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">GITHUB_TOKEN</span><span class="o">=</span><span class="s2">&quot;your_github_token&quot;</span>
+claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>github<span class="w"> </span>--<span class="w"> </span>npx<span class="w"> </span>-y<span class="w"> </span>@modelcontextprotocol/server-github
+
+<span class="c1"># 练习 2：测试 MCP 集成</span>
+<span class="c1"># 在 Claude Code 中：/mcp__github__list_prs</span>
+
+<span class="c1"># 练习 3：安装 subagents</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>.claude/agents
+cp<span class="w"> </span><span class="m">04</span>-subagents/*.md<span class="w"> </span>.claude/agents/
+</code></pre></div>
+
+<h4 id="_20">集成练习</h4>
+<p>试试这个完整工作流：
+1. 用 MCP 获取一个 GitHub PR
+2. 让 Claude 把审查任务委派给 code-reviewer subagent
+3. 再用 hooks 自动运行测试</p>
+<h4 id="_21">成功标准</h4>
+<ul>
+<li>[ ] 能通过 MCP 成功查询 GitHub 数据</li>
+<li>[ ] Claude 会把复杂任务委派给 subagents</li>
+<li>[ ] 你理解 MCP 和 subagents 的区别</li>
+<li>[ ] 能把 MCP + subagents + hooks 组合进一个工作流</li>
+</ul>
+<h4 id="_22">下一步</h4>
+<ul>
+<li>配置更多 MCP servers（数据库、Slack 等）</li>
+<li>为你的领域创建自定义 subagents</li>
+<li>阅读：<a href="05-mcp/README.html">05-mcp/README.md</a></li>
+<li>阅读：<a href="04-subagents/README.html">04-subagents/README.md</a></li>
+<li><strong>准备进入 Level 3！</strong> 继续看 <a href="#里程碑-3a高级功能">里程碑 3A</a></li>
+</ul>
+<blockquote>
+<p><strong>检查理解</strong>：运行 <code>/lesson-quiz mcp</code> 或 <code>/lesson-quiz subagents</code>，确认你准备好进入 Level 3。</p>
+</blockquote>
+<hr />
+<h2 id="level-3advanced-">🔴 Level 3：Advanced - 高阶用户与团队负责人</h2>
+<p><strong>适合</strong>：测验勾选数 6-8
+<strong>时间</strong>：约 5 小时
+<strong>重点</strong>：团队工具、CI/CD、企业功能、插件开发
+<strong>结果</strong>：成为高阶用户，能够搭建团队工作流和 CI/CD</p>
+<h3 id="_23">前置条件检查</h3>
+<p>开始 Level 3 之前，先确认你已经掌握这些 Level 2 内容：</p>
+<ul>
+<li>[ ] 会创建并自动触发 skills（<a href="03-skills/README.html">03-skills/README.md</a>）</li>
+<li>[ ] 会配置 hooks 做事件驱动自动化（<a href="06-hooks/README.html">06-hooks/README.md</a>）</li>
+<li>[ ] 会配置 MCP servers 访问外部数据（<a href="05-mcp/README.html">05-mcp/README.md</a>）</li>
+<li>[ ] 知道如何用 subagents 分派任务（<a href="04-subagents/README.html">04-subagents/README.md</a>）</li>
+</ul>
+<blockquote>
+<p><strong>有空缺？</strong> 继续之前，先回顾上面的链接教程。</p>
+</blockquote>
+<hr />
+<p><a id="milestone-3a-advanced-features"></a></p>
+<h3 id="3a">里程碑 3A：高级功能</h3>
+<p><strong>主题</strong>：高级功能（Planning、Permissions、Extended Thinking、自动模式（Auto Mode）、通道（Channels）、语音输入（Voice Dictation）、Remote/Desktop/Web）
+<strong>时间</strong>：2-3 小时
+<strong>复杂度</strong>：⭐⭐⭐⭐⭐ Advanced
+<strong>目标</strong>：掌握高级工作流和高阶工具</p>
+<h4 id="_24">你将完成什么</h4>
+<p>✅ 为复杂功能使用 planning mode
+✅ 用 6 种模式进行细粒度权限控制（default、acceptEdits、plan、auto、dontAsk、bypassPermissions）
+✅ 用 Alt+T / Option+T 切换 extended thinking
+✅ 管理后台任务
+✅ 使用 Auto Memory 记住偏好
+✅ 使用自动模式（Auto Mode）和后台安全分类器
+✅ 使用通道（Channels）组织多会话工作流
+✅ 使用语音输入（Voice Dictation）解放双手
+✅ 远程控制、桌面应用和 Web 会话
+✅ 使用 Agent Teams 协作</p>
+<h4 id="_25">实战练习</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 练习 1：使用 planning mode</span>
+/plan<span class="w"> </span>Implement<span class="w"> </span>user<span class="w"> </span>authentication<span class="w"> </span>system
+
+<span class="c1"># 练习 2：尝试权限模式（共有 6 种：default、acceptEdits、plan、auto、dontAsk、bypassPermissions）</span>
+claude<span class="w"> </span>--permission-mode<span class="w"> </span>plan<span class="w"> </span><span class="s2">&quot;analyze this codebase&quot;</span>
+claude<span class="w"> </span>--permission-mode<span class="w"> </span>acceptEdits<span class="w"> </span><span class="s2">&quot;refactor the auth module&quot;</span>
+claude<span class="w"> </span>--permission-mode<span class="w"> </span>auto<span class="w"> </span><span class="s2">&quot;implement the feature&quot;</span>
+
+<span class="c1"># 练习 3：启用 extended thinking</span>
+<span class="c1"># 在会话中按 Alt+T（macOS 上是 Option+T）切换</span>
+
+<span class="c1"># 练习 4：高级 checkpoint 工作流</span>
+<span class="c1"># 1. 创建名为 &quot;Clean state&quot; 的 checkpoint</span>
+<span class="c1"># 2. 使用 planning mode 设计功能</span>
+<span class="c1"># 3. 通过 subagent 委派实现</span>
+<span class="c1"># 4. 在后台运行测试</span>
+<span class="c1"># 5. 如果测试失败，回退到 checkpoint</span>
+<span class="c1"># 6. 尝试另一种方案</span>
+
+<span class="c1"># 练习 5：尝试自动模式（Auto mode，后台安全分类器）</span>
+claude<span class="w"> </span>--permission-mode<span class="w"> </span>auto<span class="w"> </span><span class="s2">&quot;implement user settings page&quot;</span>
+
+<span class="c1"># 练习 6：启用 agent teams</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">CLAUDE_AGENT_TEAMS</span><span class="o">=</span><span class="m">1</span>
+<span class="c1"># 让 Claude 执行：&quot;Implement feature X using a team approach&quot;</span>
+
+<span class="c1"># 练习 7：定时任务</span>
+/loop<span class="w"> </span>5m<span class="w"> </span>/check-status
+<span class="c1"># 或使用 CronCreate 创建持久化定时任务</span>
+
+<span class="c1"># 练习 8：用通道（Channels）管理多会话工作流</span>
+<span class="c1"># 用 channels 来组织跨会话工作</span>
+
+<span class="c1"># 练习 9：语音输入（Voice Dictation）</span>
+<span class="c1"># 用语音输入和 Claude Code 进行无手操作</span>
+</code></pre></div>
+
+<h4 id="_26">成功标准</h4>
+<ul>
+<li>[ ] 为复杂功能使用过 planning mode</li>
+<li>[ ] 配置过权限模式（plan、acceptEdits、auto、dontAsk）</li>
+<li>[ ] 用 Alt+T / Option+T 切换过 extended thinking</li>
+<li>[ ] 使用过带后台安全分类器的自动模式（Auto mode）</li>
+<li>[ ] 使用过后台任务处理长时间操作</li>
+<li>[ ] 探索过通道（Channels）做多会话工作流</li>
+<li>[ ] 尝试过语音输入（Voice Dictation）做无手输入</li>
+<li>[ ] 理解 Remote Control、Desktop App 和 Web 会话</li>
+<li>[ ] 启用并使用过 Agent Teams 做协作任务</li>
+<li>[ ] 用过 <code>/loop</code> 做周期任务或定时监控</li>
+</ul>
+<h4 id="_27">下一步</h4>
+<ul>
+<li>阅读：<a href="09-advanced-features/README.html">09-advanced-features/README.md</a></li>
+</ul>
+<blockquote>
+<p><strong>检查理解</strong>：运行 <code>/lesson-quiz advanced</code>，测试你对高阶功能的掌握程度。</p>
+</blockquote>
+<hr />
+<h3 id="3bplugins-cli">里程碑 3B：团队与分发（Plugins + CLI 精通）</h3>
+<p><strong>主题</strong>：Plugins + CLI 精通 + CI/CD
+<strong>时间</strong>：2-3 小时
+<strong>复杂度</strong>：⭐⭐⭐⭐ Advanced
+<strong>目标</strong>：搭建团队工具、创建插件、熟练集成 CI/CD</p>
+<h4 id="_28">你将完成什么</h4>
+<p>✅ 安装和创建完整的 bundled plugins
+✅ 掌握 CLI，用于脚本和自动化
+✅ 使用 <code>claude -p</code> 做 CI/CD 集成
+✅ 为自动化流水线输出 JSON
+✅ 管理会话与批处理</p>
+<h4 id="_29">实战练习</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 练习 1：安装一个完整 plugin</span>
+<span class="c1"># 在 Claude Code 中：/plugin install pr-review</span>
+
+<span class="c1"># 练习 2：让 print mode 服务于 CI/CD</span>
+claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;Run all tests and generate report&quot;</span>
+
+<span class="c1"># 练习 3：为脚本输出 JSON</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;list all functions&quot;</span>
+
+<span class="c1"># 练习 4：会话管理与恢复</span>
+claude<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;feature-auth&quot;</span><span class="w"> </span><span class="s2">&quot;continue implementation&quot;</span>
+
+<span class="c1"># 练习 5：带约束的 CI/CD 集成</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--max-turns<span class="w"> </span><span class="m">3</span><span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;review code&quot;</span>
+
+<span class="c1"># 练习 6：批处理</span>
+<span class="k">for</span><span class="w"> </span>file<span class="w"> </span><span class="k">in</span><span class="w"> </span>*.md<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;summarize this: </span><span class="k">$(</span>cat<span class="w"> </span><span class="nv">$file</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span><span class="si">${</span><span class="nv">file</span><span class="p">%.md</span><span class="si">}</span>.summary.json
+<span class="k">done</span>
+</code></pre></div>
+
+<h4 id="cicd">CI/CD 集成练习</h4>
+<p>创建一个简单的 CI/CD 脚本：
+1. 用 <code>claude -p</code> 审查变更文件
+2. 把结果输出成 JSON
+3. 用 <code>jq</code> 处理特定问题
+4. 集成进 GitHub Actions 工作流</p>
+<hr />
+<h2 id="_30">🧪 测试你的知识</h2>
+<p>根据你刚学完的内容，直接运行下面的测验：</p>
+<div class="highlight"><pre><span></span><code>/lesson-quiz<span class="w"> </span>slash-commands
+/lesson-quiz<span class="w"> </span>memory
+/lesson-quiz<span class="w"> </span>checkpoints
+/lesson-quiz<span class="w"> </span>cli
+/lesson-quiz<span class="w"> </span>skills
+/lesson-quiz<span class="w"> </span>hooks
+/lesson-quiz<span class="w"> </span>mcp
+/lesson-quiz<span class="w"> </span>subagents
+/lesson-quiz<span class="w"> </span>advanced-features
+</code></pre></div>
+
+<hr />
+<h2 id="_31">⚡ 快速开始路径</h2>
+<h3 id="15">如果你只有 15 分钟</h3>
+<p><strong>目标</strong>：先拿到一个立竿见影的成果</p>
+<ol>
+<li>复制一个 slash command：<code>cp 01-slash-commands/optimize.md .claude/commands/</code></li>
+<li>在 Claude Code 中试一下：<code>/optimize</code></li>
+<li>阅读：<a href="01-slash-commands/README.html">01-slash-commands/README.md</a></li>
+</ol>
+<p><strong>结果</strong>：你会得到一个能用的 slash command，并理解基础用法</p>
+<hr />
+<h3 id="1">如果你有 1 小时</h3>
+<p><strong>目标</strong>：搭好基础生产力工具</p>
+<ol>
+<li><strong>Slash commands</strong>（15 分钟）：复制并测试 <code>/optimize</code> 和 <code>/pr</code></li>
+<li><strong>项目 memory</strong>（15 分钟）：用项目规范创建 <code>CLAUDE.md</code></li>
+<li><strong>安装一个 skill</strong>（15 分钟）：配置 code-review skill</li>
+<li><strong>一起试用</strong>（15 分钟）：感受它们如何协同工作</li>
+</ol>
+<p><strong>结果</strong>：命令、memory 和自动 skills 带来基础效率提升</p>
+<hr />
+<h3 id="_32">如果你有一个周末</h3>
+<p><strong>目标</strong>：熟悉大部分功能</p>
+<p><strong>周六上午</strong>（3 小时）：
+- 完成里程碑 1A：Slash Commands + Memory
+- 完成里程碑 1B：Checkpoints + CLI Basics</p>
+<p><strong>周六下午</strong>（3 小时）：
+- 完成里程碑 2A：Skills + Hooks
+- 完成里程碑 2B：MCP + Subagents</p>
+<p><strong>周日</strong>（4 小时）：
+- 完成里程碑 3A：高级功能
+- 完成里程碑 3B：Plugins + CLI 精通 + CI/CD
+- 为你的团队构建一个自定义 plugin</p>
+<p><strong>结果</strong>：你会成为 Claude Code 的高阶用户，能够培训别人并自动化复杂工作流</p>
+<hr />
+<h2 id="_33">💡 学习建议</h2>
+<h3 id="_34">✅ 建议做</h3>
+<ul>
+<li><strong>先做测验</strong>，找到自己的起点</li>
+<li><strong>完成每个里程碑的实战练习</strong></li>
+<li><strong>先从简单开始</strong>，再逐步增加复杂度</li>
+<li><strong>在进入下一个功能前先测试当前功能</strong></li>
+<li><strong>记下哪些做法最适合你的工作流</strong></li>
+<li><strong>学习新内容时回头复习基础概念</strong></li>
+<li><strong>借助 checkpoints 安全试验</strong></li>
+<li><strong>把经验分享给团队</strong></li>
+</ul>
+<h3 id="_35">❌ 不建议做</h3>
+<ul>
+<li><strong>不要跳过前置条件检查</strong></li>
+<li><strong>不要试图一次学完所有内容</strong></li>
+<li><strong>不要照搬配置却不理解它们</strong></li>
+<li><strong>不要忘记测试</strong></li>
+<li><strong>不要急着跳过里程碑</strong></li>
+<li><strong>不要忽视文档</strong></li>
+<li><strong>不要把自己隔离起来</strong></li>
+</ul>
+<hr />
+<h2 id="_36">🎓 学习风格</h2>
+<h3 id="_37">视觉型学习者</h3>
+<ul>
+<li>阅读每个 README 里的 Mermaid 图</li>
+<li>观察命令执行流程</li>
+<li>自己画工作流图</li>
+<li>使用上面的可视化路径图</li>
+</ul>
+<h3 id="_38">动手型学习者</h3>
+<ul>
+<li>完成每个实战练习</li>
+<li>试试不同变体</li>
+<li>先搞坏再修复（记得用 checkpoints）</li>
+<li>创建自己的示例</li>
+</ul>
+<h3 id="_39">阅读型学习者</h3>
+<ul>
+<li>认真阅读每个 README</li>
+<li>研究代码示例</li>
+<li>看对比表</li>
+<li>阅读资源区链接的博客文章</li>
+</ul>
+<h3 id="_40">社交型学习者</h3>
+<ul>
+<li>组织结对编程</li>
+<li>给队友讲解概念</li>
+<li>参与 Claude Code 社区讨论</li>
+<li>分享你的自定义配置</li>
+</ul>
+<hr />
+<h2 id="_41">📈 进度追踪</h2>
+<p>用这些清单按水平追踪进度。你可以随时运行 <code>/self-assessment</code> 更新自己的技能画像，也可以在每个教程后运行 <code>/lesson-quiz [lesson]</code> 验证理解。</p>
+<h3 id="level-1beginner">🟢 Level 1：Beginner</h3>
+<ul>
+<li>[ ] 完成 <a href="01-slash-commands/README.html">01-slash-commands</a></li>
+<li>[ ] 完成 <a href="02-memory/README.html">02-memory</a></li>
+<li>[ ] 创建第一个自定义 slash command</li>
+<li>[ ] 设置项目 memory</li>
+<li>[ ] <strong>达到里程碑 1A</strong></li>
+<li>[ ] 完成 <a href="08-checkpoints/README.html">08-checkpoints</a></li>
+<li>[ ] 完成 <a href="10-cli/README.html">10-cli</a> 基础部分</li>
+<li>[ ] 创建并回退到一个 checkpoint</li>
+<li>[ ] 使用交互模式和 print mode</li>
+<li>[ ] <strong>达到里程碑 1B</strong></li>
+</ul>
+<h3 id="level-2intermediate">🔵 Level 2：Intermediate</h3>
+<ul>
+<li>[ ] 完成 <a href="03-skills/README.html">03-skills</a></li>
+<li>[ ] 完成 <a href="06-hooks/README.html">06-hooks</a></li>
+<li>[ ] 安装第一个 skill</li>
+<li>[ ] 设置 PreToolUse hook</li>
+<li>[ ] <strong>达到里程碑 2A</strong></li>
+<li>[ ] 完成 <a href="05-mcp/README.html">05-mcp</a></li>
+<li>[ ] 完成 <a href="04-subagents/README.html">04-subagents</a></li>
+<li>[ ] 连接 GitHub MCP</li>
+<li>[ ] 创建自定义 subagent</li>
+<li>[ ] 把多个集成组合进一个工作流</li>
+<li>[ ] <strong>达到里程碑 2B</strong></li>
+</ul>
+<h3 id="level-3advanced">🔴 Level 3：Advanced</h3>
+<ul>
+<li>[ ] 完成 <a href="09-advanced-features/README.html">09-advanced-features</a></li>
+<li>[ ] 成功使用 planning mode</li>
+<li>[ ] 配置权限模式（包含 auto 在内的 6 种）</li>
+<li>[ ] 使用带安全分类器的自动模式（Auto mode）</li>
+<li>[ ] 使用 extended thinking 切换</li>
+<li>[ ] 探索通道（Channels）和语音输入（Voice Dictation）</li>
+<li>[ ] <strong>达到里程碑 3A</strong></li>
+<li>[ ] 完成 <a href="07-plugins/README.html">07-plugins</a></li>
+<li>[ ] 完成 <a href="10-cli/README.html">10-cli</a> 的高级用法</li>
+<li>[ ] 配置 print mode（<code>claude -p</code>）用于 CI/CD</li>
+<li>[ ] 为自动化创建 JSON 输出</li>
+<li>[ ] 把 Claude 集成到 CI/CD 流水线</li>
+<li>[ ] 创建团队 plugin</li>
+<li>[ ] <strong>达到里程碑 3B</strong></li>
+</ul>
+<hr />
+<h2 id="_42">🆘 常见学习难题</h2>
+<h3 id="1_1">难题 1：“概念一下子太多了”</h3>
+<p><strong>解决</strong>：一次只关注一个里程碑。完成所有练习后再往下走。</p>
+<h3 id="2">难题 2：“不知道什么时候该用哪个功能”</h3>
+<p><strong>解决</strong>：回到主 README 里的 <a href="README.html#你能用它做什么">Use Case Matrix</a>。</p>
+<h3 id="3">难题 3：“配置没有生效”</h3>
+<p><strong>解决</strong>：检查主 README 里的 <a href="README.html#故障排查">Troubleshooting</a> 部分，并确认文件路径。</p>
+<h3 id="4">难题 4：“概念之间好像重叠”</h3>
+<p><strong>解决</strong>：查看主 README 里的 <a href="README.html#功能对比">Feature Comparison</a> 表，理解差异。</p>
+<h3 id="5">难题 5：“太多东西记不住”</h3>
+<p><strong>解决</strong>：自己做一份速查表；同时用 checkpoints 安全试验。</p>
+<h3 id="6">难题 6：“我经验很足，但不知道从哪里开始”</h3>
+<p><strong>解决</strong>：先做上面的 <a href="#-找到你的水平">自我评估测验</a>，直接跳到你的水平，并用前置条件检查找出空缺。</p>
+<hr />
+<h2 id="_43">🎯 学完之后做什么？</h2>
+<p>完成所有里程碑后，可以继续做这些事：</p>
+<ol>
+<li><strong>写团队文档</strong> - 记录团队的 Claude Code 配置</li>
+<li><strong>构建自定义 plugins</strong> - 把团队工作流打包起来</li>
+<li><strong>探索 Remote Control</strong> - 通过外部工具以编程方式控制 Claude Code 会话</li>
+<li><strong>试试 Web Sessions</strong> - 用浏览器界面远程开发</li>
+<li><strong>使用 Desktop App</strong> - 通过原生桌面应用访问 Claude Code</li>
+<li><strong>使用自动模式（Auto Mode）</strong> - 让 Claude 在后台安全分类器保护下自主工作</li>
+<li><strong>启用 Auto Memory</strong> - 让 Claude 随时间自动学习你的偏好</li>
+<li><strong>设置 Agent Teams</strong> - 让多个 agent 协同处理复杂、多维任务</li>
+<li><strong>使用通道（Channels）</strong> - 用结构化的多会话工作流组织工作</li>
+<li><strong>试试语音输入（Voice Dictation）</strong> - 用语音无障碍地与 Claude Code 交互</li>
+<li><strong>使用 Scheduled Tasks</strong> - 借助 <code>/loop</code> 和 cron 工具自动化周期性检查</li>
+<li><strong>贡献示例</strong> - 把经验分享给社区</li>
+<li><strong>带新人</strong> - 帮助队友快速上手</li>
+<li><strong>持续优化工作流</strong> - 根据使用情况不断改进</li>
+<li><strong>保持更新</strong> - 跟进 Claude Code 发布和新功能</li>
+</ol>
+<hr />
+<h2 id="_44">📚 其他资源</h2>
+<h3 id="_45">官方文档</h3>
+<ul>
+<li><a href="https://code.claude.com/docs/en/overview">Claude Code Documentation</a></li>
+<li><a href="https://docs.anthropic.com">Anthropic Documentation</a></li>
+<li><a href="https://modelcontextprotocol.io">MCP Protocol Specification</a></li>
+</ul>
+<h3 id="_46">博客文章</h3>
+<ul>
+<li><a href="https://medium.com/@luongnv89/discovering-claude-code-slash-commands-cdc17f0dfb29">Discovering Claude Code Slash Commands</a></li>
+</ul>
+<h3 id="_47">社区</h3>
+<ul>
+<li><a href="https://github.com/anthropics/anthropic-cookbook">Anthropic Cookbook</a></li>
+<li><a href="https://github.com/modelcontextprotocol/servers">MCP Servers Repository</a></li>
+</ul>
+<hr />
+<h2 id="_48">💬 反馈与支持</h2>
+<ul>
+<li><strong>发现问题？</strong> 在仓库里创建 issue</li>
+<li><strong>有建议？</strong> 提交 pull request</li>
+<li><strong>需要帮助？</strong> 查看文档，或者向社区提问</li>
+</ul>
+<hr />
+<p><strong>最后更新</strong>：2026 年 3 月
+<strong>维护者</strong>：Claude How-To Contributors
+<strong>许可证</strong>：仅供学习与参考，免费使用和改编</p>
+<hr />
+<p><a href="README.html">← 返回主 README</a></p>
+  </div>
+  <footer class="site-footer">
+    Claude How To &mdash; 结构化、可视化的 Claude Code 学习指南 &bull;
+    <a href="https://github.com/luongnv89/claude-howto">GitHub</a>
+  </footer>
+</main>
+</body>
+</html>

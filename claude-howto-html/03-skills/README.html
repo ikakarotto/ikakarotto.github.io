@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skills 技能 - Claude How To</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-code: #f1f3f5;
+  --text: #1a1a2e;
+  --text-secondary: #495057;
+  --accent: #22c55e;
+  --accent-dark: #16a34a;
+  --accent-bg: #f0fdf4;
+  --border: #e5e7eb;
+  --sidebar-w: 280px;
+  --header-h: 56px;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  z-index: 100;
+}
+.site-header .logo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.site-header .logo span { color: var(--accent); }
+.site-header nav { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.site-header nav a {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.site-header nav a:hover,
+.site-header nav a.active {
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 20px 0;
+  z-index: 50;
+  scrollbar-width: thin;
+}
+.sidebar::-webkit-scrollbar { width: 5px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.sidebar-section {
+  margin-bottom: 8px;
+}
+.sidebar-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  padding: 8px 20px 4px;
+}
+.sidebar a {
+  display: block;
+  padding: 6px 20px 6px 28px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+  line-height: 1.5;
+}
+.sidebar a:hover {
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+}
+.sidebar a.active {
+  border-left-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+.sidebar .module-num {
+  display: inline-block;
+  width: 22px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ---------- Main content ---------- */
+.main-content {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--header-h);
+  min-height: calc(100vh - var(--header-h));
+}
+.content-wrapper {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+}
+
+/* ---------- Typography ---------- */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  color: var(--text);
+}
+h1 { font-size: 2rem; margin-top: 0; border-bottom: 2px solid var(--accent); padding-bottom: 0.3em; }
+h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.2rem; }
+h4 { font-size: 1.05rem; }
+
+h1:first-child { margin-top: 0; }
+
+p { margin-bottom: 1em; }
+
+a { color: var(--accent-dark); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+strong { font-weight: 700; }
+
+/* ---------- Lists ---------- */
+ul, ol { margin: 0.5em 0 1em 1.5em; }
+li { margin-bottom: 0.35em; }
+li > ul, li > ol { margin-top: 0.3em; margin-bottom: 0.3em; }
+
+/* ---------- Code ---------- */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--bg-code);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: #d63384;
+}
+pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  margin: 1em 0 1.2em;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  box-shadow: var(--shadow);
+}
+pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Pygments dark theme override */
+.highlight { background: #1e293b; border-radius: var(--radius); margin: 1em 0 1.2em; overflow-x: auto; }
+.highlight pre { margin: 0; box-shadow: none; }
+code.language-mermaid { display: block; background: #f8fafc; color: #334155; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); white-space: pre-wrap; font-size: 0.85rem; }
+
+/* ---------- Tables ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0 1.2em;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+thead { background: var(--accent-bg); }
+th {
+  font-weight: 700;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent-dark);
+}
+td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) { background: var(--bg-secondary); }
+tr:hover { background: var(--accent-bg); }
+
+/* ---------- Blockquote ---------- */
+blockquote {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-bg);
+  padding: 12px 16px;
+  margin: 1em 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text-secondary);
+}
+blockquote p:last-child { margin-bottom: 0; }
+
+/* ---------- HR ---------- */
+hr {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 2em 0;
+}
+
+/* ---------- Images ---------- */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+
+/* ---------- Details / Collapsible ---------- */
+details {
+  margin: 1em 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0;
+  overflow: hidden;
+}
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid transparent;
+  transition: background 0.15s;
+}
+details summary:hover { background: var(--accent-bg); }
+details[open] summary { border-bottom-color: var(--border); }
+details > *:not(summary) { padding: 0 16px; }
+details > *:last-child { padding-bottom: 16px; }
+
+/* ---------- Badges / Images ---------- */
+p > img[src*="shields.io"] { display: inline-block; margin: 2px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; }
+  .content-wrapper { padding: 24px 16px 60px; }
+  .site-header nav { display: none; }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  .sidebar, .site-header { display: none; }
+  .main-content { margin: 0; }
+  .content-wrapper { max-width: 100%; padding: 0; }
+  pre { white-space: pre-wrap; word-break: break-all; }
+}
+
+/* ---------- TOC (in-page) ---------- */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 1.5em 0;
+}
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc > ul > li { margin-bottom: 4px; }
+.toc a { font-size: 0.9rem; }
+.toc ul ul { padding-left: 1.2em; }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #1e293b;  background: #272822; color: #F8F8F2 }
+.highlight .c { color: #959077 } /* Comment */
+.highlight .err { color: #ED007E; background-color: #1E0010 } /* Error */
+.highlight .esc { color: #F8F8F2 } /* Escape */
+.highlight .g { color: #F8F8F2 } /* Generic */
+.highlight .k { color: #66D9EF } /* Keyword */
+.highlight .l { color: #AE81FF } /* Literal */
+.highlight .n { color: #F8F8F2 } /* Name */
+.highlight .o { color: #FF4689 } /* Operator */
+.highlight .x { color: #F8F8F2 } /* Other */
+.highlight .p { color: #F8F8F2 } /* Punctuation */
+.highlight .ch { color: #959077 } /* Comment.Hashbang */
+.highlight .cm { color: #959077 } /* Comment.Multiline */
+.highlight .cp { color: #959077 } /* Comment.Preproc */
+.highlight .cpf { color: #959077 } /* Comment.PreprocFile */
+.highlight .c1 { color: #959077 } /* Comment.Single */
+.highlight .cs { color: #959077 } /* Comment.Special */
+.highlight .gd { color: #FF4689 } /* Generic.Deleted */
+.highlight .ge { color: #F8F8F2; font-style: italic } /* Generic.Emph */
+.highlight .ges { color: #F8F8F2; font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #F8F8F2 } /* Generic.Error */
+.highlight .gh { color: #F8F8F2 } /* Generic.Heading */
+.highlight .gi { color: #A6E22E } /* Generic.Inserted */
+.highlight .go { color: #66D9EF } /* Generic.Output */
+.highlight .gp { color: #FF4689; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { color: #F8F8F2; font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #959077 } /* Generic.Subheading */
+.highlight .gt { color: #F8F8F2 } /* Generic.Traceback */
+.highlight .kc { color: #66D9EF } /* Keyword.Constant */
+.highlight .kd { color: #66D9EF } /* Keyword.Declaration */
+.highlight .kn { color: #FF4689 } /* Keyword.Namespace */
+.highlight .kp { color: #66D9EF } /* Keyword.Pseudo */
+.highlight .kr { color: #66D9EF } /* Keyword.Reserved */
+.highlight .kt { color: #66D9EF } /* Keyword.Type */
+.highlight .ld { color: #E6DB74 } /* Literal.Date */
+.highlight .m { color: #AE81FF } /* Literal.Number */
+.highlight .s { color: #E6DB74 } /* Literal.String */
+.highlight .na { color: #A6E22E } /* Name.Attribute */
+.highlight .nb { color: #F8F8F2 } /* Name.Builtin */
+.highlight .nc { color: #A6E22E } /* Name.Class */
+.highlight .no { color: #66D9EF } /* Name.Constant */
+.highlight .nd { color: #A6E22E } /* Name.Decorator */
+.highlight .ni { color: #F8F8F2 } /* Name.Entity */
+.highlight .ne { color: #A6E22E } /* Name.Exception */
+.highlight .nf { color: #A6E22E } /* Name.Function */
+.highlight .nl { color: #F8F8F2 } /* Name.Label */
+.highlight .nn { color: #F8F8F2 } /* Name.Namespace */
+.highlight .nx { color: #A6E22E } /* Name.Other */
+.highlight .py { color: #F8F8F2 } /* Name.Property */
+.highlight .nt { color: #FF4689 } /* Name.Tag */
+.highlight .nv { color: #F8F8F2 } /* Name.Variable */
+.highlight .ow { color: #FF4689 } /* Operator.Word */
+.highlight .pm { color: #F8F8F2 } /* Punctuation.Marker */
+.highlight .w { color: #F8F8F2 } /* Text.Whitespace */
+.highlight .mb { color: #AE81FF } /* Literal.Number.Bin */
+.highlight .mf { color: #AE81FF } /* Literal.Number.Float */
+.highlight .mh { color: #AE81FF } /* Literal.Number.Hex */
+.highlight .mi { color: #AE81FF } /* Literal.Number.Integer */
+.highlight .mo { color: #AE81FF } /* Literal.Number.Oct */
+.highlight .sa { color: #E6DB74 } /* Literal.String.Affix */
+.highlight .sb { color: #E6DB74 } /* Literal.String.Backtick */
+.highlight .sc { color: #E6DB74 } /* Literal.String.Char */
+.highlight .dl { color: #E6DB74 } /* Literal.String.Delimiter */
+.highlight .sd { color: #E6DB74 } /* Literal.String.Doc */
+.highlight .s2 { color: #E6DB74 } /* Literal.String.Double */
+.highlight .se { color: #AE81FF } /* Literal.String.Escape */
+.highlight .sh { color: #E6DB74 } /* Literal.String.Heredoc */
+.highlight .si { color: #E6DB74 } /* Literal.String.Interpol */
+.highlight .sx { color: #E6DB74 } /* Literal.String.Other */
+.highlight .sr { color: #E6DB74 } /* Literal.String.Regex */
+.highlight .s1 { color: #E6DB74 } /* Literal.String.Single */
+.highlight .ss { color: #E6DB74 } /* Literal.String.Symbol */
+.highlight .bp { color: #F8F8F2 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #A6E22E } /* Name.Function.Magic */
+.highlight .vc { color: #F8F8F2 } /* Name.Variable.Class */
+.highlight .vg { color: #F8F8F2 } /* Name.Variable.Global */
+.highlight .vi { color: #F8F8F2 } /* Name.Variable.Instance */
+.highlight .vm { color: #F8F8F2 } /* Name.Variable.Magic */
+.highlight .il { color: #AE81FF } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="site-header">
+  <a class="logo" href="../README.html"><span>&gt;_</span> Claude How To</a>
+  <nav><a href="../README.html">首页</a> <a href="../LEARNING-ROADMAP.html">学习路线</a> <a href="../QUICK_REFERENCE.html">速查手册</a> <a href="../CATALOG.html">功能目录</a> <a href="../claude_concepts_guide.html">概念总览</a></nav>
+</header>
+<aside class="sidebar">
+<div class="sidebar-section">
+<div class="sidebar-section-title">入门</div>
+<a href="../README.html" class="">首页</a>
+<a href="../LEARNING-ROADMAP.html" class="">学习路线图</a>
+<a href="../QUICK_REFERENCE.html" class="">速查手册</a>
+<a href="../CATALOG.html" class="">功能目录</a>
+<a href="../INDEX.html" class="">完整索引</a>
+<a href="../claude_concepts_guide.html" class="">概念总览</a>
+<a href="../clean-code-rules.html" class="">整洁代码规范</a>
+<a href="../resources.html" class="">资源汇总</a>
+<a href="../CONTRIBUTING.html" class="">参与贡献</a>
+<a href="../CHANGELOG.html" class="">更新日志</a>
+</div>
+<div class="sidebar-section">
+<div class="sidebar-section-title">教程模块</div>
+<a href="../01-slash-commands/README.html" class=""><span class="module-num">01</span>sh Commands 斜杠命令</a>
+<a href="../01-slash-commands/commit.html" class="" style="padding-left:44px;font-size:0.8rem;">Commit</a>
+<a href="../01-slash-commands/doc-refactor.html" class="" style="padding-left:44px;font-size:0.8rem;">Doc Refactor</a>
+<a href="../01-slash-commands/generate-api-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Api Docs</a>
+<a href="../01-slash-commands/optimize.html" class="" style="padding-left:44px;font-size:0.8rem;">Optimize</a>
+<a href="../01-slash-commands/pr.html" class="" style="padding-left:44px;font-size:0.8rem;">Pr</a>
+<a href="../01-slash-commands/push-all.html" class="" style="padding-left:44px;font-size:0.8rem;">Push All</a>
+<a href="../01-slash-commands/setup-ci-cd.html" class="" style="padding-left:44px;font-size:0.8rem;">Setup Ci Cd</a>
+<a href="../01-slash-commands/unit-test-expand.html" class="" style="padding-left:44px;font-size:0.8rem;">Unit Test Expand</a>
+<a href="../02-memory/README.html" class=""><span class="module-num">02</span>ory 记忆系统</a>
+<a href="../02-memory/directory-api-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Directory Api Claude</a>
+<a href="../02-memory/personal-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Personal Claude</a>
+<a href="../02-memory/project-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Project Claude</a>
+<a href="README.html" class=" active"><span class="module-num">03</span>lls 技能</a>
+<a href="blog-draft/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="blog-draft/templates/draft-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Draft Template</a>
+<a href="blog-draft/templates/outline-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Outline Template</a>
+<a href="brand-voice/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="brand-voice/tone-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Tone Examples</a>
+<a href="claude-md/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="code-review/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="code-review/templates/finding-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Finding Template</a>
+<a href="code-review/templates/review-checklist.html" class="" style="padding-left:44px;font-size:0.8rem;">Review Checklist</a>
+<a href="doc-generator/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="refactor/references/code-smells.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Smells</a>
+<a href="refactor/references/refactoring-catalog.html" class="" style="padding-left:44px;font-size:0.8rem;">Refactoring Catalog</a>
+<a href="refactor/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="refactor/templates/refactoring-plan.html" class="" style="padding-left:44px;font-size:0.8rem;">Refactoring Plan</a>
+<a href="../04-subagents/README.html" class=""><span class="module-num">04</span>agents 子代理</a>
+<a href="../04-subagents/clean-code-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Clean Code Reviewer</a>
+<a href="../04-subagents/code-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Reviewer</a>
+<a href="../04-subagents/data-scientist.html" class="" style="padding-left:44px;font-size:0.8rem;">Data Scientist</a>
+<a href="../04-subagents/debugger.html" class="" style="padding-left:44px;font-size:0.8rem;">Debugger</a>
+<a href="../04-subagents/documentation-writer.html" class="" style="padding-left:44px;font-size:0.8rem;">Documentation Writer</a>
+<a href="../04-subagents/implementation-agent.html" class="" style="padding-left:44px;font-size:0.8rem;">Implementation Agent</a>
+<a href="../04-subagents/secure-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Secure Reviewer</a>
+<a href="../04-subagents/test-engineer.html" class="" style="padding-left:44px;font-size:0.8rem;">Test Engineer</a>
+<a href="../05-mcp/README.html" class=""><span class="module-num">05</span> 协议</a>
+<a href="../06-hooks/README.html" class=""><span class="module-num">06</span>ks 钩子</a>
+<a href="../07-plugins/README.html" class=""><span class="module-num">07</span>gins 插件</a>
+<a href="../07-plugins/devops-automation/agents/alert-analyzer.html" class="" style="padding-left:44px;font-size:0.8rem;">Alert Analyzer</a>
+<a href="../07-plugins/devops-automation/agents/deployment-specialist.html" class="" style="padding-left:44px;font-size:0.8rem;">Deployment Specialist</a>
+<a href="../07-plugins/devops-automation/agents/incident-commander.html" class="" style="padding-left:44px;font-size:0.8rem;">Incident Commander</a>
+<a href="../07-plugins/devops-automation/commands/deploy.html" class="" style="padding-left:44px;font-size:0.8rem;">Deploy</a>
+<a href="../07-plugins/devops-automation/commands/incident.html" class="" style="padding-left:44px;font-size:0.8rem;">Incident</a>
+<a href="../07-plugins/devops-automation/commands/rollback.html" class="" style="padding-left:44px;font-size:0.8rem;">Rollback</a>
+<a href="../07-plugins/devops-automation/commands/status.html" class="" style="padding-left:44px;font-size:0.8rem;">Status</a>
+<a href="../07-plugins/documentation/agents/api-documenter.html" class="" style="padding-left:44px;font-size:0.8rem;">Api Documenter</a>
+<a href="../07-plugins/documentation/agents/code-commentator.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Commentator</a>
+<a href="../07-plugins/documentation/agents/example-generator.html" class="" style="padding-left:44px;font-size:0.8rem;">Example Generator</a>
+<a href="../07-plugins/documentation/commands/generate-api-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Api Docs</a>
+<a href="../07-plugins/documentation/commands/generate-readme.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Readme</a>
+<a href="../07-plugins/documentation/commands/sync-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Sync Docs</a>
+<a href="../07-plugins/documentation/commands/validate-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Validate Docs</a>
+<a href="../07-plugins/documentation/templates/adr-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Adr Template</a>
+<a href="../07-plugins/documentation/templates/api-endpoint.html" class="" style="padding-left:44px;font-size:0.8rem;">Api Endpoint</a>
+<a href="../07-plugins/documentation/templates/function-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Function Docs</a>
+<a href="../07-plugins/pr-review/agents/performance-analyzer.html" class="" style="padding-left:44px;font-size:0.8rem;">Performance Analyzer</a>
+<a href="../07-plugins/pr-review/agents/security-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Security Reviewer</a>
+<a href="../07-plugins/pr-review/agents/test-checker.html" class="" style="padding-left:44px;font-size:0.8rem;">Test Checker</a>
+<a href="../07-plugins/pr-review/commands/check-security.html" class="" style="padding-left:44px;font-size:0.8rem;">Check Security</a>
+<a href="../07-plugins/pr-review/commands/check-tests.html" class="" style="padding-left:44px;font-size:0.8rem;">Check Tests</a>
+<a href="../07-plugins/pr-review/commands/review-pr.html" class="" style="padding-left:44px;font-size:0.8rem;">Review Pr</a>
+<a href="../08-checkpoints/README.html" class=""><span class="module-num">08</span>ckpoints 检查点</a>
+<a href="../08-checkpoints/checkpoint-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Checkpoint Examples</a>
+<a href="../09-advanced-features/README.html" class=""><span class="module-num">09</span>anced Features 高级功能</a>
+<a href="../09-advanced-features/planning-mode-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Planning Mode Examples</a>
+<a href="../10-cli/README.html" class=""><span class="module-num">10</span> Reference 命令行参考</a>
+</div>
+</aside>
+<main class="main-content">
+  <div class="content-wrapper">
+<h1 id="agent-skills">Agent Skills 指南</h1>
+<h2 id="_1">概览</h2>
+<p>Skills 是可以复用、可自动触发的能力包。一个 skill 通常包含 <code>SKILL.md</code>、参考文件、脚本和模板。Claude 在合适的场景下会自动加载它。</p>
+<h3 id="_2">主要好处</h3>
+<ul>
+<li>可复用</li>
+<li>可渐进加载</li>
+<li>可以把脚本、模板、说明放在一起</li>
+<li>适合标准化流程</li>
+</ul>
+<h2 id="skills">Skills 的工作方式：渐进式披露</h2>
+<p>Skills 不会一次性把所有内容都塞进上下文，而是按需加载。</p>
+<h3 id="_3">三层加载</h3>
+<ol>
+<li><strong>只看描述</strong>：先判断这个 skill 是否相关</li>
+<li><strong>加载 <code>SKILL.md</code></strong>：读取核心说明</li>
+<li><strong>按需加载支持文件</strong>：脚本、模板、参考资料</li>
+</ol>
+<h2 id="skill">Skill 加载流程</h2>
+<ol>
+<li>Claude 扫描技能目录</li>
+<li>根据描述判断是否匹配当前任务</li>
+<li>读取 <code>SKILL.md</code></li>
+<li>如有需要，再加载脚本和辅助文件</li>
+</ol>
+<h2 id="skill_1">Skill 类型与位置</h2>
+<p>Skills 可以放在：</p>
+<ul>
+<li>项目目录下的 <code>.claude/skills/</code></li>
+<li>用户目录下的 <code>~/.claude/skills/</code></li>
+</ul>
+<h3 id="_4">自动发现</h3>
+<p>只要目录结构正确，Claude 就会自动发现这些 Skills。</p>
+<h2 id="skills_1">创建自定义 Skills</h2>
+<h3 id="_5">基本目录结构</h3>
+<div class="highlight"><pre><span></span><code>my-skill/
+└── SKILL.md
+</code></pre></div>
+
+<h3 id="skillmd"><code>SKILL.md</code> 格式</h3>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-skill</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">这个 skill 的用途，以及什么时候触发</span>
+<span class="nn">---</span>
+
+<span class="c1"># Your Skill Name</span>
+
+<span class="c1">## Instructions</span>
+
+<span class="c1">## Examples</span>
+</code></pre></div>
+
+<h3 id="_6">必填字段</h3>
+<ul>
+<li><code>name</code></li>
+<li><code>description</code></li>
+</ul>
+<h3 id="frontmatter">可选 frontmatter 字段</h3>
+<ul>
+<li><code>argument-hint</code></li>
+<li><code>allowed-tools</code></li>
+<li><code>model</code></li>
+<li><code>disable-model-invocation</code></li>
+<li><code>user-invocable</code></li>
+<li><code>context</code></li>
+<li><code>agent</code></li>
+<li><code>hooks</code></li>
+</ul>
+<h2 id="skill_2">Skill 内容类型</h2>
+<h3 id="_7">参考内容</h3>
+<p>适合放规则、标准、文档片段和示例。</p>
+<h3 id="_8">任务内容</h3>
+<p>适合放具体步骤、执行流程和结果格式要求。</p>
+<h2 id="skill_3">控制 Skill 的调用</h2>
+<p>你可以通过 <code>disable-model-invocation</code>、<code>user-invocable</code> 和工具白名单来控制 Claude 是否能自动调用这个 skill。</p>
+<h2 id="_9">字符串替换</h2>
+<p>Skills 支持 <code>$ARGUMENTS</code>、<code>$0</code>、<code>$1</code> 等参数替换。</p>
+<h3 id="_10">动态上下文注入</h3>
+<p>你可以在 prompt 里插入 shell 命令结果：</p>
+<div class="highlight"><pre><span></span><code><span class="k">-</span><span class="w"> </span>当前 git 状态：!`git status`
+<span class="k">-</span><span class="w"> </span>当前 diff：!`git diff HEAD`
+<span class="k">-</span><span class="w"> </span>当前分支：!`git branch --show-current`
+</code></pre></div>
+
+<h2 id="subagent-skills">在 subagent 中运行 Skills</h2>
+<p>某些 skill 适合在隔离上下文中运行，这样可以降低对主会话的影响。</p>
+<h2 id="_11">实战示例</h2>
+<h3 id="1-skill">示例 1：代码审查 Skill</h3>
+<p>一个典型的审查 skill 会包含：</p>
+<ul>
+<li>审查模板</li>
+<li>风险等级</li>
+<li>输出格式</li>
+<li>需要关注的维度</li>
+</ul>
+<h3 id="2-skill">示例 2：代码库可视化 Skill</h3>
+<p>可以把代码库结构、依赖关系和模块边界总结给 Claude，便于快速理解。</p>
+<h3 id="3-skill">示例 3：部署 Skill（只允许用户触发）</h3>
+<p>适合带副作用的操作，比如生产环境部署。通常会配合 <code>disable-model-invocation: true</code>。</p>
+<h3 id="4-skill">示例 4：品牌语气 Skill</h3>
+<p>用于检查输出是否符合品牌语气、语调和表达风格。</p>
+<h3 id="5claudemd-skill">示例 5：<code>CLAUDE.md</code> 生成 Skill</h3>
+<p>可以从项目文档中生成或补充 <code>CLAUDE.md</code>。</p>
+<h3 id="6-skill">示例 6：带脚本的重构 Skill</h3>
+<p>常见组合是：</p>
+<ul>
+<li><code>SKILL.md</code></li>
+<li><code>scripts/</code></li>
+<li><code>templates/</code></li>
+<li><code>references/</code></li>
+</ul>
+<h2 id="skills_2">管理 Skills</h2>
+<h3 id="skills_3">查看可用 Skills</h3>
+<div class="highlight"><pre><span></span><code>/skills
+</code></pre></div>
+
+<h3 id="skill_4">测试一个 Skill</h3>
+<p>把它放到测试目录或者临时项目里，然后通过相应命令触发。</p>
+<h3 id="skill_5">更新 Skill</h3>
+<p>修改 <code>SKILL.md</code> 或支持文件后，重新打开会话或重新加载即可。</p>
+<h3 id="claude-skill">限制 Claude 对 Skill 的访问</h3>
+<p>你可以通过权限配置，只允许 Claude 访问某些 skill。</p>
+<h2 id="_12">最佳实践</h2>
+<h3 id="1">1. 描述要具体</h3>
+<p>让 <code>description</code> 明确说明这个 skill 在什么时候触发。</p>
+<h3 id="2">2. 保持聚焦</h3>
+<p>一个 skill 解决一个问题，不要什么都塞进去。</p>
+<h3 id="3">3. 包含触发词</h3>
+<p>在描述里加入相关关键词，帮助 Claude 更准确地选择它。</p>
+<h3 id="4-skillmd">4. <code>SKILL.md</code> 不要太长</h3>
+<p>尽量控制在 500 行以内，超过就拆分支持文件。</p>
+<h3 id="5">5. 引用支持文件</h3>
+<p>把重复内容移到脚本或参考文件中，主文件只保留核心说明。</p>
+<h2 id="_13">故障排查</h2>
+<h3 id="_14">快速参考</h3>
+<ul>
+<li>检查目录结构是否正确</li>
+<li>检查 <code>SKILL.md</code> frontmatter 是否有效</li>
+<li>检查 skill 名称是否和调用名一致</li>
+</ul>
+<h3 id="skill_6">Skill 没有触发</h3>
+<ul>
+<li>检查描述是否足够具体</li>
+<li>检查目录是否在 Claude 可见范围内</li>
+<li>检查是否被更高优先级的 skill 覆盖</li>
+</ul>
+<h3 id="skill_7">Skill 触发太频繁</h3>
+<ul>
+<li>收紧描述</li>
+<li>增加约束条件</li>
+<li>用更具体的触发词</li>
+</ul>
+<h3 id="claude-skills">Claude 看不到全部 Skills</h3>
+<ul>
+<li>检查路径</li>
+<li>检查权限</li>
+<li>重新加载会话</li>
+</ul>
+<h2 id="_15">安全注意事项</h2>
+<ul>
+<li>不要在 skill 中硬编码密钥</li>
+<li>对副作用操作保持用户触发</li>
+<li>给自动触发的 skill 设置清晰边界</li>
+</ul>
+<h2 id="skills-vs">Skills vs 其他功能</h2>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>触发方式</th>
+<th>适合场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Skills</td>
+<td>自动/半自动</td>
+<td>复用能力、流程标准化</td>
+</tr>
+<tr>
+<td>Slash Commands</td>
+<td>手动</td>
+<td>快捷命令</td>
+</tr>
+<tr>
+<td>Subagents</td>
+<td>自动委派</td>
+<td>隔离任务</td>
+</tr>
+<tr>
+<td>Hooks</td>
+<td>事件触发</td>
+<td>自动化和验证</td>
+</tr>
+</tbody>
+</table>
+<h2 id="skills_4">内置 Skills</h2>
+<p>Claude Code 自带一些 Skills，例如批处理、调试、简化和 Claude API 相关内容。</p>
+<h2 id="skills_5">共享 Skills</h2>
+<h3 id="skills_6">项目 Skills（团队共享）</h3>
+<p>把 skill 放在项目目录里，团队成员都能用。</p>
+<h3 id="skills_7">个人 Skills</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 复制到个人目录</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>~/.claude/skills
+
+<span class="c1"># 让脚本可执行</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>~/.claude/skills/*/scripts/*
+</code></pre></div>
+
+<h3 id="plugin">Plugin 分发</h3>
+<p>你也可以把 Skills 作为插件的一部分发布出去。</p>
+<h2 id="_16">继续深入</h2>
+<p>如果你要管理一整套 Skills，可以再做一个 skill collection 或 skill manager，用来统一发现、更新和分发。</p>
+<h2 id="_17">更多资源</h2>
+<ul>
+<li><a href="../README.html">根目录中文指南</a></li>
+<li><a href="../01-slash-commands/README.html">Slash Commands 中文参考</a></li>
+<li><a href="../02-memory/README.html">Memory 中文指南</a></li>
+<li><a href="../04-subagents/README.html">Subagents 中文参考</a></li>
+</ul>
+  </div>
+  <footer class="site-footer">
+    Claude How To &mdash; 结构化、可视化的 Claude Code 学习指南 &bull;
+    <a href="https://github.com/luongnv89/claude-howto">GitHub</a>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLI Reference 命令行参考 - Claude How To</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-code: #f1f3f5;
+  --text: #1a1a2e;
+  --text-secondary: #495057;
+  --accent: #22c55e;
+  --accent-dark: #16a34a;
+  --accent-bg: #f0fdf4;
+  --border: #e5e7eb;
+  --sidebar-w: 280px;
+  --header-h: 56px;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  z-index: 100;
+}
+.site-header .logo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.site-header .logo span { color: var(--accent); }
+.site-header nav { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.site-header nav a {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.site-header nav a:hover,
+.site-header nav a.active {
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 20px 0;
+  z-index: 50;
+  scrollbar-width: thin;
+}
+.sidebar::-webkit-scrollbar { width: 5px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.sidebar-section {
+  margin-bottom: 8px;
+}
+.sidebar-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  padding: 8px 20px 4px;
+}
+.sidebar a {
+  display: block;
+  padding: 6px 20px 6px 28px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+  line-height: 1.5;
+}
+.sidebar a:hover {
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+}
+.sidebar a.active {
+  border-left-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+.sidebar .module-num {
+  display: inline-block;
+  width: 22px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ---------- Main content ---------- */
+.main-content {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--header-h);
+  min-height: calc(100vh - var(--header-h));
+}
+.content-wrapper {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+}
+
+/* ---------- Typography ---------- */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  color: var(--text);
+}
+h1 { font-size: 2rem; margin-top: 0; border-bottom: 2px solid var(--accent); padding-bottom: 0.3em; }
+h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.2rem; }
+h4 { font-size: 1.05rem; }
+
+h1:first-child { margin-top: 0; }
+
+p { margin-bottom: 1em; }
+
+a { color: var(--accent-dark); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+strong { font-weight: 700; }
+
+/* ---------- Lists ---------- */
+ul, ol { margin: 0.5em 0 1em 1.5em; }
+li { margin-bottom: 0.35em; }
+li > ul, li > ol { margin-top: 0.3em; margin-bottom: 0.3em; }
+
+/* ---------- Code ---------- */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--bg-code);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: #d63384;
+}
+pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  margin: 1em 0 1.2em;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  box-shadow: var(--shadow);
+}
+pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Pygments dark theme override */
+.highlight { background: #1e293b; border-radius: var(--radius); margin: 1em 0 1.2em; overflow-x: auto; }
+.highlight pre { margin: 0; box-shadow: none; }
+code.language-mermaid { display: block; background: #f8fafc; color: #334155; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); white-space: pre-wrap; font-size: 0.85rem; }
+
+/* ---------- Tables ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0 1.2em;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+thead { background: var(--accent-bg); }
+th {
+  font-weight: 700;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent-dark);
+}
+td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) { background: var(--bg-secondary); }
+tr:hover { background: var(--accent-bg); }
+
+/* ---------- Blockquote ---------- */
+blockquote {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-bg);
+  padding: 12px 16px;
+  margin: 1em 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text-secondary);
+}
+blockquote p:last-child { margin-bottom: 0; }
+
+/* ---------- HR ---------- */
+hr {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 2em 0;
+}
+
+/* ---------- Images ---------- */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+
+/* ---------- Details / Collapsible ---------- */
+details {
+  margin: 1em 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0;
+  overflow: hidden;
+}
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid transparent;
+  transition: background 0.15s;
+}
+details summary:hover { background: var(--accent-bg); }
+details[open] summary { border-bottom-color: var(--border); }
+details > *:not(summary) { padding: 0 16px; }
+details > *:last-child { padding-bottom: 16px; }
+
+/* ---------- Badges / Images ---------- */
+p > img[src*="shields.io"] { display: inline-block; margin: 2px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; }
+  .content-wrapper { padding: 24px 16px 60px; }
+  .site-header nav { display: none; }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  .sidebar, .site-header { display: none; }
+  .main-content { margin: 0; }
+  .content-wrapper { max-width: 100%; padding: 0; }
+  pre { white-space: pre-wrap; word-break: break-all; }
+}
+
+/* ---------- TOC (in-page) ---------- */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 1.5em 0;
+}
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc > ul > li { margin-bottom: 4px; }
+.toc a { font-size: 0.9rem; }
+.toc ul ul { padding-left: 1.2em; }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #1e293b;  background: #272822; color: #F8F8F2 }
+.highlight .c { color: #959077 } /* Comment */
+.highlight .err { color: #ED007E; background-color: #1E0010 } /* Error */
+.highlight .esc { color: #F8F8F2 } /* Escape */
+.highlight .g { color: #F8F8F2 } /* Generic */
+.highlight .k { color: #66D9EF } /* Keyword */
+.highlight .l { color: #AE81FF } /* Literal */
+.highlight .n { color: #F8F8F2 } /* Name */
+.highlight .o { color: #FF4689 } /* Operator */
+.highlight .x { color: #F8F8F2 } /* Other */
+.highlight .p { color: #F8F8F2 } /* Punctuation */
+.highlight .ch { color: #959077 } /* Comment.Hashbang */
+.highlight .cm { color: #959077 } /* Comment.Multiline */
+.highlight .cp { color: #959077 } /* Comment.Preproc */
+.highlight .cpf { color: #959077 } /* Comment.PreprocFile */
+.highlight .c1 { color: #959077 } /* Comment.Single */
+.highlight .cs { color: #959077 } /* Comment.Special */
+.highlight .gd { color: #FF4689 } /* Generic.Deleted */
+.highlight .ge { color: #F8F8F2; font-style: italic } /* Generic.Emph */
+.highlight .ges { color: #F8F8F2; font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #F8F8F2 } /* Generic.Error */
+.highlight .gh { color: #F8F8F2 } /* Generic.Heading */
+.highlight .gi { color: #A6E22E } /* Generic.Inserted */
+.highlight .go { color: #66D9EF } /* Generic.Output */
+.highlight .gp { color: #FF4689; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { color: #F8F8F2; font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #959077 } /* Generic.Subheading */
+.highlight .gt { color: #F8F8F2 } /* Generic.Traceback */
+.highlight .kc { color: #66D9EF } /* Keyword.Constant */
+.highlight .kd { color: #66D9EF } /* Keyword.Declaration */
+.highlight .kn { color: #FF4689 } /* Keyword.Namespace */
+.highlight .kp { color: #66D9EF } /* Keyword.Pseudo */
+.highlight .kr { color: #66D9EF } /* Keyword.Reserved */
+.highlight .kt { color: #66D9EF } /* Keyword.Type */
+.highlight .ld { color: #E6DB74 } /* Literal.Date */
+.highlight .m { color: #AE81FF } /* Literal.Number */
+.highlight .s { color: #E6DB74 } /* Literal.String */
+.highlight .na { color: #A6E22E } /* Name.Attribute */
+.highlight .nb { color: #F8F8F2 } /* Name.Builtin */
+.highlight .nc { color: #A6E22E } /* Name.Class */
+.highlight .no { color: #66D9EF } /* Name.Constant */
+.highlight .nd { color: #A6E22E } /* Name.Decorator */
+.highlight .ni { color: #F8F8F2 } /* Name.Entity */
+.highlight .ne { color: #A6E22E } /* Name.Exception */
+.highlight .nf { color: #A6E22E } /* Name.Function */
+.highlight .nl { color: #F8F8F2 } /* Name.Label */
+.highlight .nn { color: #F8F8F2 } /* Name.Namespace */
+.highlight .nx { color: #A6E22E } /* Name.Other */
+.highlight .py { color: #F8F8F2 } /* Name.Property */
+.highlight .nt { color: #FF4689 } /* Name.Tag */
+.highlight .nv { color: #F8F8F2 } /* Name.Variable */
+.highlight .ow { color: #FF4689 } /* Operator.Word */
+.highlight .pm { color: #F8F8F2 } /* Punctuation.Marker */
+.highlight .w { color: #F8F8F2 } /* Text.Whitespace */
+.highlight .mb { color: #AE81FF } /* Literal.Number.Bin */
+.highlight .mf { color: #AE81FF } /* Literal.Number.Float */
+.highlight .mh { color: #AE81FF } /* Literal.Number.Hex */
+.highlight .mi { color: #AE81FF } /* Literal.Number.Integer */
+.highlight .mo { color: #AE81FF } /* Literal.Number.Oct */
+.highlight .sa { color: #E6DB74 } /* Literal.String.Affix */
+.highlight .sb { color: #E6DB74 } /* Literal.String.Backtick */
+.highlight .sc { color: #E6DB74 } /* Literal.String.Char */
+.highlight .dl { color: #E6DB74 } /* Literal.String.Delimiter */
+.highlight .sd { color: #E6DB74 } /* Literal.String.Doc */
+.highlight .s2 { color: #E6DB74 } /* Literal.String.Double */
+.highlight .se { color: #AE81FF } /* Literal.String.Escape */
+.highlight .sh { color: #E6DB74 } /* Literal.String.Heredoc */
+.highlight .si { color: #E6DB74 } /* Literal.String.Interpol */
+.highlight .sx { color: #E6DB74 } /* Literal.String.Other */
+.highlight .sr { color: #E6DB74 } /* Literal.String.Regex */
+.highlight .s1 { color: #E6DB74 } /* Literal.String.Single */
+.highlight .ss { color: #E6DB74 } /* Literal.String.Symbol */
+.highlight .bp { color: #F8F8F2 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #A6E22E } /* Name.Function.Magic */
+.highlight .vc { color: #F8F8F2 } /* Name.Variable.Class */
+.highlight .vg { color: #F8F8F2 } /* Name.Variable.Global */
+.highlight .vi { color: #F8F8F2 } /* Name.Variable.Instance */
+.highlight .vm { color: #F8F8F2 } /* Name.Variable.Magic */
+.highlight .il { color: #AE81FF } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="site-header">
+  <a class="logo" href="../README.html"><span>&gt;_</span> Claude How To</a>
+  <nav><a href="../README.html">首页</a> <a href="../LEARNING-ROADMAP.html">学习路线</a> <a href="../QUICK_REFERENCE.html">速查手册</a> <a href="../CATALOG.html">功能目录</a> <a href="../claude_concepts_guide.html">概念总览</a></nav>
+</header>
+<aside class="sidebar">
+<div class="sidebar-section">
+<div class="sidebar-section-title">入门</div>
+<a href="../README.html" class="">首页</a>
+<a href="../LEARNING-ROADMAP.html" class="">学习路线图</a>
+<a href="../QUICK_REFERENCE.html" class="">速查手册</a>
+<a href="../CATALOG.html" class="">功能目录</a>
+<a href="../INDEX.html" class="">完整索引</a>
+<a href="../claude_concepts_guide.html" class="">概念总览</a>
+<a href="../clean-code-rules.html" class="">整洁代码规范</a>
+<a href="../resources.html" class="">资源汇总</a>
+<a href="../CONTRIBUTING.html" class="">参与贡献</a>
+<a href="../CHANGELOG.html" class="">更新日志</a>
+</div>
+<div class="sidebar-section">
+<div class="sidebar-section-title">教程模块</div>
+<a href="../01-slash-commands/README.html" class=""><span class="module-num">01</span>sh Commands 斜杠命令</a>
+<a href="../01-slash-commands/commit.html" class="" style="padding-left:44px;font-size:0.8rem;">Commit</a>
+<a href="../01-slash-commands/doc-refactor.html" class="" style="padding-left:44px;font-size:0.8rem;">Doc Refactor</a>
+<a href="../01-slash-commands/generate-api-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Api Docs</a>
+<a href="../01-slash-commands/optimize.html" class="" style="padding-left:44px;font-size:0.8rem;">Optimize</a>
+<a href="../01-slash-commands/pr.html" class="" style="padding-left:44px;font-size:0.8rem;">Pr</a>
+<a href="../01-slash-commands/push-all.html" class="" style="padding-left:44px;font-size:0.8rem;">Push All</a>
+<a href="../01-slash-commands/setup-ci-cd.html" class="" style="padding-left:44px;font-size:0.8rem;">Setup Ci Cd</a>
+<a href="../01-slash-commands/unit-test-expand.html" class="" style="padding-left:44px;font-size:0.8rem;">Unit Test Expand</a>
+<a href="../02-memory/README.html" class=""><span class="module-num">02</span>ory 记忆系统</a>
+<a href="../02-memory/directory-api-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Directory Api Claude</a>
+<a href="../02-memory/personal-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Personal Claude</a>
+<a href="../02-memory/project-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Project Claude</a>
+<a href="../03-skills/README.html" class=""><span class="module-num">03</span>lls 技能</a>
+<a href="../03-skills/blog-draft/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="../03-skills/blog-draft/templates/draft-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Draft Template</a>
+<a href="../03-skills/blog-draft/templates/outline-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Outline Template</a>
+<a href="../03-skills/brand-voice/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="../03-skills/brand-voice/tone-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Tone Examples</a>
+<a href="../03-skills/claude-md/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="../03-skills/code-review/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="../03-skills/code-review/templates/finding-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Finding Template</a>
+<a href="../03-skills/code-review/templates/review-checklist.html" class="" style="padding-left:44px;font-size:0.8rem;">Review Checklist</a>
+<a href="../03-skills/doc-generator/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="../03-skills/refactor/references/code-smells.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Smells</a>
+<a href="../03-skills/refactor/references/refactoring-catalog.html" class="" style="padding-left:44px;font-size:0.8rem;">Refactoring Catalog</a>
+<a href="../03-skills/refactor/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="../03-skills/refactor/templates/refactoring-plan.html" class="" style="padding-left:44px;font-size:0.8rem;">Refactoring Plan</a>
+<a href="../04-subagents/README.html" class=""><span class="module-num">04</span>agents 子代理</a>
+<a href="../04-subagents/clean-code-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Clean Code Reviewer</a>
+<a href="../04-subagents/code-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Reviewer</a>
+<a href="../04-subagents/data-scientist.html" class="" style="padding-left:44px;font-size:0.8rem;">Data Scientist</a>
+<a href="../04-subagents/debugger.html" class="" style="padding-left:44px;font-size:0.8rem;">Debugger</a>
+<a href="../04-subagents/documentation-writer.html" class="" style="padding-left:44px;font-size:0.8rem;">Documentation Writer</a>
+<a href="../04-subagents/implementation-agent.html" class="" style="padding-left:44px;font-size:0.8rem;">Implementation Agent</a>
+<a href="../04-subagents/secure-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Secure Reviewer</a>
+<a href="../04-subagents/test-engineer.html" class="" style="padding-left:44px;font-size:0.8rem;">Test Engineer</a>
+<a href="../05-mcp/README.html" class=""><span class="module-num">05</span> 协议</a>
+<a href="../06-hooks/README.html" class=""><span class="module-num">06</span>ks 钩子</a>
+<a href="../07-plugins/README.html" class=""><span class="module-num">07</span>gins 插件</a>
+<a href="../07-plugins/devops-automation/agents/alert-analyzer.html" class="" style="padding-left:44px;font-size:0.8rem;">Alert Analyzer</a>
+<a href="../07-plugins/devops-automation/agents/deployment-specialist.html" class="" style="padding-left:44px;font-size:0.8rem;">Deployment Specialist</a>
+<a href="../07-plugins/devops-automation/agents/incident-commander.html" class="" style="padding-left:44px;font-size:0.8rem;">Incident Commander</a>
+<a href="../07-plugins/devops-automation/commands/deploy.html" class="" style="padding-left:44px;font-size:0.8rem;">Deploy</a>
+<a href="../07-plugins/devops-automation/commands/incident.html" class="" style="padding-left:44px;font-size:0.8rem;">Incident</a>
+<a href="../07-plugins/devops-automation/commands/rollback.html" class="" style="padding-left:44px;font-size:0.8rem;">Rollback</a>
+<a href="../07-plugins/devops-automation/commands/status.html" class="" style="padding-left:44px;font-size:0.8rem;">Status</a>
+<a href="../07-plugins/documentation/agents/api-documenter.html" class="" style="padding-left:44px;font-size:0.8rem;">Api Documenter</a>
+<a href="../07-plugins/documentation/agents/code-commentator.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Commentator</a>
+<a href="../07-plugins/documentation/agents/example-generator.html" class="" style="padding-left:44px;font-size:0.8rem;">Example Generator</a>
+<a href="../07-plugins/documentation/commands/generate-api-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Api Docs</a>
+<a href="../07-plugins/documentation/commands/generate-readme.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Readme</a>
+<a href="../07-plugins/documentation/commands/sync-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Sync Docs</a>
+<a href="../07-plugins/documentation/commands/validate-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Validate Docs</a>
+<a href="../07-plugins/documentation/templates/adr-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Adr Template</a>
+<a href="../07-plugins/documentation/templates/api-endpoint.html" class="" style="padding-left:44px;font-size:0.8rem;">Api Endpoint</a>
+<a href="../07-plugins/documentation/templates/function-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Function Docs</a>
+<a href="../07-plugins/pr-review/agents/performance-analyzer.html" class="" style="padding-left:44px;font-size:0.8rem;">Performance Analyzer</a>
+<a href="../07-plugins/pr-review/agents/security-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Security Reviewer</a>
+<a href="../07-plugins/pr-review/agents/test-checker.html" class="" style="padding-left:44px;font-size:0.8rem;">Test Checker</a>
+<a href="../07-plugins/pr-review/commands/check-security.html" class="" style="padding-left:44px;font-size:0.8rem;">Check Security</a>
+<a href="../07-plugins/pr-review/commands/check-tests.html" class="" style="padding-left:44px;font-size:0.8rem;">Check Tests</a>
+<a href="../07-plugins/pr-review/commands/review-pr.html" class="" style="padding-left:44px;font-size:0.8rem;">Review Pr</a>
+<a href="../08-checkpoints/README.html" class=""><span class="module-num">08</span>ckpoints 检查点</a>
+<a href="../08-checkpoints/checkpoint-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Checkpoint Examples</a>
+<a href="../09-advanced-features/README.html" class=""><span class="module-num">09</span>anced Features 高级功能</a>
+<a href="../09-advanced-features/planning-mode-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Planning Mode Examples</a>
+<a href="README.html" class=" active"><span class="module-num">10</span> Reference 命令行参考</a>
+</div>
+</aside>
+<main class="main-content">
+  <div class="content-wrapper">
+<h1 id="cli">CLI 参考</h1>
+<h2 id="_1">概览</h2>
+<p>Claude Code 的 CLI（命令行接口）是与 Claude Code 交互的主要方式。它提供了强大的参数和命令，用于执行查询、管理会话、配置模型，并把 Claude 集成进你的开发工作流。</p>
+<h2 id="_2">架构</h2>
+<div class="highlight"><pre><span></span><code>graph TD
+    A[&quot;用户终端&quot;] --&gt;|&quot;claude [options] [query]&quot;| B[&quot;Claude Code CLI&quot;]
+    B --&gt;|Interactive| C[&quot;REPL 模式&quot;]
+    B --&gt;|&quot;--print&quot;| D[&quot;打印模式（SDK）&quot;]
+    B --&gt;|&quot;--resume&quot;| E[&quot;恢复会话&quot;]
+    C --&gt;|Conversation| F[&quot;Claude API&quot;]
+    D --&gt;|Single Query| F
+    E --&gt;|Load Context| F
+    F --&gt;|Response| G[&quot;输出&quot;]
+    G --&gt;|text/json/stream-json| H[&quot;终端 / 管道&quot;]
+</code></pre></div>
+
+<h2 id="cli_1">CLI 命令</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude</code></td>
+<td>启动交互式 REPL</td>
+<td><code>claude</code></td>
+</tr>
+<tr>
+<td><code>claude "query"</code></td>
+<td>带初始提示启动 REPL</td>
+<td><code>claude "解释这个项目"</code></td>
+</tr>
+<tr>
+<td><code>claude -p "query"</code></td>
+<td>打印模式，查询后退出</td>
+<td><code>claude -p "解释这个函数"</code></td>
+</tr>
+<tr>
+<td><code>cat file \| claude -p "query"</code></td>
+<td>处理通过管道传入的内容</td>
+<td><code>cat logs.txt \| claude -p "解释这些日志"</code></td>
+</tr>
+<tr>
+<td><code>claude -c</code></td>
+<td>继续最近一次会话</td>
+<td><code>claude -c</code></td>
+</tr>
+<tr>
+<td><code>claude -c -p "query"</code></td>
+<td>在打印模式下继续会话</td>
+<td><code>claude -c -p "检查类型错误"</code></td>
+</tr>
+<tr>
+<td><code>claude -r "&lt;session&gt;" "query"</code></td>
+<td>通过 ID 或名称恢复会话</td>
+<td><code>claude -r "auth-refactor" "完成这个 PR"</code></td>
+</tr>
+<tr>
+<td><code>claude update</code></td>
+<td>更新到最新版本</td>
+<td><code>claude update</code></td>
+</tr>
+<tr>
+<td><code>claude mcp</code></td>
+<td>配置 MCP servers</td>
+<td>见 <a href="../05-mcp/README.html">MCP 文档</a></td>
+</tr>
+<tr>
+<td><code>claude mcp serve</code></td>
+<td>将 Claude Code 作为 MCP server 运行</td>
+<td><code>claude mcp serve</code></td>
+</tr>
+<tr>
+<td><code>claude agents</code></td>
+<td>列出所有已配置的 subagents</td>
+<td><code>claude agents</code></td>
+</tr>
+<tr>
+<td><code>claude auto-mode defaults</code></td>
+<td>以 JSON 打印 auto mode 默认规则</td>
+<td><code>claude auto-mode defaults</code></td>
+</tr>
+<tr>
+<td><code>claude remote-control</code></td>
+<td>启动远程控制服务</td>
+<td><code>claude remote-control</code></td>
+</tr>
+<tr>
+<td><code>claude plugin</code></td>
+<td>管理插件（安装、启用、禁用）</td>
+<td><code>claude plugin install my-plugin</code></td>
+</tr>
+<tr>
+<td><code>claude auth login</code></td>
+<td>登录（支持 <code>--email</code>、<code>--sso</code>）</td>
+<td><code>claude auth login --email user@example.com</code></td>
+</tr>
+<tr>
+<td><code>claude auth logout</code></td>
+<td>注销当前账号</td>
+<td><code>claude auth logout</code></td>
+</tr>
+<tr>
+<td><code>claude auth status</code></td>
+<td>检查登录状态（已登录返回 0，否则返回 1）</td>
+<td><code>claude auth status</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">核心标志</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-p, --print</code></td>
+<td>不进入交互式模式，直接输出结果</td>
+<td><code>claude -p "query"</code></td>
+</tr>
+<tr>
+<td><code>-c, --continue</code></td>
+<td>加载最近一次会话</td>
+<td><code>claude --continue</code></td>
+</tr>
+<tr>
+<td><code>-r, --resume</code></td>
+<td>按 ID 或名称恢复指定会话</td>
+<td><code>claude --resume auth-refactor</code></td>
+</tr>
+<tr>
+<td><code>-v, --version</code></td>
+<td>输出版本号</td>
+<td><code>claude -v</code></td>
+</tr>
+<tr>
+<td><code>-w, --worktree</code></td>
+<td>在隔离的 git worktree 中启动</td>
+<td><code>claude -w</code></td>
+</tr>
+<tr>
+<td><code>-n, --name</code></td>
+<td>设置会话显示名称</td>
+<td><code>claude -n "auth-refactor"</code></td>
+</tr>
+<tr>
+<td><code>--from-pr &lt;number&gt;</code></td>
+<td>恢复与 GitHub PR 关联的会话</td>
+<td><code>claude --from-pr 42</code></td>
+</tr>
+<tr>
+<td><code>--remote "task"</code></td>
+<td>在 claude.ai 上创建 web session</td>
+<td><code>claude --remote "implement API"</code></td>
+</tr>
+<tr>
+<td><code>--remote-control, --rc</code></td>
+<td>使用 Remote Control 进入交互式会话</td>
+<td><code>claude --rc</code></td>
+</tr>
+<tr>
+<td><code>--teleport</code></td>
+<td>将 web session 恢复到本地</td>
+<td><code>claude --teleport</code></td>
+</tr>
+<tr>
+<td><code>--teammate-mode</code></td>
+<td>agent team 显示模式</td>
+<td><code>claude --teammate-mode tmux</code></td>
+</tr>
+<tr>
+<td><code>--bare</code></td>
+<td>极简模式，跳过 hooks、skills、plugins、MCP、自动记忆和 <code>CLAUDE.md</code></td>
+<td><code>claude --bare</code></td>
+</tr>
+<tr>
+<td><code>--enable-auto-mode</code></td>
+<td>解锁 auto permission mode</td>
+<td><code>claude --enable-auto-mode</code></td>
+</tr>
+<tr>
+<td><code>--channels</code></td>
+<td>订阅 MCP channel 插件</td>
+<td><code>claude --channels discord,telegram</code></td>
+</tr>
+<tr>
+<td><code>--chrome</code> / <code>--no-chrome</code></td>
+<td>启用 / 禁用 Chrome 浏览器集成</td>
+<td><code>claude --chrome</code></td>
+</tr>
+<tr>
+<td><code>--effort</code></td>
+<td>设置推理强度</td>
+<td><code>claude --effort high</code></td>
+</tr>
+<tr>
+<td><code>--init</code> / <code>--init-only</code></td>
+<td>运行初始化 hooks</td>
+<td><code>claude --init</code></td>
+</tr>
+<tr>
+<td><code>--maintenance</code></td>
+<td>运行维护 hooks 后退出</td>
+<td><code>claude --maintenance</code></td>
+</tr>
+<tr>
+<td><code>--disable-slash-commands</code></td>
+<td>禁用所有 skills 和 slash commands</td>
+<td><code>claude --disable-slash-commands</code></td>
+</tr>
+<tr>
+<td><code>--no-session-persistence</code></td>
+<td>禁用会话保存（打印模式）</td>
+<td><code>claude -p --no-session-persistence "query"</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="vs">交互模式 vs 打印模式</h3>
+<div class="highlight"><pre><span></span><code>graph LR
+    A[&quot;claude&quot;] --&gt;|默认| B[&quot;交互式 REPL&quot;]
+    A --&gt;|&quot;-p 参数&quot;| C[&quot;打印模式&quot;]
+    B --&gt;|特性| D[&quot;多轮对话&lt;br&gt;Tab 补全&lt;br&gt;历史记录&lt;br&gt;Slash commands&quot;]
+    C --&gt;|特性| E[&quot;单次查询&lt;br&gt;可脚本化&lt;br&gt;可管道化&lt;br&gt;JSON 输出&quot;]
+</code></pre></div>
+
+<p><strong>交互模式</strong>（默认）：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 启动交互式会话</span>
+claude
+
+<span class="c1"># 带初始提示启动</span>
+claude<span class="w"> </span><span class="s2">&quot;解释这个认证流程&quot;</span>
+</code></pre></div>
+
+<p><strong>打印模式</strong>（非交互式）：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 单次查询后退出</span>
+claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;这个函数做什么？&quot;</span>
+
+<span class="c1"># 处理文件内容</span>
+cat<span class="w"> </span>error.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;解释这个错误&quot;</span>
+
+<span class="c1"># 与其他工具串联</span>
+claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;列出待办事项&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;URGENT&quot;</span>
+</code></pre></div>
+
+<h2 id="_4">模型与配置</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--model</code></td>
+<td>设置模型（sonnet、opus、haiku，或完整模型名）</td>
+<td><code>claude --model opus</code></td>
+</tr>
+<tr>
+<td><code>--fallback-model</code></td>
+<td>当前模型负载过高时自动切换的后备模型</td>
+<td><code>claude -p --fallback-model sonnet "query"</code></td>
+</tr>
+<tr>
+<td><code>--agent</code></td>
+<td>为当前会话指定 agent</td>
+<td><code>claude --agent my-custom-agent</code></td>
+</tr>
+<tr>
+<td><code>--agents</code></td>
+<td>通过 JSON 定义自定义 subagents</td>
+<td>见 <a href="#subagents-配置">Agents Configuration</a></td>
+</tr>
+<tr>
+<td><code>--effort</code></td>
+<td>设置推理级别（low、medium、high、max）</td>
+<td><code>claude --effort high</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">模型选择示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 复杂任务使用 Opus 4.6</span>
+claude<span class="w"> </span>--model<span class="w"> </span>opus<span class="w"> </span><span class="s2">&quot;设计一个缓存策略&quot;</span>
+
+<span class="c1"># 快速任务使用 Haiku 4.5</span>
+claude<span class="w"> </span>--model<span class="w"> </span>haiku<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;格式化这个 JSON&quot;</span>
+
+<span class="c1"># 使用完整模型名</span>
+claude<span class="w"> </span>--model<span class="w"> </span>claude-sonnet-4-6-20250929<span class="w"> </span><span class="s2">&quot;审查这段代码&quot;</span>
+
+<span class="c1"># 带后备模型以提升稳定性</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--model<span class="w"> </span>opus<span class="w"> </span>--fallback-model<span class="w"> </span>sonnet<span class="w"> </span><span class="s2">&quot;分析架构&quot;</span>
+
+<span class="c1"># 使用 opusplan（Opus 负责规划，Sonnet 负责执行）</span>
+claude<span class="w"> </span>--model<span class="w"> </span>opusplan<span class="w"> </span><span class="s2">&quot;设计并实现缓存层&quot;</span>
+</code></pre></div>
+
+<h2 id="_6">系统提示词自定义</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--system-prompt</code></td>
+<td>替换整段默认系统提示词</td>
+<td><code>claude --system-prompt "You are a Python expert"</code></td>
+</tr>
+<tr>
+<td><code>--system-prompt-file</code></td>
+<td>从文件加载提示词（仅打印模式）</td>
+<td><code>claude -p --system-prompt-file ./prompt.txt "query"</code></td>
+</tr>
+<tr>
+<td><code>--append-system-prompt</code></td>
+<td>在默认提示词后追加内容</td>
+<td><code>claude --append-system-prompt "Always use TypeScript"</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">系统提示词示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 完整自定义人格</span>
+claude<span class="w"> </span>--system-prompt<span class="w"> </span><span class="s2">&quot;你是一名资深安全工程师，重点关注漏洞。&quot;</span>
+
+<span class="c1"># 追加特定指令</span>
+claude<span class="w"> </span>--append-system-prompt<span class="w"> </span><span class="s2">&quot;始终在代码示例中包含单元测试&quot;</span>
+
+<span class="c1"># 从文件加载复杂提示词</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--system-prompt-file<span class="w"> </span>./prompts/code-reviewer.txt<span class="w"> </span><span class="s2">&quot;review main.py&quot;</span>
+</code></pre></div>
+
+<h3 id="_8">系统提示词参数对比</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>行为</th>
+<th>交互模式</th>
+<th>打印模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--system-prompt</code></td>
+<td>替换整个默认系统提示词</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>--system-prompt-file</code></td>
+<td>用文件中的提示词替换</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>--append-system-prompt</code></td>
+<td>追加到默认系统提示词后</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>仅在打印模式中使用 <code>--system-prompt-file</code>。交互模式请使用 <code>--system-prompt</code> 或 <code>--append-system-prompt</code>。</strong></p>
+<h2 id="_9">工具与权限管理</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--tools</code></td>
+<td>限制可用的内置工具</td>
+<td><code>claude -p --tools "Bash,Edit,Read" "query"</code></td>
+</tr>
+<tr>
+<td><code>--allowedTools</code></td>
+<td>无需提示即可执行的工具</td>
+<td><code>"Bash(git log:*)" "Read"</code></td>
+</tr>
+<tr>
+<td><code>--disallowedTools</code></td>
+<td>从上下文中移除的工具</td>
+<td><code>"Bash(rm:*)" "Edit"</code></td>
+</tr>
+<tr>
+<td><code>--dangerously-skip-permissions</code></td>
+<td>跳过所有权限提示</td>
+<td><code>claude --dangerously-skip-permissions</code></td>
+</tr>
+<tr>
+<td><code>--permission-mode</code></td>
+<td>以指定权限模式启动</td>
+<td><code>claude --permission-mode auto</code></td>
+</tr>
+<tr>
+<td><code>--permission-prompt-tool</code></td>
+<td>用于权限处理的 MCP tool</td>
+<td><code>claude -p --permission-prompt-tool mcp_auth "query"</code></td>
+</tr>
+<tr>
+<td><code>--enable-auto-mode</code></td>
+<td>解锁 auto permission mode</td>
+<td><code>claude --enable-auto-mode</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">权限示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 代码审查只读模式</span>
+claude<span class="w"> </span>--permission-mode<span class="w"> </span>plan<span class="w"> </span><span class="s2">&quot;审查这个代码库&quot;</span>
+
+<span class="c1"># 只允许安全工具</span>
+claude<span class="w"> </span>--tools<span class="w"> </span><span class="s2">&quot;Read,Grep,Glob&quot;</span><span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;找出所有 TODO 注释&quot;</span>
+
+<span class="c1"># 允许特定 git 命令无需提示</span>
+claude<span class="w"> </span>--allowedTools<span class="w"> </span><span class="s2">&quot;Bash(git status:*)&quot;</span><span class="w"> </span><span class="s2">&quot;Bash(git log:*)&quot;</span>
+
+<span class="c1"># 阻止危险操作</span>
+claude<span class="w"> </span>--disallowedTools<span class="w"> </span><span class="s2">&quot;Bash(rm -rf:*)&quot;</span><span class="w"> </span><span class="s2">&quot;Bash(git push --force:*)&quot;</span>
+</code></pre></div>
+
+<h2 id="_11">输出与格式</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>选项</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--output-format</code></td>
+<td>指定输出格式（打印模式）</td>
+<td><code>text</code>、<code>json</code>、<code>stream-json</code></td>
+<td><code>claude -p --output-format json "query"</code></td>
+</tr>
+<tr>
+<td><code>--input-format</code></td>
+<td>指定输入格式（打印模式）</td>
+<td><code>text</code>、<code>stream-json</code></td>
+<td><code>claude -p --input-format stream-json</code></td>
+</tr>
+<tr>
+<td><code>--verbose</code></td>
+<td>启用详细日志</td>
+<td></td>
+<td><code>claude --verbose</code></td>
+</tr>
+<tr>
+<td><code>--include-partial-messages</code></td>
+<td>包含流式事件</td>
+<td>需要 <code>stream-json</code></td>
+<td><code>claude -p --output-format stream-json --include-partial-messages "query"</code></td>
+</tr>
+<tr>
+<td><code>--json-schema</code></td>
+<td>获取符合 schema 的 JSON 输出</td>
+<td></td>
+<td><code>claude -p --json-schema '{"type":"object"}' "query"</code></td>
+</tr>
+<tr>
+<td><code>--max-budget-usd</code></td>
+<td>打印模式最大花费</td>
+<td></td>
+<td><code>claude -p --max-budget-usd 5.00 "query"</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_12">输出格式示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 纯文本（默认）</span>
+claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;解释这段代码&quot;</span>
+
+<span class="c1"># 供程序使用的 JSON</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;列出 main.py 中的所有函数&quot;</span>
+
+<span class="c1"># 用于实时处理的流式 JSON</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>stream-json<span class="w"> </span><span class="s2">&quot;生成一份长报告&quot;</span>
+
+<span class="c1"># 使用 schema 验证的结构化输出</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--json-schema<span class="w"> </span><span class="s1">&#39;{&quot;type&quot;:&quot;object&quot;,&quot;properties&quot;:{&quot;bugs&quot;:{&quot;type&quot;:&quot;array&quot;}}}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;找出这段代码中的 bug，并以 JSON 返回&quot;</span>
+</code></pre></div>
+
+<h2 id="_13">工作区与目录</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--working-directory</code></td>
+<td>设置工作目录</td>
+<td><code>claude --working-directory /path/to/project</code></td>
+</tr>
+<tr>
+<td><code>--add-dir</code></td>
+<td>追加额外工作目录</td>
+<td><code>claude --add-dir /path/to/other/project</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_14">多目录示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 在多个项目目录中协作</span>
+claude<span class="w"> </span>--working-directory<span class="w"> </span>~/projects/app<span class="w"> </span>--add-dir<span class="w"> </span>~/projects/shared
+
+<span class="c1"># 加载自定义设置</span>
+claude<span class="w"> </span>--working-directory<span class="w"> </span>./backend<span class="w"> </span>--add-dir<span class="w"> </span>./frontend
+</code></pre></div>
+
+<h2 id="mcp">MCP 配置</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--mcp-config</code></td>
+<td>从文件加载 MCP 配置</td>
+<td><code>claude --mcp-config ./mcp.json</code></td>
+</tr>
+<tr>
+<td><code>--mcp</code></td>
+<td>启用 / 配置 MCP 服务</td>
+<td><code>claude --mcp github</code></td>
+</tr>
+<tr>
+<td><code>--mcp-list</code></td>
+<td>列出可用 MCP 配置</td>
+<td><code>claude --mcp-list</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="mcp_1">MCP 示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 加载 GitHub MCP server</span>
+claude<span class="w"> </span>--mcp-config<span class="w"> </span>./configs/github-mcp.json
+
+<span class="c1"># 严格模式，只允许指定的 server</span>
+claude<span class="w"> </span>--mcp-config<span class="w"> </span>./configs/strict-mcp.json<span class="w"> </span>--mcp<span class="w"> </span>github
+</code></pre></div>
+
+<h2 id="_15">会话管理</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--session</code></td>
+<td>指定会话名称</td>
+<td><code>claude --session feature-auth</code></td>
+</tr>
+<tr>
+<td><code>--new-session</code></td>
+<td>强制开启新会话</td>
+<td><code>claude --new-session</code></td>
+</tr>
+<tr>
+<td><code>--resume-last</code></td>
+<td>恢复最近一次会话</td>
+<td><code>claude --resume-last</code></td>
+</tr>
+<tr>
+<td><code>--fork-session</code></td>
+<td>从当前会话分叉</td>
+<td><code>claude --fork-session</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_16">会话示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 继续上一次对话</span>
+claude<span class="w"> </span>--continue
+
+<span class="c1"># 恢复命名会话</span>
+claude<span class="w"> </span>--resume<span class="w"> </span>feature-auth
+
+<span class="c1"># 为实验分叉会话</span>
+claude<span class="w"> </span>--fork-session
+
+<span class="c1"># 指定会话 ID</span>
+claude<span class="w"> </span>--resume<span class="w"> </span><span class="m">123456789</span>
+</code></pre></div>
+
+<h3 id="_17">会话分叉</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 分叉会话尝试不同方案</span>
+claude<span class="w"> </span>--fork-session<span class="w"> </span><span class="s2">&quot;尝试另一种实现&quot;</span>
+
+<span class="c1"># 带自定义消息分叉</span>
+claude<span class="w"> </span>--fork-session<span class="w"> </span>--session<span class="w"> </span><span class="s2">&quot;experiment-a&quot;</span>
+</code></pre></div>
+
+<h2 id="_18">高级特性</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--disable-auto-checkpoints</code></td>
+<td>禁用自动 checkpoint</td>
+<td><code>claude --disable-auto-checkpoints</code></td>
+</tr>
+<tr>
+<td><code>--enable-auto-checkpoints</code></td>
+<td>启用自动 checkpoint</td>
+<td><code>claude --enable-auto-checkpoints</code></td>
+</tr>
+<tr>
+<td><code>--interactive</code></td>
+<td>强制交互模式</td>
+<td><code>claude --interactive</code></td>
+</tr>
+<tr>
+<td><code>--dry-run</code></td>
+<td>仅模拟执行</td>
+<td><code>claude --dry-run "review code"</code></td>
+</tr>
+<tr>
+<td><code>--unsafe</code></td>
+<td>允许更多自动化操作</td>
+<td><code>claude --unsafe</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_19">高级示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 限制自主操作</span>
+claude<span class="w"> </span>--permission-mode<span class="w"> </span>plan<span class="w"> </span>--model<span class="w"> </span>opus<span class="w"> </span><span class="s2">&quot;设计并实现认证系统&quot;</span>
+
+<span class="c1"># 调试 API 调用</span>
+claude<span class="w"> </span>--verbose<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;diagnose this issue&quot;</span>
+
+<span class="c1"># 启用 IDE 集成</span>
+claude<span class="w"> </span>--ide<span class="w"> </span><span class="s2">&quot;review this diff&quot;</span>
+</code></pre></div>
+
+<p><a id="agents-configuration"></a></p>
+<h2 id="subagents">Subagents 配置</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--agents</code></td>
+<td>通过 JSON 定义自定义 subagents</td>
+<td><code>claude --agents ./agents.json</code></td>
+</tr>
+<tr>
+<td><code>--agent</code></td>
+<td>指定当前会话使用的 agent</td>
+<td><code>claude --agent reviewer</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="subagents-json">Subagents JSON 格式</h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;agent-name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Required: when to invoke this agent&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;prompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Required: system prompt for the agent&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Optional&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;array&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;of&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tools&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;optional: sonnet|opus|haiku&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>必填字段：</strong>
+- <code>description</code> - 何时使用这个 agent 的自然语言说明
+- <code>prompt</code> - 定义 agent 角色和行为的系统提示词</p>
+<p><strong>可选字段：</strong>
+- <code>tools</code> - 可用工具数组（如果省略则继承全部工具）
+  - 格式：<code>["Read", "Grep", "Glob", "Bash"]</code>
+- <code>model</code> - 使用的模型：<code>sonnet</code>、<code>opus</code> 或 <code>haiku</code></p>
+<h3 id="agents">完整 Agents 示例</h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;code-reviewer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Expert code reviewer. Use proactively after code changes.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;prompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;You are a senior code reviewer. Focus on code quality, security, and best practices.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Read&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Grep&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Glob&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Bash&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sonnet&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;debugger&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Debugging specialist for errors and test failures.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;prompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;You are an expert debugger. Analyze errors, identify root causes, and provide fixes.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Read&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Edit&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Bash&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Grep&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;opus&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;documenter&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Documentation specialist for generating guides.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;prompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;You are a technical writer. Create clear, comprehensive documentation.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Read&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Write&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;haiku&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="agents_1">Agents 命令示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 直接定义自定义 agent</span>
+claude<span class="w"> </span>--agents<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;security-auditor&quot;: {</span>
+<span class="s1">    &quot;description&quot;: &quot;Security specialist for vulnerability analysis&quot;,</span>
+<span class="s1">    &quot;prompt&quot;: &quot;You are a security expert. Find vulnerabilities and suggest fixes.&quot;,</span>
+<span class="s1">    &quot;tools&quot;: [&quot;Read&quot;, &quot;Grep&quot;, &quot;Glob&quot;],</span>
+<span class="s1">    &quot;model&quot;: &quot;opus&quot;</span>
+<span class="s1">  }</span>
+<span class="s1">}&#39;</span><span class="w"> </span><span class="s2">&quot;audit this codebase for security issues&quot;</span>
+
+<span class="c1"># 从文件加载 agents</span>
+claude<span class="w"> </span>--agents<span class="w"> </span>./configs/agents.json
+
+<span class="c1"># 与其他参数组合</span>
+claude<span class="w"> </span>--agents<span class="w"> </span>./configs/agents.json<span class="w"> </span>--model<span class="w"> </span>opus
+</code></pre></div>
+
+<h3 id="subagent">Subagent 优先级</h3>
+<p>当同时存在多种 agent 定义时，加载优先级如下：
+1. <strong>CLI 定义</strong>（<code>--agents</code> 参数）- 当前会话专用
+2. <strong>用户级</strong>（<code>~/.claude/agents/</code>）- 所有项目可用
+3. <strong>项目级</strong>（<code>.claude/agents/</code>）- 当前项目可用</p>
+<p>命令行定义的 agents 会覆盖本次会话里的用户级和项目级 agents。</p>
+<h2 id="_20">高价值使用场景</h2>
+<h3 id="1-cicd">1. CI/CD 集成</h3>
+<div class="highlight"><pre><span></span><code>claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;run tests and summarize failures&quot;</span>
+</code></pre></div>
+
+<h3 id="2">2. 管道式脚本处理</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 分析错误日志</span>
+cat<span class="w"> </span>error.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;解释这些错误并给出修复建议&quot;</span>
+
+<span class="c1"># 查找访问日志中的模式</span>
+cat<span class="w"> </span>access.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;找出异常流量&quot;</span>
+
+<span class="c1"># 分析 git 历史</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>-20<span class="w"> </span><span class="p">|</span><span class="w"> </span>claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;总结最近的开发方向&quot;</span>
+
+<span class="c1"># 审查某个文件</span>
+claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;review src/app.ts and suggest improvements&quot;</span>
+
+<span class="c1"># 生成文档</span>
+claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;根据 README 生成 API 文档&quot;</span>
+
+<span class="c1"># 查找 TODO 并排优先级</span>
+rg<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;TODO|FIXME&quot;</span><span class="w"> </span>.<span class="w"> </span><span class="p">|</span><span class="w"> </span>claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;按优先级分类这些待办&quot;</span>
+</code></pre></div>
+
+<h3 id="3">3. 多会话工作流</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 启动特性分支会话</span>
+claude<span class="w"> </span>--session<span class="w"> </span>feature-auth
+
+<span class="c1"># 之后继续该会话</span>
+claude<span class="w"> </span>--resume<span class="w"> </span>feature-auth
+
+<span class="c1"># 分叉尝试另一种方案</span>
+claude<span class="w"> </span>--fork-session
+
+<span class="c1"># 在不同特性会话之间切换</span>
+claude<span class="w"> </span>--resume<span class="w"> </span>feature-auth
+claude<span class="w"> </span>--resume<span class="w"> </span>feature-payment
+</code></pre></div>
+
+<h3 id="4-agent">4. 自定义 agent 配置</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 将 agents 配置保存到文件</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>agents.json<span class="w"> </span><span class="s">&lt;&lt;&#39;JSON&#39;</span>
+<span class="s">{</span>
+<span class="s">  &quot;agents&quot;: [</span>
+<span class="s">    {&quot;name&quot;:&quot;reviewer&quot;,&quot;description&quot;:&quot;review code&quot;},</span>
+<span class="s">    {&quot;name&quot;:&quot;tester&quot;,&quot;description&quot;:&quot;write tests&quot;}</span>
+<span class="s">  ]</span>
+<span class="s">}</span>
+<span class="s">JSON</span>
+
+<span class="c1"># 在会话中使用这些 agent</span>
+claude<span class="w"> </span>--agents<span class="w"> </span>./agents.json<span class="w"> </span>--agent<span class="w"> </span>reviewer
+</code></pre></div>
+
+<h3 id="5">5. 批处理</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 处理多个文件</span>
+find<span class="w"> </span>src<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.ts&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>-I<span class="o">{}</span><span class="w"> </span>claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;review {}&quot;</span>
+
+<span class="c1"># 批量代码审查</span>
+claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;review all changes in this branch&quot;</span>
+
+<span class="c1"># 为所有模块生成测试</span>
+claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;generate tests for the modified modules&quot;</span>
+</code></pre></div>
+
+<h3 id="6">6. 安全敏感开发</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 只读安全审计</span>
+claude<span class="w"> </span>--permission-mode<span class="w"> </span>plan<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;audit this repository&quot;</span>
+
+<span class="c1"># 阻止危险命令</span>
+claude<span class="w"> </span>--disallowedTools<span class="w"> </span><span class="s2">&quot;Bash(rm -rf:*)&quot;</span><span class="w"> </span><span class="s2">&quot;Bash(git push --force:*)&quot;</span>
+
+<span class="c1"># 限制自动化</span>
+claude<span class="w"> </span>--tools<span class="w"> </span><span class="s2">&quot;Read,Grep,Glob&quot;</span><span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;inspect the codebase&quot;</span>
+</code></pre></div>
+
+<h3 id="7-json-api">7. JSON API 集成</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 获取结构化分析结果</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;analyze this code and return findings&quot;</span>
+
+<span class="c1"># 配合 jq 处理</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;list functions&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.functions[]&#39;</span>
+
+<span class="c1"># 在脚本中使用</span>
+<span class="nv">result</span><span class="o">=</span><span class="k">$(</span>claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;summarize changes&quot;</span><span class="k">)</span>
+</code></pre></div>
+
+<h3 id="jq">jq 解析示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 提取特定字段</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;analyze repo&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.summary&#39;</span>
+
+<span class="c1"># 过滤数组元素</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;find bugs&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.bugs[] | select(.severity==&quot;high&quot;)&#39;</span>
+
+<span class="c1"># 提取多个字段</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;analyze&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;{summary, risk, recommendations}&#39;</span>
+
+<span class="c1"># 转成 CSV</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;list files&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.files[] | [.name, .size] | @csv&#39;</span>
+
+<span class="c1"># 条件处理</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;check status&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;if .ok then &quot;pass&quot; else &quot;fail&quot; end&#39;</span>
+
+<span class="c1"># 提取嵌套值</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;inspect&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.details.metrics.coverage&#39;</span>
+
+<span class="c1"># 处理整个数组</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;find todos&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.todos | length&#39;</span>
+
+<span class="c1"># 转换输出</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;review&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;{issues: [.issues[] | {file, line, message}]}&#39;</span>
+</code></pre></div>
+
+<h2 id="_21">模型</h2>
+<h3 id="_22">模型选择</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 使用短名称</span>
+claude<span class="w"> </span>--model<span class="w"> </span>sonnet
+claude<span class="w"> </span>--model<span class="w"> </span>opus
+claude<span class="w"> </span>--model<span class="w"> </span>haiku
+
+<span class="c1"># 使用 opusplan 别名（Opus 负责规划，Sonnet 负责执行）</span>
+claude<span class="w"> </span>--model<span class="w"> </span>opusplan<span class="w"> </span><span class="s2">&quot;design and implement the caching layer&quot;</span>
+
+<span class="c1"># 会话中切换快速模式</span>
+claude<span class="w"> </span>--model<span class="w"> </span>haiku<span class="w"> </span>--effort<span class="w"> </span>low
+</code></pre></div>
+
+<h3 id="effort-opus-46">Effort 级别（Opus 4.6）</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 通过 CLI 参数设置 effort</span>
+claude<span class="w"> </span>--model<span class="w"> </span>opus<span class="w"> </span>--effort<span class="w"> </span>high<span class="w"> </span><span class="s2">&quot;design the architecture&quot;</span>
+
+<span class="c1"># 通过 slash command 设置 effort</span>
+/effort<span class="w"> </span>max
+
+<span class="c1"># 通过环境变量设置 effort</span>
+<span class="nv">CLAUDE_EFFORT</span><span class="o">=</span>medium<span class="w"> </span>claude<span class="w"> </span>--model<span class="w"> </span>opus
+</code></pre></div>
+
+<h2 id="_23">常用环境变量</h2>
+<table>
+<thead>
+<tr>
+<th>环境变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td>API key</td>
+</tr>
+<tr>
+<td><code>CLAUDE_MODEL</code></td>
+<td>默认模型</td>
+</tr>
+<tr>
+<td><code>CLAUDE_EFFORT</code></td>
+<td>默认推理强度</td>
+</tr>
+<tr>
+<td><code>CLAUDE_WORKING_DIRECTORY</code></td>
+<td>默认工作目录</td>
+</tr>
+<tr>
+<td><code>CLAUDE_OUTPUT_FORMAT</code></td>
+<td>默认输出格式</td>
+</tr>
+<tr>
+<td><code>CLAUDE_MCP_CONFIG</code></td>
+<td>默认 MCP 配置</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_24">快速参考</h2>
+<h3 id="_25">最常用命令</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 交互式会话</span>
+claude
+
+<span class="c1"># 快速提问</span>
+claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;explain this repo&quot;</span>
+
+<span class="c1"># 继续上次对话</span>
+claude<span class="w"> </span>-c
+
+<span class="c1"># 处理某个文件</span>
+claude<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;review README.md&quot;</span>
+
+<span class="c1"># 为脚本输出 JSON</span>
+claude<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;list all classes&quot;</span>
+</code></pre></div>
+
+<h3 id="_26">参数组合</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 只读审查</span>
+claude<span class="w"> </span>--permission-mode<span class="w"> </span>plan<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;review this codebase&quot;</span>
+
+<span class="c1"># 高级模型 + JSON 输出</span>
+claude<span class="w"> </span>--model<span class="w"> </span>opus<span class="w"> </span>-p<span class="w"> </span>--output-format<span class="w"> </span>json<span class="w"> </span><span class="s2">&quot;analyze architecture&quot;</span>
+
+<span class="c1"># 自定义工作目录 + MCP</span>
+claude<span class="w"> </span>--working-directory<span class="w"> </span>./backend<span class="w"> </span>--mcp-config<span class="w"> </span>./mcp.json
+</code></pre></div>
+
+<h2 id="_27">故障排查</h2>
+<h3 id="_28">找不到命令</h3>
+<ul>
+<li>确认 <code>claude</code> 已安装并在 <code>PATH</code> 中</li>
+<li>重新打开终端</li>
+<li>检查是否需要重新登录或更新版本</li>
+</ul>
+<h3 id="api-key">API Key 问题</h3>
+<ul>
+<li>检查 <code>ANTHROPIC_API_KEY</code></li>
+<li>确认 key 未过期</li>
+<li>检查网络是否可访问 API</li>
+</ul>
+<h3 id="_29">找不到会话</h3>
+<ul>
+<li>确认会话名称或 ID 正确</li>
+<li>先运行 <code>claude --list-sessions</code>（如果你的版本支持）</li>
+<li>检查当前账号是否一致</li>
+</ul>
+<h3 id="_30">输出格式问题</h3>
+<ul>
+<li>使用 <code>--output-format json</code> 时确保输出可被解析</li>
+<li>如果是流式输出，加入 <code>--include-partial-messages</code></li>
+</ul>
+<h3 id="_31">权限被拒绝</h3>
+<ul>
+<li>检查 <code>--permission-mode</code></li>
+<li>检查 <code>--allowedTools</code> 和 <code>--disallowedTools</code></li>
+<li>如有必要，明确允许所需工具</li>
+</ul>
+<h2 id="_32">更多资源</h2>
+<ul>
+<li><a href="../README.html">根目录中文指南</a></li>
+<li><a href="../01-slash-commands/README.html">Slash Commands 中文参考</a></li>
+<li><a href="../05-mcp/README.html">MCP 文档</a></li>
+<li><a href="https://code.claude.com/docs/en/cli-reference">Claude Code 官方 CLI 文档</a></li>
+</ul>
+  </div>
+  <footer class="site-footer">
+    Claude How To &mdash; 结构化、可视化的 Claude Code 学习指南 &bull;
+    <a href="https://github.com/luongnv89/claude-howto">GitHub</a>
+  </footer>
+</main>
+</body>
+</html>

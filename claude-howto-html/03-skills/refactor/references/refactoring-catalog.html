@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skills 技能 - Refactoring Catalog - Claude How To</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-code: #f1f3f5;
+  --text: #1a1a2e;
+  --text-secondary: #495057;
+  --accent: #22c55e;
+  --accent-dark: #16a34a;
+  --accent-bg: #f0fdf4;
+  --border: #e5e7eb;
+  --sidebar-w: 280px;
+  --header-h: 56px;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  z-index: 100;
+}
+.site-header .logo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.site-header .logo span { color: var(--accent); }
+.site-header nav { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.site-header nav a {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.site-header nav a:hover,
+.site-header nav a.active {
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 20px 0;
+  z-index: 50;
+  scrollbar-width: thin;
+}
+.sidebar::-webkit-scrollbar { width: 5px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.sidebar-section {
+  margin-bottom: 8px;
+}
+.sidebar-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  padding: 8px 20px 4px;
+}
+.sidebar a {
+  display: block;
+  padding: 6px 20px 6px 28px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+  line-height: 1.5;
+}
+.sidebar a:hover {
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+}
+.sidebar a.active {
+  border-left-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+.sidebar .module-num {
+  display: inline-block;
+  width: 22px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ---------- Main content ---------- */
+.main-content {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--header-h);
+  min-height: calc(100vh - var(--header-h));
+}
+.content-wrapper {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+}
+
+/* ---------- Typography ---------- */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  color: var(--text);
+}
+h1 { font-size: 2rem; margin-top: 0; border-bottom: 2px solid var(--accent); padding-bottom: 0.3em; }
+h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.2rem; }
+h4 { font-size: 1.05rem; }
+
+h1:first-child { margin-top: 0; }
+
+p { margin-bottom: 1em; }
+
+a { color: var(--accent-dark); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+strong { font-weight: 700; }
+
+/* ---------- Lists ---------- */
+ul, ol { margin: 0.5em 0 1em 1.5em; }
+li { margin-bottom: 0.35em; }
+li > ul, li > ol { margin-top: 0.3em; margin-bottom: 0.3em; }
+
+/* ---------- Code ---------- */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--bg-code);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: #d63384;
+}
+pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  margin: 1em 0 1.2em;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  box-shadow: var(--shadow);
+}
+pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Pygments dark theme override */
+.highlight { background: #1e293b; border-radius: var(--radius); margin: 1em 0 1.2em; overflow-x: auto; }
+.highlight pre { margin: 0; box-shadow: none; }
+code.language-mermaid { display: block; background: #f8fafc; color: #334155; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); white-space: pre-wrap; font-size: 0.85rem; }
+
+/* ---------- Tables ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0 1.2em;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+thead { background: var(--accent-bg); }
+th {
+  font-weight: 700;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent-dark);
+}
+td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) { background: var(--bg-secondary); }
+tr:hover { background: var(--accent-bg); }
+
+/* ---------- Blockquote ---------- */
+blockquote {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-bg);
+  padding: 12px 16px;
+  margin: 1em 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text-secondary);
+}
+blockquote p:last-child { margin-bottom: 0; }
+
+/* ---------- HR ---------- */
+hr {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 2em 0;
+}
+
+/* ---------- Images ---------- */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+
+/* ---------- Details / Collapsible ---------- */
+details {
+  margin: 1em 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0;
+  overflow: hidden;
+}
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid transparent;
+  transition: background 0.15s;
+}
+details summary:hover { background: var(--accent-bg); }
+details[open] summary { border-bottom-color: var(--border); }
+details > *:not(summary) { padding: 0 16px; }
+details > *:last-child { padding-bottom: 16px; }
+
+/* ---------- Badges / Images ---------- */
+p > img[src*="shields.io"] { display: inline-block; margin: 2px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; }
+  .content-wrapper { padding: 24px 16px 60px; }
+  .site-header nav { display: none; }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  .sidebar, .site-header { display: none; }
+  .main-content { margin: 0; }
+  .content-wrapper { max-width: 100%; padding: 0; }
+  pre { white-space: pre-wrap; word-break: break-all; }
+}
+
+/* ---------- TOC (in-page) ---------- */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 1.5em 0;
+}
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc > ul > li { margin-bottom: 4px; }
+.toc a { font-size: 0.9rem; }
+.toc ul ul { padding-left: 1.2em; }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #1e293b;  background: #272822; color: #F8F8F2 }
+.highlight .c { color: #959077 } /* Comment */
+.highlight .err { color: #ED007E; background-color: #1E0010 } /* Error */
+.highlight .esc { color: #F8F8F2 } /* Escape */
+.highlight .g { color: #F8F8F2 } /* Generic */
+.highlight .k { color: #66D9EF } /* Keyword */
+.highlight .l { color: #AE81FF } /* Literal */
+.highlight .n { color: #F8F8F2 } /* Name */
+.highlight .o { color: #FF4689 } /* Operator */
+.highlight .x { color: #F8F8F2 } /* Other */
+.highlight .p { color: #F8F8F2 } /* Punctuation */
+.highlight .ch { color: #959077 } /* Comment.Hashbang */
+.highlight .cm { color: #959077 } /* Comment.Multiline */
+.highlight .cp { color: #959077 } /* Comment.Preproc */
+.highlight .cpf { color: #959077 } /* Comment.PreprocFile */
+.highlight .c1 { color: #959077 } /* Comment.Single */
+.highlight .cs { color: #959077 } /* Comment.Special */
+.highlight .gd { color: #FF4689 } /* Generic.Deleted */
+.highlight .ge { color: #F8F8F2; font-style: italic } /* Generic.Emph */
+.highlight .ges { color: #F8F8F2; font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #F8F8F2 } /* Generic.Error */
+.highlight .gh { color: #F8F8F2 } /* Generic.Heading */
+.highlight .gi { color: #A6E22E } /* Generic.Inserted */
+.highlight .go { color: #66D9EF } /* Generic.Output */
+.highlight .gp { color: #FF4689; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { color: #F8F8F2; font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #959077 } /* Generic.Subheading */
+.highlight .gt { color: #F8F8F2 } /* Generic.Traceback */
+.highlight .kc { color: #66D9EF } /* Keyword.Constant */
+.highlight .kd { color: #66D9EF } /* Keyword.Declaration */
+.highlight .kn { color: #FF4689 } /* Keyword.Namespace */
+.highlight .kp { color: #66D9EF } /* Keyword.Pseudo */
+.highlight .kr { color: #66D9EF } /* Keyword.Reserved */
+.highlight .kt { color: #66D9EF } /* Keyword.Type */
+.highlight .ld { color: #E6DB74 } /* Literal.Date */
+.highlight .m { color: #AE81FF } /* Literal.Number */
+.highlight .s { color: #E6DB74 } /* Literal.String */
+.highlight .na { color: #A6E22E } /* Name.Attribute */
+.highlight .nb { color: #F8F8F2 } /* Name.Builtin */
+.highlight .nc { color: #A6E22E } /* Name.Class */
+.highlight .no { color: #66D9EF } /* Name.Constant */
+.highlight .nd { color: #A6E22E } /* Name.Decorator */
+.highlight .ni { color: #F8F8F2 } /* Name.Entity */
+.highlight .ne { color: #A6E22E } /* Name.Exception */
+.highlight .nf { color: #A6E22E } /* Name.Function */
+.highlight .nl { color: #F8F8F2 } /* Name.Label */
+.highlight .nn { color: #F8F8F2 } /* Name.Namespace */
+.highlight .nx { color: #A6E22E } /* Name.Other */
+.highlight .py { color: #F8F8F2 } /* Name.Property */
+.highlight .nt { color: #FF4689 } /* Name.Tag */
+.highlight .nv { color: #F8F8F2 } /* Name.Variable */
+.highlight .ow { color: #FF4689 } /* Operator.Word */
+.highlight .pm { color: #F8F8F2 } /* Punctuation.Marker */
+.highlight .w { color: #F8F8F2 } /* Text.Whitespace */
+.highlight .mb { color: #AE81FF } /* Literal.Number.Bin */
+.highlight .mf { color: #AE81FF } /* Literal.Number.Float */
+.highlight .mh { color: #AE81FF } /* Literal.Number.Hex */
+.highlight .mi { color: #AE81FF } /* Literal.Number.Integer */
+.highlight .mo { color: #AE81FF } /* Literal.Number.Oct */
+.highlight .sa { color: #E6DB74 } /* Literal.String.Affix */
+.highlight .sb { color: #E6DB74 } /* Literal.String.Backtick */
+.highlight .sc { color: #E6DB74 } /* Literal.String.Char */
+.highlight .dl { color: #E6DB74 } /* Literal.String.Delimiter */
+.highlight .sd { color: #E6DB74 } /* Literal.String.Doc */
+.highlight .s2 { color: #E6DB74 } /* Literal.String.Double */
+.highlight .se { color: #AE81FF } /* Literal.String.Escape */
+.highlight .sh { color: #E6DB74 } /* Literal.String.Heredoc */
+.highlight .si { color: #E6DB74 } /* Literal.String.Interpol */
+.highlight .sx { color: #E6DB74 } /* Literal.String.Other */
+.highlight .sr { color: #E6DB74 } /* Literal.String.Regex */
+.highlight .s1 { color: #E6DB74 } /* Literal.String.Single */
+.highlight .ss { color: #E6DB74 } /* Literal.String.Symbol */
+.highlight .bp { color: #F8F8F2 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #A6E22E } /* Name.Function.Magic */
+.highlight .vc { color: #F8F8F2 } /* Name.Variable.Class */
+.highlight .vg { color: #F8F8F2 } /* Name.Variable.Global */
+.highlight .vi { color: #F8F8F2 } /* Name.Variable.Instance */
+.highlight .vm { color: #F8F8F2 } /* Name.Variable.Magic */
+.highlight .il { color: #AE81FF } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="site-header">
+  <a class="logo" href="../../../README.html"><span>&gt;_</span> Claude How To</a>
+  <nav><a href="../../../README.html">首页</a> <a href="../../../LEARNING-ROADMAP.html">学习路线</a> <a href="../../../QUICK_REFERENCE.html">速查手册</a> <a href="../../../CATALOG.html">功能目录</a> <a href="../../../claude_concepts_guide.html">概念总览</a></nav>
+</header>
+<aside class="sidebar">
+<div class="sidebar-section">
+<div class="sidebar-section-title">入门</div>
+<a href="../../../README.html" class="">首页</a>
+<a href="../../../LEARNING-ROADMAP.html" class="">学习路线图</a>
+<a href="../../../QUICK_REFERENCE.html" class="">速查手册</a>
+<a href="../../../CATALOG.html" class="">功能目录</a>
+<a href="../../../INDEX.html" class="">完整索引</a>
+<a href="../../../claude_concepts_guide.html" class="">概念总览</a>
+<a href="../../../clean-code-rules.html" class="">整洁代码规范</a>
+<a href="../../../resources.html" class="">资源汇总</a>
+<a href="../../../CONTRIBUTING.html" class="">参与贡献</a>
+<a href="../../../CHANGELOG.html" class="">更新日志</a>
+</div>
+<div class="sidebar-section">
+<div class="sidebar-section-title">教程模块</div>
+<a href="../../../01-slash-commands/README.html" class=""><span class="module-num">01</span>sh Commands 斜杠命令</a>
+<a href="../../../01-slash-commands/commit.html" class="" style="padding-left:44px;font-size:0.8rem;">Commit</a>
+<a href="../../../01-slash-commands/doc-refactor.html" class="" style="padding-left:44px;font-size:0.8rem;">Doc Refactor</a>
+<a href="../../../01-slash-commands/generate-api-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Api Docs</a>
+<a href="../../../01-slash-commands/optimize.html" class="" style="padding-left:44px;font-size:0.8rem;">Optimize</a>
+<a href="../../../01-slash-commands/pr.html" class="" style="padding-left:44px;font-size:0.8rem;">Pr</a>
+<a href="../../../01-slash-commands/push-all.html" class="" style="padding-left:44px;font-size:0.8rem;">Push All</a>
+<a href="../../../01-slash-commands/setup-ci-cd.html" class="" style="padding-left:44px;font-size:0.8rem;">Setup Ci Cd</a>
+<a href="../../../01-slash-commands/unit-test-expand.html" class="" style="padding-left:44px;font-size:0.8rem;">Unit Test Expand</a>
+<a href="../../../02-memory/README.html" class=""><span class="module-num">02</span>ory 记忆系统</a>
+<a href="../../../02-memory/directory-api-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Directory Api Claude</a>
+<a href="../../../02-memory/personal-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Personal Claude</a>
+<a href="../../../02-memory/project-CLAUDE.html" class="" style="padding-left:44px;font-size:0.8rem;">Project Claude</a>
+<a href="../../README.html" class=""><span class="module-num">03</span>lls 技能</a>
+<a href="../../blog-draft/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="../../blog-draft/templates/draft-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Draft Template</a>
+<a href="../../blog-draft/templates/outline-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Outline Template</a>
+<a href="../../brand-voice/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="../../brand-voice/tone-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Tone Examples</a>
+<a href="../../claude-md/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="../../code-review/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="../../code-review/templates/finding-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Finding Template</a>
+<a href="../../code-review/templates/review-checklist.html" class="" style="padding-left:44px;font-size:0.8rem;">Review Checklist</a>
+<a href="../../doc-generator/SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="code-smells.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Smells</a>
+<a href="refactoring-catalog.html" class=" active" style="padding-left:44px;font-size:0.8rem;">Refactoring Catalog</a>
+<a href="../SKILL.html" class="" style="padding-left:44px;font-size:0.8rem;">Skill</a>
+<a href="../templates/refactoring-plan.html" class="" style="padding-left:44px;font-size:0.8rem;">Refactoring Plan</a>
+<a href="../../../04-subagents/README.html" class=""><span class="module-num">04</span>agents 子代理</a>
+<a href="../../../04-subagents/clean-code-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Clean Code Reviewer</a>
+<a href="../../../04-subagents/code-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Reviewer</a>
+<a href="../../../04-subagents/data-scientist.html" class="" style="padding-left:44px;font-size:0.8rem;">Data Scientist</a>
+<a href="../../../04-subagents/debugger.html" class="" style="padding-left:44px;font-size:0.8rem;">Debugger</a>
+<a href="../../../04-subagents/documentation-writer.html" class="" style="padding-left:44px;font-size:0.8rem;">Documentation Writer</a>
+<a href="../../../04-subagents/implementation-agent.html" class="" style="padding-left:44px;font-size:0.8rem;">Implementation Agent</a>
+<a href="../../../04-subagents/secure-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Secure Reviewer</a>
+<a href="../../../04-subagents/test-engineer.html" class="" style="padding-left:44px;font-size:0.8rem;">Test Engineer</a>
+<a href="../../../05-mcp/README.html" class=""><span class="module-num">05</span> 协议</a>
+<a href="../../../06-hooks/README.html" class=""><span class="module-num">06</span>ks 钩子</a>
+<a href="../../../07-plugins/README.html" class=""><span class="module-num">07</span>gins 插件</a>
+<a href="../../../07-plugins/devops-automation/agents/alert-analyzer.html" class="" style="padding-left:44px;font-size:0.8rem;">Alert Analyzer</a>
+<a href="../../../07-plugins/devops-automation/agents/deployment-specialist.html" class="" style="padding-left:44px;font-size:0.8rem;">Deployment Specialist</a>
+<a href="../../../07-plugins/devops-automation/agents/incident-commander.html" class="" style="padding-left:44px;font-size:0.8rem;">Incident Commander</a>
+<a href="../../../07-plugins/devops-automation/commands/deploy.html" class="" style="padding-left:44px;font-size:0.8rem;">Deploy</a>
+<a href="../../../07-plugins/devops-automation/commands/incident.html" class="" style="padding-left:44px;font-size:0.8rem;">Incident</a>
+<a href="../../../07-plugins/devops-automation/commands/rollback.html" class="" style="padding-left:44px;font-size:0.8rem;">Rollback</a>
+<a href="../../../07-plugins/devops-automation/commands/status.html" class="" style="padding-left:44px;font-size:0.8rem;">Status</a>
+<a href="../../../07-plugins/documentation/agents/api-documenter.html" class="" style="padding-left:44px;font-size:0.8rem;">Api Documenter</a>
+<a href="../../../07-plugins/documentation/agents/code-commentator.html" class="" style="padding-left:44px;font-size:0.8rem;">Code Commentator</a>
+<a href="../../../07-plugins/documentation/agents/example-generator.html" class="" style="padding-left:44px;font-size:0.8rem;">Example Generator</a>
+<a href="../../../07-plugins/documentation/commands/generate-api-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Api Docs</a>
+<a href="../../../07-plugins/documentation/commands/generate-readme.html" class="" style="padding-left:44px;font-size:0.8rem;">Generate Readme</a>
+<a href="../../../07-plugins/documentation/commands/sync-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Sync Docs</a>
+<a href="../../../07-plugins/documentation/commands/validate-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Validate Docs</a>
+<a href="../../../07-plugins/documentation/templates/adr-template.html" class="" style="padding-left:44px;font-size:0.8rem;">Adr Template</a>
+<a href="../../../07-plugins/documentation/templates/api-endpoint.html" class="" style="padding-left:44px;font-size:0.8rem;">Api Endpoint</a>
+<a href="../../../07-plugins/documentation/templates/function-docs.html" class="" style="padding-left:44px;font-size:0.8rem;">Function Docs</a>
+<a href="../../../07-plugins/pr-review/agents/performance-analyzer.html" class="" style="padding-left:44px;font-size:0.8rem;">Performance Analyzer</a>
+<a href="../../../07-plugins/pr-review/agents/security-reviewer.html" class="" style="padding-left:44px;font-size:0.8rem;">Security Reviewer</a>
+<a href="../../../07-plugins/pr-review/agents/test-checker.html" class="" style="padding-left:44px;font-size:0.8rem;">Test Checker</a>
+<a href="../../../07-plugins/pr-review/commands/check-security.html" class="" style="padding-left:44px;font-size:0.8rem;">Check Security</a>
+<a href="../../../07-plugins/pr-review/commands/check-tests.html" class="" style="padding-left:44px;font-size:0.8rem;">Check Tests</a>
+<a href="../../../07-plugins/pr-review/commands/review-pr.html" class="" style="padding-left:44px;font-size:0.8rem;">Review Pr</a>
+<a href="../../../08-checkpoints/README.html" class=""><span class="module-num">08</span>ckpoints 检查点</a>
+<a href="../../../08-checkpoints/checkpoint-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Checkpoint Examples</a>
+<a href="../../../09-advanced-features/README.html" class=""><span class="module-num">09</span>anced Features 高级功能</a>
+<a href="../../../09-advanced-features/planning-mode-examples.html" class="" style="padding-left:44px;font-size:0.8rem;">Planning Mode Examples</a>
+<a href="../../../10-cli/README.html" class=""><span class="module-num">10</span> Reference 命令行参考</a>
+</div>
+</aside>
+<main class="main-content">
+  <div class="content-wrapper">
+<h1 id="_1">重构目录</h1>
+<p>这是 Martin Fowler《Refactoring》（第 2 版）中的一份精选重构目录。每个重构都包含动机、操作步骤和示例。</p>
+<blockquote>
+<p>“重构由它的操作步骤来定义，也就是你执行这个变化时遵循的精确过程。” — Martin Fowler</p>
+</blockquote>
+<hr />
+<h2 id="_2">如何使用这个目录</h2>
+<ol>
+<li><strong>识别异味</strong>：先用代码异味目录定位问题</li>
+<li><strong>找到对应重构</strong>：在这里查找匹配的手法</li>
+<li><strong>按步骤执行</strong>：一步一步来</li>
+<li><strong>每步都测试</strong>：确保行为不变</li>
+</ol>
+<p><strong>黄金法则</strong>：如果某一步超过 10 分钟，就把它拆得更小。</p>
+<hr />
+<h2 id="_3">最常见的重构</h2>
+<h3 id="extract-method">Extract Method</h3>
+<p><strong>何时使用</strong>：长函数、重复代码、需要为概念命名</p>
+<p><strong>动机</strong>：把一段代码抽成一个名字能说明意图的方法。</p>
+<p><strong>步骤</strong>：
+1. 创建一个新方法，名字应描述“做什么”而不是“怎么做”
+2. 把代码片段复制到新方法里
+3. 检查片段里用了哪些局部变量
+4. 把局部变量作为参数传入，或在方法内声明
+5. 正确处理返回值
+6. 用新方法调用替换原始片段
+7. 测试</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">printOwing</span><span class="p">(</span><span class="nx">invoice</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">outstanding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;***********************&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;**** Customer Owes ****&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;***********************&quot;</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Calculate outstanding</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">order</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">invoice</span><span class="p">.</span><span class="nx">orders</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">outstanding</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">amount</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Print details</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`name: </span><span class="si">${</span><span class="nx">invoice</span><span class="p">.</span><span class="nx">customer</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`amount: </span><span class="si">${</span><span class="nx">outstanding</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">printOwing</span><span class="p">(</span><span class="nx">invoice</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">printBanner</span><span class="p">();</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">outstanding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">calculateOutstanding</span><span class="p">(</span><span class="nx">invoice</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">printDetails</span><span class="p">(</span><span class="nx">invoice</span><span class="p">,</span><span class="w"> </span><span class="nx">outstanding</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">printBanner</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;***********************&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;**** Customer Owes ****&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;***********************&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">calculateOutstanding</span><span class="p">(</span><span class="nx">invoice</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">invoice</span><span class="p">.</span><span class="nx">orders</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">sum</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">sum</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">amount</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">printDetails</span><span class="p">(</span><span class="nx">invoice</span><span class="p">,</span><span class="w"> </span><span class="nx">outstanding</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`name: </span><span class="si">${</span><span class="nx">invoice</span><span class="p">.</span><span class="nx">customer</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`amount: </span><span class="si">${</span><span class="nx">outstanding</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="inline-method">Inline Method</h3>
+<p><strong>何时使用</strong>：方法体和名字一样清楚，或者只是多余转发</p>
+<p><strong>动机</strong>：当方法没有额外价值时，去掉不必要的间接层。</p>
+<p><strong>步骤</strong>：
+1. 确认这个方法不是多态方法
+2. 找到所有调用点
+3. 用方法体替换每个调用
+4. 每替换一次就测试一次
+5. 删除方法定义</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">getRating</span><span class="p">(</span><span class="nx">driver</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">moreThanFiveLateDeliveries</span><span class="p">(</span><span class="nx">driver</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">moreThanFiveLateDeliveries</span><span class="p">(</span><span class="nx">driver</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">driver</span><span class="p">.</span><span class="nx">numberOfLateDeliveries</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">5</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">getRating</span><span class="p">(</span><span class="nx">driver</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">driver</span><span class="p">.</span><span class="nx">numberOfLateDeliveries</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">5</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="extract-variable">Extract Variable</h3>
+<p><strong>何时使用</strong>：复杂表达式难以理解</p>
+<p><strong>动机</strong>：给复杂表达式的一部分起名字。</p>
+<p><strong>步骤</strong>：
+1. 确保表达式没有副作用
+2. 声明一个不可变变量
+3. 将表达式结果赋给变量
+4. 用变量替换原表达式
+5. 测试</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">return</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">itemPrice</span><span class="w"> </span><span class="o">-</span>
+<span class="w">  </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">quantity</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">500</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">itemPrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.05</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">order</span><span class="p">.</span><span class="nx">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">itemPrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">100</span><span class="p">);</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">basePrice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">itemPrice</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">quantityDiscount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">quantity</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">500</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">itemPrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.05</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">shipping</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">100</span><span class="p">);</span>
+<span class="k">return</span><span class="w"> </span><span class="nx">basePrice</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">quantityDiscount</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">shipping</span><span class="p">;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="inline-variable">Inline Variable</h3>
+<p><strong>何时使用</strong>：变量名没有比表达式更清楚</p>
+<p><strong>动机</strong>：移除没必要的间接层。</p>
+<p><strong>步骤</strong>：
+1. 检查右侧表达式没有副作用
+2. 如果变量不是不可变的，先改成不可变并测试
+3. 找到第一次引用并替换成表达式
+4. 测试
+5. 对所有引用重复
+6. 删除变量声明和赋值
+7. 测试</p>
+<hr />
+<h3 id="rename-variable">Rename Variable</h3>
+<p><strong>何时使用</strong>：名字没有清楚表达用途</p>
+<p><strong>动机</strong>：好名字是清晰代码的基础。</p>
+<p><strong>步骤</strong>：
+1. 如果变量使用范围很广，先考虑封装
+2. 找到所有引用
+3. 逐个修改引用
+4. 测试</p>
+<p><strong>提示</strong>：
+- 使用能体现意图的名字
+- 避免缩写
+- 使用领域术语</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Bad</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">30</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">users</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">u</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">u</span><span class="p">.</span><span class="nx">a</span><span class="p">);</span>
+
+<span class="c1">// Good</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">daysSinceLastLogin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">30</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">activeUsers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">users</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">user</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">user</span><span class="p">.</span><span class="nx">isActive</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h3 id="change-function-declaration">Change Function Declaration</h3>
+<p><strong>何时使用</strong>：函数名不能清楚说明用途，参数也需要变化</p>
+<p><strong>动机</strong>：好函数名能让代码自解释。</p>
+<p><strong>步骤（简单情况）</strong>：
+1. 删除不需要的参数
+2. 修改函数名
+3. 添加需要的参数
+4. 测试</p>
+<p><strong>步骤（迁移式，适用于复杂改动）</strong>：
+1. 如果要删除参数，确保它没有被使用
+2. 创建一个新函数，声明符合新设计
+3. 让旧函数调用新函数
+4. 测试
+5. 让调用方逐步改用新函数
+6. 每改一个调用点就测试
+7. 删除旧函数</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">circum</span><span class="p">(</span><span class="nx">radius</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">radius</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">circumference</span><span class="p">(</span><span class="nx">radius</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">radius</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="encapsulate-variable">Encapsulate Variable</h3>
+<p><strong>何时使用</strong>：多个地方直接访问某个数据</p>
+<p><strong>动机</strong>：为数据访问提供明确入口。</p>
+<p><strong>步骤</strong>：
+1. 创建 getter 和 setter
+2. 找到所有引用
+3. 用 getter 替换读取
+4. 用 setter 替换写入
+5. 每次改动后测试
+6. 降低变量可见性</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">defaultOwner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">firstName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Martin&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">lastName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Fowler&quot;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="c1">// Used in many places</span>
+<span class="nx">spaceship</span><span class="p">.</span><span class="nx">owner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">defaultOwner</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">defaultOwnerData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">firstName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Martin&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">lastName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Fowler&quot;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">defaultOwner</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">defaultOwnerData</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">setDefaultOwner</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defaultOwnerData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="nx">spaceship</span><span class="p">.</span><span class="nx">owner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">defaultOwner</span><span class="p">();</span>
+</code></pre></div>
+
+<hr />
+<h3 id="introduce-parameter-object">Introduce Parameter Object</h3>
+<p><strong>何时使用</strong>：一组参数经常一起出现</p>
+<p><strong>动机</strong>：把自然属于一起的数据打包起来。</p>
+<p><strong>步骤</strong>：
+1. 为这组参数创建一个新类 / 结构
+2. 测试
+3. 用 Change Function Declaration 引入新对象
+4. 测试
+5. 逐个移除参数，改用对象字段
+6. 每次移除后测试</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">amountInvoiced</span><span class="p">(</span><span class="nx">startDate</span><span class="p">,</span><span class="w"> </span><span class="nx">endDate</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">amountReceived</span><span class="p">(</span><span class="nx">startDate</span><span class="p">,</span><span class="w"> </span><span class="nx">endDate</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">amountOverdue</span><span class="p">(</span><span class="nx">startDate</span><span class="p">,</span><span class="w"> </span><span class="nx">endDate</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">DateRange</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span><span class="w"> </span><span class="nx">end</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">start</span><span class="p">;</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">end</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">amountInvoiced</span><span class="p">(</span><span class="nx">dateRange</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">amountReceived</span><span class="p">(</span><span class="nx">dateRange</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">amountOverdue</span><span class="p">(</span><span class="nx">dateRange</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="combine-functions-into-class">Combine Functions into Class</h3>
+<p><strong>何时使用</strong>：多个函数操作同一份数据</p>
+<p><strong>动机</strong>：把函数和它操作的数据放到一起。</p>
+<p><strong>步骤</strong>：
+1. 对公共数据先做 Encapsulate Record
+2. 把每个函数移动到类里
+3. 每移动一次就测试
+4. 用类字段替代数据参数</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">base</span><span class="p">(</span><span class="nx">reading</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">taxableCharge</span><span class="p">(</span><span class="nx">reading</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">calculateBaseCharge</span><span class="p">(</span><span class="nx">reading</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Reading</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">base</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">taxableCharge</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">calculateBaseCharge</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="split-phase">Split Phase</h3>
+<p><strong>何时使用</strong>：代码在处理两件不同的事</p>
+<p><strong>动机</strong>：把代码拆成边界清晰的两个阶段。</p>
+<p><strong>步骤</strong>：
+1. 为第二阶段创建新函数
+2. 测试
+3. 在两个阶段之间引入中间数据结构
+4. 测试
+5. 把第一阶段提取成独立函数
+6. 测试</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">priceOrder</span><span class="p">(</span><span class="nx">product</span><span class="p">,</span><span class="w"> </span><span class="nx">quantity</span><span class="p">,</span><span class="w"> </span><span class="nx">shippingMethod</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">basePrice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">product</span><span class="p">.</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">quantity</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">discount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">quantity</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">product</span><span class="p">.</span><span class="nx">discountThreshold</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="w">    </span><span class="o">*</span><span class="w"> </span><span class="nx">product</span><span class="p">.</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">product</span><span class="p">.</span><span class="nx">discountRate</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">shippingPerCase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">shippingMethod</span><span class="p">.</span><span class="nx">discountThreshold</span><span class="p">)</span>
+<span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="nx">shippingMethod</span><span class="p">.</span><span class="nx">discountedFee</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nx">shippingMethod</span><span class="p">.</span><span class="nx">feePerCase</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">shippingCost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">shippingPerCase</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">basePrice</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">discount</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">shippingCost</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">priceOrder</span><span class="p">(</span><span class="nx">product</span><span class="p">,</span><span class="w"> </span><span class="nx">quantity</span><span class="p">,</span><span class="w"> </span><span class="nx">shippingMethod</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">priceData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">calculatePricingData</span><span class="p">(</span><span class="nx">product</span><span class="p">,</span><span class="w"> </span><span class="nx">quantity</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">applyShipping</span><span class="p">(</span><span class="nx">priceData</span><span class="p">,</span><span class="w"> </span><span class="nx">shippingMethod</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">calculatePricingData</span><span class="p">(</span><span class="nx">product</span><span class="p">,</span><span class="w"> </span><span class="nx">quantity</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">basePrice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">product</span><span class="p">.</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">quantity</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">discount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">quantity</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">product</span><span class="p">.</span><span class="nx">discountThreshold</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="w">    </span><span class="o">*</span><span class="w"> </span><span class="nx">product</span><span class="p">.</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">product</span><span class="p">.</span><span class="nx">discountRate</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">basePrice</span><span class="p">,</span><span class="w"> </span><span class="nx">quantity</span><span class="p">,</span><span class="w"> </span><span class="nx">discount</span><span class="w"> </span><span class="p">};</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">applyShipping</span><span class="p">(</span><span class="nx">priceData</span><span class="p">,</span><span class="w"> </span><span class="nx">shippingMethod</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">shippingPerCase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">priceData</span><span class="p">.</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">shippingMethod</span><span class="p">.</span><span class="nx">discountThreshold</span><span class="p">)</span>
+<span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="nx">shippingMethod</span><span class="p">.</span><span class="nx">discountedFee</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nx">shippingMethod</span><span class="p">.</span><span class="nx">feePerCase</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">shippingCost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">priceData</span><span class="p">.</span><span class="nx">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">shippingPerCase</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">priceData</span><span class="p">.</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">priceData</span><span class="p">.</span><span class="nx">discount</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">shippingCost</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_4">移动特性</h2>
+<h3 id="move-method">Move Method</h3>
+<p><strong>何时使用</strong>：方法更依赖另一个类的数据而不是自己类的数据</p>
+<p><strong>动机</strong>：把函数放到它最依赖的数据所在的类里。</p>
+<p><strong>步骤</strong>：
+1. 检查方法使用到的所有程序元素
+2. 确认方法不是多态的
+3. 把方法复制到目标类
+4. 调整上下文
+5. 让原方法委托给目标方法
+6. 测试
+7. 视情况删除原方法</p>
+<hr />
+<h3 id="move-field">Move Field</h3>
+<p><strong>何时使用</strong>：字段更多被另一个类使用</p>
+<p><strong>动机</strong>：让数据和使用它的函数靠在一起。</p>
+<p><strong>步骤</strong>：
+1. 如果还没有，先封装字段
+2. 测试
+3. 在目标类中创建字段
+4. 把引用改成使用目标字段
+5. 测试
+6. 删除原字段</p>
+<hr />
+<h3 id="move-statements-into-function">Move Statements into Function</h3>
+<p><strong>何时使用</strong>：相同代码总是跟着函数调用一起出现</p>
+<p><strong>动机</strong>：把重复语句移入函数，去掉重复。</p>
+<p><strong>步骤</strong>：
+1. 如果还没有，先把重复代码提取成函数
+2. 把语句移入函数
+3. 测试
+4. 如果调用方不再需要独立语句，就删除它们</p>
+<hr />
+<h3 id="move-statements-to-callers">Move Statements to Callers</h3>
+<p><strong>何时使用</strong>：不同调用方需要不同的行为</p>
+<p><strong>动机</strong>：当行为需要差异化时，把它从函数里移出去。</p>
+<p><strong>步骤</strong>：
+1. 先对要移动的代码做 Extract Method
+2. 再对原函数做 Inline Method
+3. 删除被内联后的调用
+4. 把提取出的代码移到各个调用方
+5. 测试</p>
+<hr />
+<h2 id="_5">数据组织</h2>
+<h3 id="replace-primitive-with-object">Replace Primitive with Object</h3>
+<p><strong>何时使用</strong>：数据项需要的不只是简单值</p>
+<p><strong>动机</strong>：把数据和行为封装在一起。</p>
+<p><strong>步骤</strong>：
+1. 先做 Encapsulate Variable
+2. 创建一个简单值对象
+3. 修改 setter，让它创建新实例
+4. 修改 getter，让它返回值
+5. 测试
+6. 给新类增加更丰富的行为</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Order</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">priority</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">priority</span><span class="p">;</span><span class="w"> </span><span class="c1">// string: &quot;high&quot;, &quot;rush&quot;, etc.</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Usage</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">order</span><span class="p">.</span><span class="nx">priority</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">priority</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;rush&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Priority</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">Priority</span><span class="p">.</span><span class="nx">legalValues</span><span class="p">().</span><span class="nx">includes</span><span class="p">(</span><span class="nx">value</span><span class="p">))</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="sb">`Invalid priority: </span><span class="si">${</span><span class="nx">value</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">value</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">static</span><span class="w"> </span><span class="nx">legalValues</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;low&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;normal&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;high&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;rush&#39;</span><span class="p">];</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">value</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_value</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">higherThan</span><span class="p">(</span><span class="nx">other</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">Priority</span><span class="p">.</span><span class="nx">legalValues</span><span class="p">().</span><span class="nx">indexOf</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_value</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span>
+<span class="w">           </span><span class="nx">Priority</span><span class="p">.</span><span class="nx">legalValues</span><span class="p">().</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">other</span><span class="p">.</span><span class="nx">_value</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Usage</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">order</span><span class="p">.</span><span class="nx">priority</span><span class="p">.</span><span class="nx">higherThan</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">Priority</span><span class="p">(</span><span class="s2">&quot;normal&quot;</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="replace-temp-with-query">Replace Temp with Query</h3>
+<p><strong>何时使用</strong>：临时变量保存的是一个表达式结果</p>
+<p><strong>动机</strong>：把表达式提取成函数，让代码更清晰。</p>
+<p><strong>步骤</strong>：
+1. 确保变量只被赋值一次
+2. 把赋值右侧提取成一个方法
+3. 用方法调用替换临时变量引用
+4. 测试
+5. 删除临时变量声明和赋值</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">basePrice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_itemPrice</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">basePrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.95</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">basePrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.98</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nx">get</span><span class="w"> </span><span class="nx">basePrice</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_itemPrice</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// In the method</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.95</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">basePrice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.98</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_6">简化条件逻辑</h2>
+<h3 id="decompose-conditional">Decompose Conditional</h3>
+<p><strong>何时使用</strong>：复杂条件语句</p>
+<p><strong>动机</strong>：把条件和分支动作分别提取出来，让意图更清楚。</p>
+<p><strong>步骤</strong>：
+1. 对条件做 Extract Method
+2. 对 then 分支做 Extract Method
+3. 对 else 分支也做 Extract Method（如果有）</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">aDate</span><span class="p">.</span><span class="nx">isBefore</span><span class="p">(</span><span class="nx">plan</span><span class="p">.</span><span class="nx">summerStart</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">aDate</span><span class="p">.</span><span class="nx">isAfter</span><span class="p">(</span><span class="nx">plan</span><span class="p">.</span><span class="nx">summerEnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">charge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">plan</span><span class="p">.</span><span class="nx">summerRate</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">charge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">plan</span><span class="p">.</span><span class="nx">regularRate</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">plan</span><span class="p">.</span><span class="nx">regularServiceCharge</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">isSummer</span><span class="p">(</span><span class="nx">aDate</span><span class="p">,</span><span class="w"> </span><span class="nx">plan</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">charge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">summerCharge</span><span class="p">(</span><span class="nx">quantity</span><span class="p">,</span><span class="w"> </span><span class="nx">plan</span><span class="p">);</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">charge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">regularCharge</span><span class="p">(</span><span class="nx">quantity</span><span class="p">,</span><span class="w"> </span><span class="nx">plan</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">isSummer</span><span class="p">(</span><span class="nx">date</span><span class="p">,</span><span class="w"> </span><span class="nx">plan</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="o">!</span><span class="nx">date</span><span class="p">.</span><span class="nx">isBefore</span><span class="p">(</span><span class="nx">plan</span><span class="p">.</span><span class="nx">summerStart</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">date</span><span class="p">.</span><span class="nx">isAfter</span><span class="p">(</span><span class="nx">plan</span><span class="p">.</span><span class="nx">summerEnd</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">summerCharge</span><span class="p">(</span><span class="nx">quantity</span><span class="p">,</span><span class="w"> </span><span class="nx">plan</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">plan</span><span class="p">.</span><span class="nx">summerRate</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">regularCharge</span><span class="p">(</span><span class="nx">quantity</span><span class="p">,</span><span class="w"> </span><span class="nx">plan</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">plan</span><span class="p">.</span><span class="nx">regularRate</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">plan</span><span class="p">.</span><span class="nx">regularServiceCharge</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="consolidate-conditional-expression">Consolidate Conditional Expression</h3>
+<p><strong>何时使用</strong>：多个条件最后都返回同一个结果</p>
+<p><strong>动机</strong>：让人一眼看出这些条件其实是一道检查。</p>
+<p><strong>步骤</strong>：
+1. 确认条件没有副作用
+2. 用 and / or 合并条件
+3. 视情况对合并后的条件做 Extract Method</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">employee</span><span class="p">.</span><span class="nx">seniority</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">2</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">employee</span><span class="p">.</span><span class="nx">monthsDisabled</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">12</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">employee</span><span class="p">.</span><span class="nx">isPartTime</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">isNotEligibleForDisability</span><span class="p">(</span><span class="nx">employee</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">isNotEligibleForDisability</span><span class="p">(</span><span class="nx">employee</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">employee</span><span class="p">.</span><span class="nx">seniority</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">||</span>
+<span class="w">         </span><span class="nx">employee</span><span class="p">.</span><span class="nx">monthsDisabled</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">12</span><span class="w"> </span><span class="o">||</span>
+<span class="w">         </span><span class="nx">employee</span><span class="p">.</span><span class="nx">isPartTime</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="replace-nested-conditional-with-guard-clauses">Replace Nested Conditional with Guard Clauses</h3>
+<p><strong>何时使用</strong>：深层嵌套条件让流程难以追踪</p>
+<p><strong>动机</strong>：用 guard clause 提前返回，让正常流程更清楚。</p>
+<p><strong>步骤</strong>：
+1. 找出特殊情况
+2. 用提前返回的 guard clause 替换它们
+3. 每改一步就测试</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">payAmount</span><span class="p">(</span><span class="nx">employee</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">result</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">employee</span><span class="p">.</span><span class="nx">isSeparated</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">amount</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">reasonCode</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;SEP&quot;</span><span class="w"> </span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">employee</span><span class="p">.</span><span class="nx">isRetired</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">amount</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">reasonCode</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;RET&quot;</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">calculateNormalPay</span><span class="p">(</span><span class="nx">employee</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">payAmount</span><span class="p">(</span><span class="nx">employee</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">employee</span><span class="p">.</span><span class="nx">isSeparated</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">amount</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">reasonCode</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;SEP&quot;</span><span class="w"> </span><span class="p">};</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">employee</span><span class="p">.</span><span class="nx">isRetired</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">amount</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">reasonCode</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;RET&quot;</span><span class="w"> </span><span class="p">};</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">calculateNormalPay</span><span class="p">(</span><span class="nx">employee</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="replace-conditional-with-polymorphism">Replace Conditional with Polymorphism</h3>
+<p><strong>何时使用</strong>：按类型分支的 switch / 条件逻辑</p>
+<p><strong>动机</strong>：让对象自己处理自己的行为。</p>
+<p><strong>步骤</strong>：
+1. 创建类层次（如果还没有）
+2. 用 Factory Function 创建对象
+3. 把条件逻辑移到超类方法里
+4. 给每种情况创建子类方法
+5. 删除原条件</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">plumages</span><span class="p">(</span><span class="nx">birds</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">birds</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">plumage</span><span class="p">(</span><span class="nx">b</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">plumage</span><span class="p">(</span><span class="nx">bird</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">bird</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;EuropeanSwallow&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;average&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;AfricanSwallow&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nx">bird</span><span class="p">.</span><span class="nx">numberOfCoconuts</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">2</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">&quot;tired&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;average&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;NorwegianBlueParrot&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nx">bird</span><span class="p">.</span><span class="nx">voltage</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">100</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">&quot;scorched&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;beautiful&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">default</span><span class="o">:</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;unknown&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Bird</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">plumage</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;unknown&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">EuropeanSwallow</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Bird</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">plumage</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;average&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">AfricanSwallow</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Bird</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">plumage</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">numberOfCoconuts</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">2</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">&quot;tired&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;average&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">NorwegianBlueParrot</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Bird</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">plumage</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">voltage</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">100</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">&quot;scorched&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;beautiful&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">createBird</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;EuropeanSwallow&#39;</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">EuropeanSwallow</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;AfricanSwallow&#39;</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">AfricanSwallow</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;NorwegianBlueParrot&#39;</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">NorwegianBlueParrot</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">    </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Bird</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="introduce-special-case-null-object">Introduce Special Case (Null Object)</h3>
+<p><strong>何时使用</strong>：重复出现 null 检查</p>
+<p><strong>动机</strong>：返回一个特殊对象来处理特殊情况。</p>
+<p><strong>步骤</strong>：
+1. 创建一个具备预期接口的特殊情况类
+2. 增加 isSpecialCase 检查
+3. 引入工厂方法
+4. 用特殊对象替换 null 检查
+5. 测试</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">customer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">site</span><span class="p">.</span><span class="nx">customer</span><span class="p">;</span>
+<span class="c1">// ... many places checking</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">customer</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;unknown&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">customerName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;occupant&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">customerName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">customer</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">UnknownCustomer</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">name</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;occupant&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">billingPlan</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">registry</span><span class="p">.</span><span class="nx">defaultPlan</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Factory method</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">customer</span><span class="p">(</span><span class="nx">site</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">site</span><span class="p">.</span><span class="nx">customer</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;unknown&quot;</span>
+<span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnknownCustomer</span><span class="p">()</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="nx">site</span><span class="p">.</span><span class="nx">customer</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Usage - no null checks needed</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">customerName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">customer</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="api">重构 API</h2>
+<h3 id="separate-query-from-modifier">Separate Query from Modifier</h3>
+<p><strong>何时使用</strong>：函数既返回值又有副作用</p>
+<p><strong>动机</strong>：明确哪些操作会产生副作用。</p>
+<p><strong>步骤</strong>：
+1. 创建新的查询函数
+2. 复制原函数的返回逻辑
+3. 修改原函数，让它只负责副作用
+4. 替换依赖返回值的调用点
+5. 测试</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">alertForMiscreant</span><span class="p">(</span><span class="nx">people</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">p</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">people</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;Don&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">setOffAlarms</span><span class="p">();</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;Don&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">setOffAlarms</span><span class="p">();</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">findMiscreant</span><span class="p">(</span><span class="nx">people</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">p</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">people</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;Don&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;Don&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">alertForMiscreant</span><span class="p">(</span><span class="nx">people</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">findMiscreant</span><span class="p">(</span><span class="nx">people</span><span class="p">)</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">setOffAlarms</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="parameterize-function">Parameterize Function</h3>
+<p><strong>何时使用</strong>：有多个做类似事情但数值不同的函数</p>
+<p><strong>动机</strong>：通过参数化减少重复。</p>
+<p><strong>步骤</strong>：
+1. 选择一个函数
+2. 为变化的字面值增加参数
+3. 修改函数体使用该参数
+4. 测试
+5. 让调用方改用参数化版本
+6. 删除不再使用的旧函数</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">tenPercentRaise</span><span class="p">(</span><span class="nx">person</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">person</span><span class="p">.</span><span class="nx">salary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">person</span><span class="p">.</span><span class="nx">salary</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.10</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">fivePercentRaise</span><span class="p">(</span><span class="nx">person</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">person</span><span class="p">.</span><span class="nx">salary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">person</span><span class="p">.</span><span class="nx">salary</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.05</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">raise</span><span class="p">(</span><span class="nx">person</span><span class="p">,</span><span class="w"> </span><span class="nx">factor</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">person</span><span class="p">.</span><span class="nx">salary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">person</span><span class="p">.</span><span class="nx">salary</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mf">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">factor</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Usage</span>
+<span class="nx">raise</span><span class="p">(</span><span class="nx">person</span><span class="p">,</span><span class="w"> </span><span class="mf">0.10</span><span class="p">);</span>
+<span class="nx">raise</span><span class="p">(</span><span class="nx">person</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h3 id="remove-flag-argument">Remove Flag Argument</h3>
+<p><strong>何时使用</strong>：布尔参数改变函数行为</p>
+<p><strong>动机</strong>：通过拆分成明确函数，让行为更清楚。</p>
+<p><strong>步骤</strong>：
+1. 针对不同旗标值创建显式函数
+2. 替换每个调用点
+3. 每次改动后测试
+4. 删除原函数</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">bookConcert</span><span class="p">(</span><span class="nx">customer</span><span class="p">,</span><span class="w"> </span><span class="nx">isPremium</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">isPremium</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// premium booking logic</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// regular booking logic</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">bookConcert</span><span class="p">(</span><span class="nx">customer</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<span class="nx">bookConcert</span><span class="p">(</span><span class="nx">customer</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">bookPremiumConcert</span><span class="p">(</span><span class="nx">customer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// premium booking logic</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">bookRegularConcert</span><span class="p">(</span><span class="nx">customer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// regular booking logic</span>
+<span class="p">}</span>
+
+<span class="nx">bookPremiumConcert</span><span class="p">(</span><span class="nx">customer</span><span class="p">);</span>
+<span class="nx">bookRegularConcert</span><span class="p">(</span><span class="nx">customer</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_7">继承相关</h2>
+<h3 id="pull-up-method">Pull Up Method</h3>
+<p><strong>何时使用</strong>：多个子类里有相同方法</p>
+<p><strong>动机</strong>：去掉类层次中的重复。</p>
+<p><strong>步骤</strong>：
+1. 检查方法是否完全相同
+2. 确认签名一致
+3. 在超类中新建方法
+4. 从一个子类复制实现
+5. 删除一个子类中的方法并测试
+6. 删除其他子类中的方法并测试</p>
+<hr />
+<h3 id="push-down-method">Push Down Method</h3>
+<p><strong>何时使用</strong>：某个行为只适用于部分子类</p>
+<p><strong>动机</strong>：把方法放到真正使用它的地方。</p>
+<p><strong>步骤</strong>：
+1. 把方法复制到需要它的子类
+2. 从超类删除方法
+3. 测试
+4. 删除不需要该方法的子类副本
+5. 测试</p>
+<hr />
+<h3 id="replace-subclass-with-delegate">Replace Subclass with Delegate</h3>
+<p><strong>何时使用</strong>：继承用得不对，需要更灵活</p>
+<p><strong>动机</strong>：在合适的地方更偏向组合而不是继承。</p>
+<p><strong>步骤</strong>：
+1. 创建一个空的委托类
+2. 在宿主类中加一个持有委托的字段
+3. 在宿主类构造委托
+4. 把功能迁移到委托类
+5. 每次迁移后测试
+6. 用委托替代继承</p>
+<hr />
+<h2 id="extract-class">Extract Class</h2>
+<p><strong>何时使用</strong>：大类里有多个职责</p>
+<p><strong>动机</strong>：拆分类以维持单一职责。</p>
+<p><strong>步骤</strong>：
+1. 决定如何拆分职责
+2. 创建新类
+3. 把字段从原类移到新类
+4. 测试
+5. 把方法从原类移到新类
+6. 每次移动后测试
+7. 重新检查并命名两个类
+8. 决定如何暴露新类</p>
+<p><strong>前：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Person</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">name</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_name</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">set</span><span class="w"> </span><span class="nx">name</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">officeAreaCode</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_officeAreaCode</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">set</span><span class="w"> </span><span class="nx">officeAreaCode</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_officeAreaCode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">officeNumber</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_officeNumber</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">set</span><span class="w"> </span><span class="nx">officeNumber</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_officeNumber</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">telephoneNumber</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="sb">`(</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">_officeAreaCode</span><span class="si">}</span><span class="sb">) </span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">_officeNumber</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>后：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Person</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">_telephoneNumber</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TelephoneNumber</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">name</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_name</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">set</span><span class="w"> </span><span class="nx">name</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">telephoneNumber</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_telephoneNumber</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">officeAreaCode</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_telephoneNumber</span><span class="p">.</span><span class="nx">areaCode</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">set</span><span class="w"> </span><span class="nx">officeAreaCode</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_telephoneNumber</span><span class="p">.</span><span class="nx">areaCode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">TelephoneNumber</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">areaCode</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_areaCode</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">set</span><span class="w"> </span><span class="nx">areaCode</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_areaCode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">number</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_number</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">set</span><span class="w"> </span><span class="nx">number</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">toString</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="sb">`(</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">_areaCode</span><span class="si">}</span><span class="sb">) </span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">_number</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_8">快速参考：异味到重构</h2>
+<table>
+<thead>
+<tr>
+<th>代码异味</th>
+<th>主要重构</th>
+<th>备选方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>长函数</td>
+<td>Extract Method</td>
+<td>Replace Temp with Query</td>
+</tr>
+<tr>
+<td>重复代码</td>
+<td>Extract Method</td>
+<td>Pull Up Method</td>
+</tr>
+<tr>
+<td>大类</td>
+<td>Extract Class</td>
+<td>Extract Subclass</td>
+</tr>
+<tr>
+<td>长参数列表</td>
+<td>Introduce Parameter Object</td>
+<td>Preserve Whole Object</td>
+</tr>
+<tr>
+<td>Feature Envy</td>
+<td>Move Method</td>
+<td>Extract Method + Move</td>
+</tr>
+<tr>
+<td>数据泥团</td>
+<td>Extract Class</td>
+<td>Introduce Parameter Object</td>
+</tr>
+<tr>
+<td>基础类型沉迷</td>
+<td>Replace Primitive with Object</td>
+<td>Replace Type Code</td>
+</tr>
+<tr>
+<td>switch 语句</td>
+<td>Replace Conditional with Polymorphism</td>
+<td>Replace Type Code</td>
+</tr>
+<tr>
+<td>临时字段</td>
+<td>Extract Class</td>
+<td>Introduce Null Object</td>
+</tr>
+<tr>
+<td>消息链</td>
+<td>Hide Delegate</td>
+<td>Extract Method</td>
+</tr>
+<tr>
+<td>中间人</td>
+<td>Remove Middle Man</td>
+<td>Inline Method</td>
+</tr>
+<tr>
+<td>发散式变化</td>
+<td>Extract Class</td>
+<td>Split Phase</td>
+</tr>
+<tr>
+<td>散弹式修改</td>
+<td>Move Method</td>
+<td>Inline Class</td>
+</tr>
+<tr>
+<td>死代码</td>
+<td>Remove Dead Code</td>
+<td>-</td>
+</tr>
+<tr>
+<td>臆想泛化</td>
+<td>Collapse Hierarchy</td>
+<td>Inline Class</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_9">延伸阅读</h2>
+<ul>
+<li>Fowler, M. (2018). <em>Refactoring: Improving the Design of Existing Code</em> (第 2 版)</li>
+<li>在线目录：https://refactoring.com/catalog/</li>
+</ul>
+  </div>
+  <footer class="site-footer">
+    Claude How To &mdash; 结构化、可视化的 Claude Code 学习指南 &bull;
+    <a href="https://github.com/luongnv89/claude-howto">GitHub</a>
+  </footer>
+</main>
+</body>
+</html>
