@@ -297,21 +297,39 @@ function render() {
   document.getElementById("reminder").innerText =
     greeting + randomTip + ending;
 
-  // 节日目标日期
-  const holidays = {
-    "清明": new Date(year, 3, 4),
-    "五一": new Date(year, 4, 1),
-    "端午": new Date(year, 5, 11),
-    "中秋": new Date(year, 8, 25),
-    "国庆": new Date(year, 9, 1),
-    "元旦": new Date(year+1, 0, 1),
-    "小年": new Date(year+1, 0, 20),
-    "春节": new Date(year+1, 0, 29)
-  };
-  let holidayText = "";
-  for (let h in holidays) {
-    holidayText += `距离【${h}】还有 ${daysBetween(now, holidays[h])} 天\n`;
+  const todayStart = new Date(year, month-1, day);
+
+  /**
+   * 生成下一个还未过去的节日日期。
+   * @param {number} targetMonth 节日月份，1 表示一月。
+   * @param {number} targetDay 节日日期。
+   * @returns {Date} 今天或未来的节日日期。
+   */
+  function nextHolidayDate(targetMonth, targetDay) {
+    let target = new Date(year, targetMonth-1, targetDay);
+    // 用当天零点比较，避免节日当天被当作已过而跳到下一年。
+    if (target < todayStart) target = new Date(year+1, targetMonth-1, targetDay);
+    return target;
   }
+
+  // 节日目标日期
+  const holidays = [
+    { name: "清明", date: nextHolidayDate(4, 4) },
+    { name: "五一", date: nextHolidayDate(5, 1) },
+    { name: "端午", date: nextHolidayDate(6, 11) },
+    { name: "中秋", date: nextHolidayDate(9, 25) },
+    { name: "国庆", date: nextHolidayDate(10, 1) },
+    { name: "元旦", date: nextHolidayDate(1, 1) },
+    { name: "小年", date: nextHolidayDate(1, 20) },
+    { name: "春节", date: nextHolidayDate(1, 29) }
+  ].map(holiday => ({
+    ...holiday,
+    days: daysBetween(now, holiday.date)
+  })).sort((a, b) => a.days - b.days);
+
+  const holidayText = holidays
+    .map(holiday => `距离【${holiday.name}】还有 ${holiday.days} 天`)
+    .join("\n");
   document.getElementById("holidays").innerText = holidayText;
 
   // 周一、月初、年初进度
