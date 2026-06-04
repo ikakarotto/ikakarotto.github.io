@@ -1,447 +1,1138 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>国际黄金 XAU/USD 实时价格</title>
-  <style>
-    /* ============================================================
-       CSS 自定义属性 — 统一配色，后续主题切换只改这里
-       使用深色金融风格：深底色 + 金色强调
-    ============================================================ */
-    :root {
-      --bg-page:       #0d0f14;
-      --bg-header:     #12151c;
-      --bg-footer:     #12151c;
-      --border-color:  #1e2330;
-      --gold:          #c9a84c;
-      --gold-light:    #e8c86a;
-      --gold-dim:      #7a6228;
-      --text-primary:  #e8e2d4;
-      --text-secondary:#8a8070;
-      --text-muted:    #4a4540;
-      --green:         #3daa74;
-      --red:           #e05c5c;
-      --font-display:  'Georgia', 'Times New Roman', serif;
-      --font-body:     'Helvetica Neue', 'Arial', sans-serif;
-      --radius:        6px;
-      --header-h:      64px;
-      --footer-h:      56px;
-    }
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>国际黄金实时价格曲线</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f6f7f2;
+            --panel: #ffffff;
+            --ink: #18211b;
+            --muted: #657066;
+            --line: #d8decf;
+            --gold: #b98118;
+            --gold-dark: #7b5310;
+            --green: #167a55;
+            --red: #b84a3c;
+            --blue: #2367a5;
+            --shadow: 0 14px 36px rgba(31, 42, 28, 0.1);
+        }
 
-    /* ============================================================
-       全局重置：避免浏览器默认 margin/padding 干扰布局
-    ============================================================ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+        }
 
-    html, body {
-      height: 100%;
-      background: var(--bg-page);
-      color: var(--text-primary);
-      font-family: var(--font-body);
-      font-size: 14px;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(246, 247, 242, 0.92)),
+                radial-gradient(circle at 12% 12%, rgba(234, 190, 92, 0.22), transparent 32%),
+                radial-gradient(circle at 88% 8%, rgba(65, 128, 154, 0.16), transparent 34%),
+                var(--bg);
+            color: var(--ink);
+            font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+        }
 
-    /* ============================================================
-       整体布局：flex 纵向排列，图表区填满剩余高度
-    ============================================================ */
-    .layout {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      min-height: 500px;
-    }
+        .page {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: min(1180px, calc(100% - 32px));
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 22px 0 20px;
+        }
 
-    /* ────────── Header ────────── */
-    .header {
-      flex: 0 0 var(--header-h);
-      height: var(--header-h);
-      background: var(--bg-header);
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      gap: 12px;
-    }
+        .topbar,
+        .chart-panel,
+        .notes {
+            border: 1px solid rgba(95, 111, 87, 0.16);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: var(--shadow);
+        }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
+        .topbar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 18px;
+            padding: 18px;
+        }
 
-    /* 左侧装饰竖线，金色 */
-    .header-left::before {
-      content: '';
-      display: block;
-      width: 3px;
-      height: 28px;
-      background: linear-gradient(to bottom, var(--gold-light), var(--gold-dim));
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
 
-    .header-title {
-      font-family: var(--font-display);
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--gold-light);
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-    }
+        .subtitle {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
 
-    .header-subtitle {
-      font-size: 12px;
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            min-width: 190px;
+            color: var(--muted);
+            font-size: 14px;
+            white-space: nowrap;
+        }
 
-    /* 右侧：加载状态徽章 */
-    .status-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      border: 1px solid var(--border-color);
-      background: transparent;
-      font-size: 12px;
-      color: var(--text-secondary);
-      white-space: nowrap;
-      transition: border-color 0.3s, color 0.3s;
-    }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: var(--blue);
+            box-shadow: 0 0 0 4px rgba(35, 103, 165, 0.12);
+        }
 
-    /* 状态指示圆点 */
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--text-muted);
-      transition: background 0.3s;
-    }
+        .status.is-live .status-dot {
+            background: var(--green);
+            box-shadow: 0 0 0 4px rgba(22, 122, 85, 0.13);
+        }
 
-    /* 加载中：黄色闪烁 */
-    .status-badge.loading .status-dot {
-      background: var(--gold);
-      animation: pulse 1.2s ease-in-out infinite;
-    }
-    .status-badge.loading { border-color: var(--gold-dim); color: var(--gold); }
+        .status.is-error .status-dot {
+            background: var(--red);
+            box-shadow: 0 0 0 4px rgba(184, 74, 60, 0.13);
+        }
 
-    /* 加载成功：绿色稳定亮 */
-    .status-badge.ok .status-dot { background: var(--green); }
-    .status-badge.ok { border-color: #1e3d2d; color: var(--green); }
+        .quote-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(150px, 1fr));
+            gap: 12px;
+        }
 
-    /* 加载失败：红色 */
-    .status-badge.error .status-dot { background: var(--red); }
-    .status-badge.error { border-color: #3d1e1e; color: var(--red); }
+        .metric {
+            min-height: 104px;
+            padding: 16px;
+            border: 1px solid rgba(95, 111, 87, 0.16);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.82);
+        }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.3; }
-    }
+        .metric.primary {
+            border-color: rgba(185, 129, 24, 0.36);
+            background: linear-gradient(135deg, rgba(255, 252, 244, 0.95), rgba(252, 245, 229, 0.9));
+        }
 
-    /* ────────── 图表区 ────────── */
-    .chart-section {
-      flex: 1 1 0;
-      min-height: 0;        /* 必须，让 flex 子项可以收缩到父容器以内 */
-      position: relative;
-    }
+        .metric-label {
+            color: var(--muted);
+            font-size: 13px;
+        }
 
-    /* TradingView Widget 的外层容器需要 100% 高宽才能 autosize 生效 */
-    .tradingview-widget-container {
-      height: 100%;
-      width: 100%;
-    }
+        .metric-value {
+            margin-top: 10px;
+            color: var(--ink);
+            font-variant-numeric: tabular-nums;
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
 
-    /* Widget 内部图表区，减去底部版权行高度 32px */
-    .tradingview-widget-container__widget {
-      height: calc(100% - 32px);
-      width: 100%;
-    }
+        .metric.primary .metric-value {
+            color: var(--gold-dark);
+            font-size: clamp(34px, 4vw, 52px);
+        }
 
-    /* TradingView 版权行样式微调 */
-    .tradingview-widget-copyright {
-      background: var(--bg-page);
-      padding: 6px 12px;
-      font-size: 11px;
-    }
-    .tradingview-widget-copyright a { color: var(--text-muted); text-decoration: none; }
-    .tradingview-widget-copyright a:hover { color: var(--text-secondary); }
-    .tradingview-widget-copyright .blue-text { color: var(--text-muted); }
-    .tradingview-widget-copyright .trademark { color: var(--text-muted); }
+        .metric-unit,
+        .metric-foot {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.4;
+        }
 
-    /* ────────── 错误提示层 ────────── */
-    /* 覆盖在图表区上方，仅在 JS 检测到超时时显示 */
-    .error-overlay {
-      display: none;           /* 默认隐藏，JS 控制 display */
-      position: absolute;
-      inset: 0;
-      background: var(--bg-page);
-      z-index: 10;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      padding: 24px;
-      text-align: center;
-    }
+        .chart-panel {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            min-height: 470px;
+            padding: 16px;
+        }
 
-    .error-icon {
-      font-size: 40px;
-      line-height: 1;
-    }
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 2px 2px 14px;
+        }
 
-    .error-title {
-      font-family: var(--font-display);
-      font-size: 18px;
-      color: var(--text-primary);
-    }
+        .chart-title {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 750;
+        }
 
-    .error-desc {
-      font-size: 13px;
-      color: var(--text-secondary);
-      max-width: 400px;
-    }
+        .chart-meta {
+            color: var(--muted);
+            font-size: 13px;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+        }
 
-    .retry-btn {
-      margin-top: 4px;
-      padding: 8px 22px;
-      border: 1px solid var(--gold-dim);
-      border-radius: var(--radius);
-      background: transparent;
-      color: var(--gold);
-      font-size: 13px;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-    }
-    .retry-btn:hover {
-      background: var(--gold-dim);
-      color: var(--bg-page);
-    }
+        .chart-wrap {
+            position: relative;
+            flex: 1;
+            min-height: 385px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfcf9 100%);
+        }
 
-    /* ────────── Footer ────────── */
-    .footer {
-      flex: 0 0 var(--footer-h);
-      height: var(--footer-h);
-      background: var(--bg-footer);
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+        .chart-empty {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: var(--muted);
+            font-size: 15px;
+            text-align: center;
+            pointer-events: none;
+        }
 
-    .footer-left {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+        svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
 
-    .footer-right {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-align: right;
-    }
+        .actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-top: 12px;
+        }
 
-    .footer-right a {
-      color: var(--text-muted);
-      text-decoration: none;
-    }
-    .footer-right a:hover { color: var(--text-secondary); }
+        .message {
+            min-height: 22px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
 
-    /* ────────── 响应式：移动端 ────────── */
-    @media (max-width: 600px) {
-      .header-title  { font-size: 15px; }
-      .header-subtitle { display: none; }   /* 小屏隐藏副标题节省空间 */
-      .footer        { flex-direction: column; height: auto; padding: 10px 16px; gap: 4px; }
-      .footer-right  { text-align: left; }
-    }
-  </style>
+        .message.is-error {
+            color: var(--red);
+            font-weight: 700;
+        }
+
+        button {
+            flex: 0 0 auto;
+            min-width: 96px;
+            height: 36px;
+            border: 1px solid rgba(185, 129, 24, 0.4);
+            border-radius: 8px;
+            background: #fff7e8;
+            color: var(--gold-dark);
+            cursor: pointer;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        button:disabled {
+            cursor: progress;
+            opacity: 0.58;
+        }
+
+        .notes {
+            padding: 14px 16px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.65;
+        }
+
+        .notes strong {
+            color: var(--ink);
+        }
+
+        @media (max-width: 900px) {
+            .topbar {
+                grid-template-columns: 1fr;
+            }
+
+            .status {
+                justify-content: flex-start;
+                min-width: 0;
+            }
+
+            .quote-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .metric.primary {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .page {
+                width: min(100% - 20px, 1180px);
+                padding-top: 12px;
+                gap: 12px;
+            }
+
+            .topbar,
+            .chart-panel,
+            .notes {
+                border-radius: 8px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .quote-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .metric {
+                min-height: 88px;
+                padding: 14px;
+            }
+
+            .chart-panel {
+                min-height: 420px;
+                padding: 12px;
+            }
+
+            .chart-wrap {
+                min-height: 320px;
+            }
+
+            .chart-header,
+            .actions {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .chart-meta {
+                text-align: left;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
+    <noscript>需要启用 JavaScript 才能加载国内行情脚本并绘制实时价格曲线。</noscript>
+    <main class="page">
+        <section class="topbar" aria-labelledby="page-title">
+            <div>
+                <h1 id="page-title">国际黄金实时价格曲线</h1>
+                <p class="subtitle">默认按人民币/克展示，数据来自中国大陆可访问的国内行情脚本接口。</p>
+            </div>
+            <div id="status" class="status" aria-live="polite">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span id="statusText">准备获取实时行情</span>
+            </div>
+        </section>
 
-<!-- noscript：当浏览器禁用 JS 时显示，正常情况下不可见 -->
-<noscript>
-  <div style="padding:40px;text-align:center;font-family:sans-serif;color:#c9a84c;background:#0d0f14;">
-    ⚠️ 此页面需要启用 JavaScript 才能加载行情图表，请在浏览器设置中允许脚本后刷新。
-  </div>
-</noscript>
+        <section class="quote-grid" aria-label="黄金实时报价">
+            <article class="metric primary">
+                <div class="metric-label">人民币/克</div>
+                <div id="cnyPrice" class="metric-value">--</div>
+                <div class="metric-unit">按国际黄金美元报价与 USD/CNY 实时折算</div>
+            </article>
+            <article class="metric">
+                <div class="metric-label">美元/盎司</div>
+                <div id="usdPrice" class="metric-value">--</div>
+                <div class="metric-foot">纽约黄金报价</div>
+            </article>
+            <article class="metric">
+                <div class="metric-label">USD/CNY</div>
+                <div id="usdCny" class="metric-value">--</div>
+                <div class="metric-foot">美元兑人民币</div>
+            </article>
+            <article class="metric">
+                <div class="metric-label">更新时间</div>
+                <div id="updatedAt" class="metric-value">--</div>
+                <div id="sourceName" class="metric-foot">腾讯财经 hf_GC + whUSDCNY</div>
+            </article>
+        </section>
 
-<div class="layout">
+        <section class="chart-panel" aria-labelledby="chart-title">
+            <div class="chart-header">
+                <h2 id="chart-title" class="chart-title">当天实时走势</h2>
+                <div id="chartMeta" class="chart-meta">正在加载当天分时</div>
+            </div>
+            <div class="chart-wrap">
+                <svg id="chart" role="img" aria-label="国际黄金人民币每克实时价格曲线"></svg>
+                <div id="chartEmpty" class="chart-empty">正在获取实时行情...</div>
+            </div>
+            <div class="actions">
+            <div id="message" class="message">页面默认加载当天走势；后续每 10 秒更新最新报价。</div>
+                <button id="refreshButton" type="button">立即刷新</button>
+            </div>
+        </section>
 
-  <!-- ══════════════════ 顶部信息区 ══════════════════ -->
-  <header class="header">
-    <div class="header-left">
-      <div>
-        <div class="header-title">国际黄金 XAU/USD 实时价格</div>
-        <div class="header-subtitle">Gold Spot · 数据由 TradingView 提供</div>
-      </div>
-    </div>
+        <footer class="notes">
+            <strong>数据说明：</strong>页面通过动态 script 加载 `qt.gtimg.cn` 和 `stock2.finance.sina.com.cn` 国内行情脚本，避免 CORS；
+            默认主单位为人民币/克，换算公式为 美元/盎司 × USD/CNY ÷ 31.1034768。
+            免费行情可能存在延迟或中断，价格仅供参考，不构成投资建议。
+        </footer>
+    </main>
 
-    <!-- 加载状态徽章，JS 动态更新 class 和文字 -->
-    <div class="status-badge loading" id="statusBadge">
-      <span class="status-dot"></span>
-      <span id="statusText">图表加载中…</span>
-    </div>
-  </header>
+    <script>
+        const TROY_OUNCE_GRAMS = 31.1034768;
+        const REFRESH_INTERVAL_MS = 10000;
+        const SCRIPT_TIMEOUT_MS = 7000;
+        const MAX_POINTS = 720;
+        const QUOTE_URL = "https://qt.gtimg.cn/q=hf_GC,whUSDCNY";
+        const INTRADAY_URL = "https://stock2.finance.sina.com.cn/futures/api/jsonp.php/var%20goldIntraday=/GlobalFuturesService.getGlobalFuturesMinLine?symbol=GC";
+        const state = {
+            points: [],
+            timerId: null,
+            pendingScript: null,
+            pendingIntradayScript: null,
+            loading: false,
+            failures: 0,
+            intradayLoaded: false,
+            lastQuote: null
+        };
+        const elements = {
+            status: document.getElementById("status"),
+            statusText: document.getElementById("statusText"),
+            cnyPrice: document.getElementById("cnyPrice"),
+            usdPrice: document.getElementById("usdPrice"),
+            usdCny: document.getElementById("usdCny"),
+            updatedAt: document.getElementById("updatedAt"),
+            sourceName: document.getElementById("sourceName"),
+            chart: document.getElementById("chart"),
+            chartEmpty: document.getElementById("chartEmpty"),
+            chartMeta: document.getElementById("chartMeta"),
+            message: document.getElementById("message"),
+            refreshButton: document.getElementById("refreshButton")
+        };
 
-  <!-- ══════════════════ 图表区 ══════════════════ -->
-  <main class="chart-section" id="chartSection">
+        /**
+         * 格式化数值，用固定小数位让报价在刷新时保持稳定宽度。
+         *
+         * @param {number | null | undefined} value 需要格式化的数值。
+         * @param {number} digits 小数位数量。
+         * @returns {string} 格式化后的字符串；无效数值返回占位符。
+         */
+        function formatNumber(value, digits) {
+            if (!Number.isFinite(value)) {
+                return "--";
+            }
+            return value.toLocaleString("zh-CN", {
+                minimumFractionDigits: digits,
+                maximumFractionDigits: digits
+            });
+        }
 
-    <!-- 错误提示层：默认隐藏，超时后由 JS 显示 -->
-    <div class="error-overlay" id="errorOverlay">
-      <div class="error-icon">📡</div>
-      <div class="error-title">行情图表加载失败</div>
-      <div class="error-desc">
-        无法连接至 TradingView 行情服务。<br>
-        请检查网络连接，或确认该服务在您的网络环境中可访问。
-      </div>
-      <button class="retry-btn" onclick="retryLoad()">重新加载</button>
-    </div>
+        /**
+         * 格式化本地时间，只显示时分秒，减少卡片在移动端的横向压力。
+         *
+         * @param {Date} date 需要格式化的时间对象。
+         * @returns {string} HH:mm:ss 格式的时间。
+         */
+        function formatTime(date) {
+            return date.toLocaleTimeString("zh-CN", {
+                hour12: false,
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            });
+        }
 
-    <!-- TradingView Advanced Chart Widget BEGIN -->
-    <div class="tradingview-widget-container" id="tvContainer">
-      <div class="tradingview-widget-container__widget"></div>
-      <div class="tradingview-widget-copyright">
-        <a href="https://www.tradingview.com/symbols/XAUUSD/?utm_source=gold-chart&utm_medium=widget_new&utm_campaign=advanced-chart"
-           rel="noopener nofollow" target="_blank">
-          <span class="blue-text">XAU/USD 图表</span>
-        </a>
-        <span class="trademark"> by TradingView</span>
-      </div>
-      <!--
-        Widget 配置说明：
-        - symbol: OANDA:XAUUSD — OANDA 提供的黄金兑美元现货，数据稳定
-        - autosize: true — 图表填满容器，需外层有明确高度（由 CSS flex 保证）
-        - style: "3" — Basic Area Chart，曲线风格最直观
-        - interval: "5" — 5 分钟粒度，适合实时走势观察
-        - theme: "dark" — 与页面深色背景保持一致
-        - locale: "zh_CN" — 中文界面
-        - hide_top_toolbar: false — 保留工具栏，允许用户切换时间粒度
-      -->
-      <script type="text/javascript"
-              src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
-              async
-              id="tvScript">
-      {
-        "autosize": true,
-        "symbol": "OANDA:XAUUSD",
-        "interval": "5",
-        "timezone": "Asia/Shanghai",
-        "theme": "dark",
-        "style": "3",
-        "locale": "zh_CN",
-        "backgroundColor": "rgba(13, 15, 20, 1)",
-        "hide_top_toolbar": false,
-        "save_image": false,
-        "calendar": false,
-        "support_host": "https://www.tradingview.com"
-      }
-      </script>
-    </div>
-    <!-- TradingView Advanced Chart Widget END -->
+        /**
+         * 从腾讯黄金行情变量解析美元/盎司报价。
+         *
+         * @param {string} raw 腾讯 `v_hf_GC` 返回的逗号分隔字符串。
+         * @returns {{usdPerOunce: number, quoteTime: string, quoteDate: string, name: string}} 解析后的黄金报价。
+         */
+        function parseGoldQuote(raw) {
+            const parts = String(raw || "").split(",");
+            const usdPerOunce = Number(parts[0]);
+            const quoteTime = parts[6] || "";
+            const quoteDate = parts[12] || "";
+            const name = parts[13] || "纽约黄金";
 
-  </main>
+            if (!Number.isFinite(usdPerOunce) || usdPerOunce <= 0) {
+                throw new Error("黄金报价字段异常");
+            }
 
-  <!-- ══════════════════ 底部说明区 ══════════════════ -->
-  <footer class="footer">
-    <div class="footer-left">
-      数据来源：TradingView · OANDA:XAUUSD · 价格仅供参考，不构成投资建议
-    </div>
-    <div class="footer-right">
-      © 2026 &nbsp;·&nbsp;
-      <a href="https://www.tradingview.com/symbols/XAUUSD/" rel="noopener nofollow" target="_blank">
-        在 TradingView 查看完整图表
-      </a>
-    </div>
-  </footer>
+            return { usdPerOunce, quoteTime, quoteDate, name };
+        }
 
-</div><!-- /.layout -->
+        /**
+         * 从腾讯外汇行情变量解析美元兑人民币汇率。
+         *
+         * @param {string} raw 腾讯 `v_whUSDCNY` 返回的波浪线分隔字符串。
+         * @returns {{usdCny: number, quoteDate: string, quoteTime: string}} 解析后的汇率。
+         */
+        function parseUsdCnyQuote(raw) {
+            const parts = String(raw || "").split("~");
+            const usdCny = Number(parts[3]);
+            const compactTime = parts[5] || "";
+            const quoteDate = parts[21] || "";
+            const quoteTime = compactTime.length >= 14
+                ? compactTime.slice(8, 10) + ":" + compactTime.slice(10, 12) + ":" + compactTime.slice(12, 14)
+                : "";
 
-<script>
-  /**
-   * 更新顶部状态徽章的显示状态
-   *
-   * @param {'loading'|'ok'|'error'} state - 当前状态类型
-   * @param {string} text - 要显示的状态文字
-   * @returns {void}
-   */
-  function setStatus(state, text) {
-    var badge = document.getElementById('statusBadge');
-    var label = document.getElementById('statusText');
-    // 先清除所有状态 class，再添加新的，避免多个状态 class 并存
-    badge.classList.remove('loading', 'ok', 'error');
-    badge.classList.add(state);
-    label.textContent = text;
-  }
+            if (!Number.isFinite(usdCny) || usdCny <= 0) {
+                throw new Error("美元人民币汇率字段异常");
+            }
 
-  /**
-   * 显示错误提示层，并将状态更新为 error
-   * 单独封装是因为"显示覆盖层"和"更新状态"需要同步执行，
-   * 方便后续重试逻辑复用
-   *
-   * @returns {void}
-   */
-  function showError() {
-    setStatus('error', '加载失败');
-    var overlay = document.getElementById('errorOverlay');
-    // 切换为 flex 而非 block，是因为 error-overlay 用 flex 居中布局
-    overlay.style.display = 'flex';
-  }
+            return { usdCny, quoteDate, quoteTime };
+        }
 
-  /**
-   * 重新加载页面以重试图表加载
-   * 直接 reload 是最简单可靠的重试方式；
-   * 如果只重建 script 标签，TradingView Widget 内部状态可能残留，导致重试无效
-   *
-   * @returns {void}
-   */
-  function retryLoad() {
-    window.location.reload();
-  }
+        /**
+         * 根据美元/盎司和美元人民币汇率换算人民币/克。
+         *
+         * @param {number} usdPerOunce 国际黄金美元/盎司报价。
+         * @param {number} usdCny 美元兑人民币汇率。
+         * @returns {number} 人民币/克价格。
+         */
+        function convertToCnyPerGram(usdPerOunce, usdCny) {
+            return usdPerOunce * usdCny / TROY_OUNCE_GRAMS;
+        }
 
-  /**
-   * 检测 TradingView Widget 是否在超时时间内成功渲染
-   *
-   * TradingView Widget 通过异步脚本加载并在容器内生成 iframe，
-   * 因此无法用 script.onload 直接判断渲染完成；
-   * 这里通过轮询 iframe 是否存在来判断是否加载成功。
-   *
-   * @param {number} timeoutMs - 等待超时毫秒数，超过后认为加载失败
-   * @param {number} checkIntervalMs - 每次轮询的间隔毫秒数
-   * @returns {void}
-   */
-  function watchWidgetLoad(timeoutMs, checkIntervalMs) {
-    var startTime = Date.now();
+        /**
+         * 设置页面状态提示；状态分开处理是为了让错误态和实时态在视觉上更明确。
+         *
+         * @param {"loading" | "live" | "error"} mode 当前状态类型。
+         * @param {string} text 展示给用户的状态文案。
+         * @returns {void}
+         */
+        function setStatus(mode, text) {
+            elements.status.classList.toggle("is-live", mode === "live");
+            elements.status.classList.toggle("is-error", mode === "error");
+            elements.statusText.textContent = text;
+        }
 
-    var timer = setInterval(function () {
-      var container = document.getElementById('tvContainer');
-      // iframe 出现即认为 Widget 已成功初始化
-      var iframe = container ? container.querySelector('iframe') : null;
+        /**
+         * 设置底部消息文案。
+         *
+         * @param {string} text 需要展示的消息。
+         * @param {boolean} isError 是否按错误样式展示。
+         * @returns {void}
+         */
+        function setMessage(text, isError) {
+            elements.message.textContent = text;
+            elements.message.classList.toggle("is-error", Boolean(isError));
+        }
 
-      if (iframe) {
-        clearInterval(timer);
-        setStatus('ok', '行情实时更新中');
-        return;
-      }
+        /**
+         * 用动态 script 读取腾讯行情变量；这种方式避免跨域 JSON 的 CORS 限制。
+         *
+         * @returns {Promise<{gold: string, usdCny: string}>} 腾讯行情脚本写入的全局变量值。
+         */
+        function loadTencentQuotes() {
+            return new Promise((resolve, reject) => {
+                cleanupPendingScript();
 
-      // 超出等待时间仍未出现 iframe，视为加载失败
-      if (Date.now() - startTime > timeoutMs) {
-        clearInterval(timer);
-        showError();
-      }
-    }, checkIntervalMs);
-  }
+                // 每次请求都带时间戳，因为行情脚本可能被浏览器或中间缓存短暂复用。
+                const script = document.createElement("script");
+                const timeoutId = window.setTimeout(() => {
+                    cleanupPendingScript();
+                    reject(new Error("行情脚本加载超时"));
+                }, SCRIPT_TIMEOUT_MS);
 
-  // 页面完成 DOM 解析后开始监听，等待最多 12 秒，每 500ms 轮询一次
-  document.addEventListener('DOMContentLoaded', function () {
-    watchWidgetLoad(12000, 500);
-  });
-</script>
+                state.pendingScript = script;
+                window.v_hf_GC = "";
+                window.v_whUSDCNY = "";
 
+                script.src = QUOTE_URL + "&_=" + Date.now();
+                script.async = true;
+                script.onload = () => {
+                    window.clearTimeout(timeoutId);
+                    const gold = window.v_hf_GC;
+                    const usdCny = window.v_whUSDCNY;
+                    cleanupPendingScript();
+
+                    if (!gold || !usdCny) {
+                        reject(new Error("行情变量不存在"));
+                        return;
+                    }
+
+                    resolve({ gold, usdCny });
+                };
+                script.onerror = () => {
+                    window.clearTimeout(timeoutId);
+                    cleanupPendingScript();
+                    reject(new Error("行情脚本加载失败"));
+                };
+
+                document.head.appendChild(script);
+            });
+        }
+
+        /**
+         * 用动态 script 读取新浪当天分时数据；该接口返回 JSONP 赋值语句，
+         * 浏览器按脚本执行后会写入 `window.goldIntraday`。
+         *
+         * @returns {Promise<object>} 新浪外盘期货当天分钟线对象。
+         */
+        function loadIntradayTrend() {
+            return new Promise((resolve, reject) => {
+                cleanupPendingIntradayScript();
+
+                // 分时数据同样通过脚本加载，保持无跨域 JSON 请求的实现边界。
+                const script = document.createElement("script");
+                const timeoutId = window.setTimeout(() => {
+                    cleanupPendingIntradayScript();
+                    reject(new Error("当天分时数据加载超时"));
+                }, SCRIPT_TIMEOUT_MS);
+
+                state.pendingIntradayScript = script;
+                window.goldIntraday = null;
+
+                script.src = INTRADAY_URL + "&_=" + Date.now();
+                script.async = true;
+                script.onload = () => {
+                    window.clearTimeout(timeoutId);
+                    const intraday = window.goldIntraday;
+                    cleanupPendingIntradayScript();
+
+                    if (!intraday || !Array.isArray(intraday.minLine_1d)) {
+                        reject(new Error("当天分时数据格式异常"));
+                        return;
+                    }
+
+                    resolve(intraday);
+                };
+                script.onerror = () => {
+                    window.clearTimeout(timeoutId);
+                    cleanupPendingIntradayScript();
+                    reject(new Error("当天分时数据加载失败"));
+                };
+
+                document.head.appendChild(script);
+            });
+        }
+
+        /**
+         * 清理上一次动态加载的行情脚本，避免重复脚本堆积影响后续调试。
+         *
+         * @returns {void}
+         */
+        function cleanupPendingScript() {
+            if (state.pendingScript && state.pendingScript.parentNode) {
+                state.pendingScript.parentNode.removeChild(state.pendingScript);
+            }
+            state.pendingScript = null;
+        }
+
+        /**
+         * 清理上一次动态加载的分时脚本，避免多次刷新后留下历史脚本节点。
+         *
+         * @returns {void}
+         */
+        function cleanupPendingIntradayScript() {
+            if (state.pendingIntradayScript && state.pendingIntradayScript.parentNode) {
+                state.pendingIntradayScript.parentNode.removeChild(state.pendingIntradayScript);
+            }
+            state.pendingIntradayScript = null;
+        }
+
+        /**
+         * 拉取并解析一次实时行情。
+         *
+         * @returns {Promise<{usdPerOunce: number, usdCny: number, cnyPerGram: number, quoteTime: string, quoteDate: string, sourceName: string, sampledAt: Date}>} 标准化报价。
+         */
+        async function getRealtimeQuote() {
+            const raw = await loadTencentQuotes();
+            const gold = parseGoldQuote(raw.gold);
+            const fx = parseUsdCnyQuote(raw.usdCny);
+            const cnyPerGram = convertToCnyPerGram(gold.usdPerOunce, fx.usdCny);
+
+            return {
+                usdPerOunce: gold.usdPerOunce,
+                usdCny: fx.usdCny,
+                cnyPerGram,
+                quoteDate: gold.quoteDate,
+                quoteTime: gold.quoteTime || fx.quoteTime,
+                sourceName: gold.name + " + 美元人民币",
+                sampledAt: new Date()
+            };
+        }
+
+        /**
+         * 解析当天分时分钟线，并按当前 USD/CNY 折算为人民币/克。
+         *
+         * @param {{minLine_1d: Array<Array<string>>}} intraday 新浪分时对象。
+         * @param {number} usdCny 美元兑人民币汇率。
+         * @returns {Array<{time: Date, value: number, usdPerOunce: number}>} 可绘制的当天走势点。
+         */
+        function parseIntradayTrend(intraday, usdCny) {
+            return intraday.minLine_1d
+                .map((row) => {
+                    const dateTimeText = row[9] || row[5] || "";
+                    const timeText = row[0] && row[0].length === 5 ? row[0] : row[4];
+                    const usdPerOunce = Number(row[1]);
+                    const time = dateTimeText
+                        ? new Date(dateTimeText.replace(" ", "T"))
+                        : createTodayTime(timeText);
+
+                    return {
+                        time,
+                        value: convertToCnyPerGram(usdPerOunce, usdCny),
+                        usdPerOunce
+                    };
+                })
+                .filter((point) => Number.isFinite(point.value) && point.time instanceof Date && !Number.isNaN(point.time.getTime()));
+        }
+
+        /**
+         * 以本地日期创建当天指定时分的时间对象；接口偶尔只给 `HH:mm`，
+         * 需要补齐日期才能让横轴标签稳定显示。
+         *
+         * @param {string} timeText HH:mm 格式时间。
+         * @returns {Date} 当天对应时间。
+         */
+        function createTodayTime(timeText) {
+            const now = new Date();
+            const parts = String(timeText || "").split(":");
+            const hours = Number(parts[0]);
+            const minutes = Number(parts[1]);
+            const date = new Date(now);
+            date.setHours(Number.isFinite(hours) ? hours : 0, Number.isFinite(minutes) ? minutes : 0, 0, 0);
+            return date;
+        }
+
+        /**
+         * 用当天分时数据替换当前曲线；这是首屏默认走势的来源。
+         *
+         * @param {Array<{time: Date, value: number}>} points 当天分时点。
+         * @returns {void}
+         */
+        function setIntradayPoints(points) {
+            state.points = points.slice(-MAX_POINTS);
+            state.intradayLoaded = state.points.length > 1;
+        }
+
+        /**
+         * 保存采样点；只保留最近一段数据是为了让 SVG 绘制始终轻量。
+         *
+         * @param {{cnyPerGram: number, sampledAt: Date}} quote 标准化报价。
+         * @returns {void}
+         */
+        function appendPoint(quote) {
+            const lastPoint = state.points[state.points.length - 1];
+            if (lastPoint && Math.abs(lastPoint.time.getTime() - quote.sampledAt.getTime()) < REFRESH_INTERVAL_MS) {
+                lastPoint.time = quote.sampledAt;
+                lastPoint.value = quote.cnyPerGram;
+                return;
+            }
+
+            state.points.push({
+                time: quote.sampledAt,
+                value: quote.cnyPerGram
+            });
+
+            if (state.points.length > MAX_POINTS) {
+                state.points.splice(0, state.points.length - MAX_POINTS);
+            }
+        }
+
+        /**
+         * 将最新报价渲染到价格卡片。
+         *
+         * @param {{usdPerOunce: number, usdCny: number, cnyPerGram: number, quoteTime: string, quoteDate: string, sourceName: string, sampledAt: Date}} quote 标准化报价。
+         * @returns {void}
+         */
+        function renderQuote(quote) {
+            elements.cnyPrice.textContent = "¥" + formatNumber(quote.cnyPerGram, 2);
+            elements.usdPrice.textContent = "$" + formatNumber(quote.usdPerOunce, 2);
+            elements.usdCny.textContent = formatNumber(quote.usdCny, 4);
+            elements.updatedAt.textContent = quote.quoteTime || formatTime(quote.sampledAt);
+            elements.sourceName.textContent = quote.sourceName;
+            elements.chartMeta.textContent = state.intradayLoaded
+                ? "当天 " + state.points.length + " 个分时点"
+                : "最近 " + state.points.length + " 个采样点";
+        }
+
+        /**
+         * 生成 SVG 元素，集中创建是为了避免 innerHTML 拼接复杂属性时出错。
+         *
+         * @param {string} name SVG 标签名。
+         * @param {Record<string, string | number>} attributes 属性键值。
+         * @returns {SVGElement} 创建出的 SVG 元素。
+         */
+        function createSvgElement(name, attributes) {
+            const element = document.createElementNS("http://www.w3.org/2000/svg", name);
+            Object.keys(attributes).forEach((key) => {
+                element.setAttribute(key, String(attributes[key]));
+            });
+            return element;
+        }
+
+        /**
+         * 绘制打开页面后的人民币/克采样曲线。
+         *
+         * @returns {void}
+         */
+        function renderChart() {
+            const svg = elements.chart;
+            const rect = svg.getBoundingClientRect();
+            const width = Math.max(320, Math.round(rect.width));
+            const height = Math.max(260, Math.round(rect.height));
+            const padding = { top: 24, right: 72, bottom: 42, left: 62 };
+            const plotWidth = width - padding.left - padding.right;
+            const plotHeight = height - padding.top - padding.bottom;
+
+            svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+            svg.textContent = "";
+
+            if (state.points.length < 2) {
+                elements.chartEmpty.style.display = "flex";
+                elements.chartEmpty.textContent = state.points.length === 1
+                    ? "已获得实时点，正在等待当天分时数据。"
+                    : "正在获取实时行情...";
+                drawChartFrame(svg, width, height, padding);
+                if (state.points.length === 1) {
+                    drawSinglePointChart(svg, width, height, padding, state.points[0]);
+                }
+                return;
+            }
+
+            elements.chartEmpty.style.display = "none";
+
+            const values = state.points.map((point) => point.value);
+            const minValue = Math.min(...values);
+            const maxValue = Math.max(...values);
+            const range = Math.max(maxValue - minValue, 0.2);
+            const lower = minValue - range * 0.12;
+            const upper = maxValue + range * 0.12;
+            const span = upper - lower;
+
+            /**
+             * 把采样点映射到 SVG 坐标；横轴使用采样顺序而不是真实间隔，
+             * 是因为免费行情刷新偶尔会延迟，等距采样更容易阅读短时趋势。
+             *
+             * @param {{value: number}} point 采样点。
+             * @param {number} index 采样点索引。
+             * @returns {{x: number, y: number}} SVG 坐标。
+             */
+            function project(point, index) {
+                const x = padding.left + (plotWidth * index / (state.points.length - 1));
+                const y = padding.top + ((upper - point.value) / span) * plotHeight;
+                return { x, y };
+            }
+
+            drawChartFrame(svg, width, height, padding);
+            drawYAxis(svg, width, padding, lower, upper);
+
+            const projected = state.points.map(project);
+            const pathData = projected
+                .map((point, index) => (index === 0 ? "M " : "L ") + point.x.toFixed(2) + " " + point.y.toFixed(2))
+                .join(" ");
+            const areaData = pathData
+                + " L " + projected[projected.length - 1].x.toFixed(2) + " " + (height - padding.bottom)
+                + " L " + projected[0].x.toFixed(2) + " " + (height - padding.bottom)
+                + " Z";
+
+            const gradient = createSvgElement("linearGradient", {
+                id: "lineFill",
+                x1: 0,
+                y1: 0,
+                x2: 0,
+                y2: 1
+            });
+            gradient.appendChild(createSvgElement("stop", {
+                offset: "0%",
+                "stop-color": "#d59b2d",
+                "stop-opacity": "0.28"
+            }));
+            gradient.appendChild(createSvgElement("stop", {
+                offset: "100%",
+                "stop-color": "#d59b2d",
+                "stop-opacity": "0.02"
+            }));
+
+            const defs = createSvgElement("defs", {});
+            defs.appendChild(gradient);
+            svg.appendChild(defs);
+
+            svg.appendChild(createSvgElement("path", {
+                d: areaData,
+                fill: "url(#lineFill)"
+            }));
+            svg.appendChild(createSvgElement("path", {
+                d: pathData,
+                fill: "none",
+                stroke: "#b98118",
+                "stroke-width": 3,
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round"
+            }));
+
+            const latest = projected[projected.length - 1];
+            svg.appendChild(createSvgElement("circle", {
+                cx: latest.x,
+                cy: latest.y,
+                r: 5,
+                fill: "#ffffff",
+                stroke: "#b98118",
+                "stroke-width": 3
+            }));
+
+            drawXAxisLabels(svg, height, padding);
+        }
+
+        /**
+         * 只有一个采样点时绘制当前价水平线；这样用户打开页面拿到实时数据后，
+         * 不需要等待第二次刷新也能看到图形反馈。
+         *
+         * @param {SVGElement} svg SVG 根节点。
+         * @param {number} width SVG 宽度。
+         * @param {number} height SVG 高度。
+         * @param {{top: number, right: number, bottom: number, left: number}} padding 绘图区边距。
+         * @param {{value: number}} point 唯一采样点。
+         * @returns {void}
+         */
+        function drawSinglePointChart(svg, width, height, padding, point) {
+            const y = padding.top + (height - padding.top - padding.bottom) / 2;
+            const x1 = padding.left;
+            const x2 = width - padding.right;
+            svg.appendChild(createSvgElement("line", {
+                x1,
+                y1: y,
+                x2,
+                y2: y,
+                stroke: "#b98118",
+                "stroke-width": 3,
+                "stroke-linecap": "round"
+            }));
+            svg.appendChild(createSvgElement("circle", {
+                cx: x2,
+                cy: y,
+                r: 5,
+                fill: "#ffffff",
+                stroke: "#b98118",
+                "stroke-width": 3
+            }));
+
+            const label = createSvgElement("text", {
+                x: width - padding.right + 10,
+                y: y + 4,
+                fill: "#657066",
+                "font-size": 12
+            });
+            label.textContent = formatNumber(point.value, 2);
+            svg.appendChild(label);
+        }
+
+        /**
+         * 绘制图表边框和基础网格。
+         *
+         * @param {SVGElement} svg SVG 根节点。
+         * @param {number} width SVG 宽度。
+         * @param {number} height SVG 高度。
+         * @param {{top: number, right: number, bottom: number, left: number}} padding 绘图区边距。
+         * @returns {void}
+         */
+        function drawChartFrame(svg, width, height, padding) {
+            const plotRight = width - padding.right;
+            const plotBottom = height - padding.bottom;
+            const plotHeight = plotBottom - padding.top;
+
+            for (let i = 0; i <= 4; i += 1) {
+                const y = padding.top + plotHeight * i / 4;
+                svg.appendChild(createSvgElement("line", {
+                    x1: padding.left,
+                    y1: y,
+                    x2: plotRight,
+                    y2: y,
+                    stroke: "#e8ecdf",
+                    "stroke-width": 1
+                }));
+            }
+
+            svg.appendChild(createSvgElement("rect", {
+                x: padding.left,
+                y: padding.top,
+                width: plotRight - padding.left,
+                height: plotBottom - padding.top,
+                fill: "none",
+                stroke: "#d8decf",
+                "stroke-width": 1
+            }));
+        }
+
+        /**
+         * 绘制 Y 轴人民币/克刻度。
+         *
+         * @param {SVGElement} svg SVG 根节点。
+         * @param {number} width SVG 宽度。
+         * @param {{top: number, right: number, bottom: number, left: number}} padding 绘图区边距。
+         * @param {number} lower 纵轴下界。
+         * @param {number} upper 纵轴上界。
+         * @returns {void}
+         */
+        function drawYAxis(svg, width, padding, lower, upper) {
+            const plotBottom = Number(svg.getAttribute("viewBox").split(" ")[3]) - padding.bottom;
+            const plotHeight = plotBottom - padding.top;
+
+            for (let i = 0; i <= 4; i += 1) {
+                const value = upper - (upper - lower) * i / 4;
+                const y = padding.top + plotHeight * i / 4;
+                const label = createSvgElement("text", {
+                    x: width - padding.right + 10,
+                    y: y + 4,
+                    fill: "#657066",
+                    "font-size": 12
+                });
+                label.textContent = formatNumber(value, 2);
+                svg.appendChild(label);
+            }
+
+            const unit = createSvgElement("text", {
+                x: width - padding.right + 10,
+                y: padding.top - 8,
+                fill: "#657066",
+                "font-size": 12
+            });
+            unit.textContent = "人民币/克";
+            svg.appendChild(unit);
+        }
+
+        /**
+         * 绘制横轴首尾时间，帮助用户判断当天走势覆盖范围。
+         *
+         * @param {SVGElement} svg SVG 根节点。
+         * @param {number} height SVG 高度。
+         * @param {{left: number, right: number, bottom: number}} padding 绘图区边距。
+         * @returns {void}
+         */
+        function drawXAxisLabels(svg, height, padding) {
+            const first = state.points[0];
+            const last = state.points[state.points.length - 1];
+            const labels = [
+                { text: formatTime(first.time), x: padding.left, anchor: "start" },
+                { text: formatTime(last.time), x: Number(svg.getAttribute("viewBox").split(" ")[2]) - padding.right, anchor: "end" }
+            ];
+
+            labels.forEach((item) => {
+                const label = createSvgElement("text", {
+                    x: item.x,
+                    y: height - 14,
+                    fill: "#657066",
+                    "font-size": 12,
+                    "text-anchor": item.anchor
+                });
+                label.textContent = item.text;
+                svg.appendChild(label);
+            });
+        }
+
+        /**
+         * 先加载实时汇率和当天分时数据，使页面打开后默认就是当天走势。
+         *
+         * @returns {Promise<void>}
+         */
+        async function loadDefaultTrend() {
+            if (state.loading) {
+                return;
+            }
+
+            state.loading = true;
+            elements.refreshButton.disabled = true;
+            setStatus("loading", "正在加载当天走势");
+            setMessage("正在加载当天分时数据和实时汇率...", false);
+
+            try {
+                const quote = await getRealtimeQuote();
+                renderQuote(quote);
+                const intraday = await loadIntradayTrend();
+                const points = parseIntradayTrend(intraday, quote.usdCny);
+
+                if (points.length < 2) {
+                    throw new Error("当天分时点不足，无法绘制走势");
+                }
+
+                setIntradayPoints(points);
+                appendPoint(quote);
+                renderQuote(quote);
+                renderChart();
+                setStatus("live", "当天走势已加载");
+                setMessage("已默认显示当天实时走势；后续每 10 秒更新最新报价。", false);
+            } finally {
+                state.loading = false;
+                elements.refreshButton.disabled = false;
+            }
+        }
+
+        /**
+         * 执行一次刷新，并把成功或失败结果同步到页面。
+         *
+         * @param {boolean} manual 是否由用户手动触发。
+         * @returns {Promise<void>}
+         */
+        async function refreshQuote(manual) {
+            if (state.loading) {
+                return;
+            }
+
+            state.loading = true;
+            elements.refreshButton.disabled = true;
+            setStatus("loading", manual ? "正在手动刷新" : "正在获取实时行情");
+            setMessage("正在通过国内脚本接口获取实时数据...", false);
+
+            try {
+                const quote = await getRealtimeQuote();
+                state.lastQuote = quote;
+                state.failures = 0;
+                appendPoint(quote);
+                renderQuote(quote);
+                renderChart();
+                setStatus("live", "实时行情已更新");
+                setMessage("最近刷新：" + formatTime(quote.sampledAt) + "；行情通过动态脚本加载。", false);
+            } catch (error) {
+                state.failures += 1;
+                setStatus("error", "行情源暂不可用");
+                setMessage(error.message + "。已保留最后一次成功数据，可稍后重试。", true);
+                renderChart();
+            } finally {
+                state.loading = false;
+                elements.refreshButton.disabled = false;
+            }
+        }
+
+        /**
+         * 启动定时刷新；先立即刷新一次，确保打开页面默认获取实时数据。
+         *
+         * @returns {void}
+         */
+        function start() {
+            elements.refreshButton.addEventListener("click", () => {
+                refreshQuote(true);
+            });
+
+            window.addEventListener("resize", () => {
+                renderChart();
+            });
+
+            loadDefaultTrend().catch((error) => {
+                setStatus("error", "当天走势加载失败");
+                setMessage(error.message + "。将退回实时点刷新，稍后可重试。", true);
+                refreshQuote(false);
+            });
+            state.timerId = window.setInterval(() => {
+                refreshQuote(false);
+            }, REFRESH_INTERVAL_MS);
+        }
+
+        start();
+    </script>
 </body>
 </html>
