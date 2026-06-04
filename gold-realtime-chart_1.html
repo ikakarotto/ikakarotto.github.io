@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>国际黄金实时价格 · XAU/CNY</title>
+  <style>
+    /* ============================================================
+       CSS 变量 — 深色金融风格，金色点缀
+    ============================================================ */
+    :root {
+      --bg:          #0b0e15;
+      --bg-panel:    #0f1219;
+      --border:      #1c2133;
+      --gold:        #d4a843;
+      --gold-light:  #f0c866;
+      --gold-dim:    #7a6030;
+      --text-1:      #e2ddd4;
+      --text-2:      #7e7a70;
+      --text-3:      #3a3830;
+      --green:       #3daa74;
+      --red:         #e05c5c;
+      --font-serif:  'Georgia', 'Times New Roman', serif;
+      --font-ui:     system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+      --r:           6px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ────── 整体布局 ────── */
+    .layout { display: flex; flex-direction: column; height: 100vh; min-height: 480px; }
+
+    /* ────── Header ────── */
+    .header {
+      flex: 0 0 auto;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .accent-bar {
+      width: 3px; height: 34px;
+      background: linear-gradient(180deg, var(--gold-light), var(--gold-dim));
+      border-radius: 2px; flex-shrink: 0;
+    }
+    .page-title {
+      font-family: var(--font-serif);
+      font-size: 17px; font-weight: 600;
+      color: var(--gold-light); letter-spacing: 0.02em;
+    }
+    .page-sub { font-size: 11px; color: var(--text-2); margin-top: 2px; }
+
+    /* 价格卡片 */
+    .price-block { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .price-main {
+      font-family: var(--font-serif);
+      font-size: 28px; font-weight: 700;
+      color: var(--gold-light); letter-spacing: -0.01em;
+      transition: color 0.4s;
+    }
+    .price-main.up   { color: var(--green); }
+    .price-main.down { color: var(--red); }
+    .price-sub { font-size: 12px; color: var(--text-2); }
+    .price-change { font-size: 13px; color: var(--text-2); }
+    .price-change.up   { color: var(--green); }
+    .price-change.down { color: var(--red); }
+
+    /* 状态徽章 */
+    .badge {
+      display: flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px;
+      border: 1px solid var(--border);
+      font-size: 11px; color: var(--text-2);
+      white-space: nowrap; transition: all 0.3s;
+    }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--text-3); transition: background 0.3s;
+    }
+    .badge.loading { border-color: var(--gold-dim); color: var(--gold); }
+    .badge.loading .dot { background: var(--gold); animation: blink 1.2s ease-in-out infinite; }
+    .badge.ok  { border-color: #1e3d2d; color: var(--green); }
+    .badge.ok  .dot { background: var(--green); }
+    .badge.err { border-color: #3d1e1e; color: var(--red); }
+    .badge.err .dot { background: var(--red); }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    /* ────── 工具栏 ────── */
+    .toolbar {
+      flex: 0 0 auto;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 20px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .toolbar-label { font-size: 11px; color: var(--text-2); margin-right: 2px; }
+    .rbtn {
+      padding: 3px 10px; border-radius: var(--r);
+      border: 1px solid var(--border);
+      background: transparent; color: var(--text-2);
+      font-size: 12px; cursor: pointer; transition: all 0.15s;
+    }
+    .rbtn:hover  { border-color: var(--gold-dim); color: var(--gold); }
+    .rbtn.active { border-color: var(--gold); background: rgba(212,168,67,.12); color: var(--gold-light); }
+
+    /* 货币切换 */
+    .cur-group { display: flex; gap: 4px; margin-left: 16px; }
+    .cbtn {
+      padding: 3px 10px; border-radius: var(--r);
+      border: 1px solid var(--border);
+      background: transparent; color: var(--text-2);
+      font-size: 12px; cursor: pointer; transition: all 0.15s;
+    }
+    .cbtn:hover  { border-color: var(--gold-dim); color: var(--gold); }
+    .cbtn.active { border-color: var(--gold); background: rgba(212,168,67,.12); color: var(--gold-light); }
+
+    .toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .upd-time { font-size: 11px; color: var(--text-2); }
+    .ref-btn {
+      padding: 3px 10px; border-radius: var(--r);
+      border: 1px solid var(--border);
+      background: transparent; color: var(--text-2);
+      font-size: 12px; cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .ref-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+    .ref-icon { display: inline-block; transition: transform 0.1s; }
+    .ref-btn.spin .ref-icon { animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ────── 图表区 ────── */
+    .chart-wrap { flex: 1 1 0; min-height: 0; position: relative; }
+    #chart { width: 100%; height: 100%; }
+
+    /* 骨架屏 */
+    .skeleton {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      justify-content: flex-end; padding: 20px; gap: 5px;
+      pointer-events: none;
+    }
+    .skel-bar {
+      height: 3px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--border) 0%, #1e2640 50%, var(--border) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* 错误层 */
+    .err-layer {
+      display: none;
+      position: absolute; inset: 0; z-index: 20;
+      background: var(--bg);
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; padding: 24px; text-align: center;
+    }
+    .err-icon  { font-size: 36px; }
+    .err-title { font-family: var(--font-serif); font-size: 17px; }
+    .err-desc  { font-size: 13px; color: var(--text-2); max-width: 380px; line-height: 1.7; }
+    .err-btn {
+      padding: 7px 20px; border-radius: var(--r);
+      border: 1px solid var(--gold-dim);
+      background: transparent; color: var(--gold);
+      font-size: 13px; cursor: pointer; transition: all 0.2s;
+    }
+    .err-btn:hover { background: var(--gold-dim); color: var(--bg); }
+
+    /* ────── Footer ────── */
+    .footer {
+      flex: 0 0 auto;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      padding: 7px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 8px; flex-wrap: wrap;
+    }
+    .foot-note { font-size: 11px; color: var(--text-3); }
+    .foot-link { font-size: 11px; }
+    .foot-link a { color: var(--text-3); text-decoration: none; }
+    .foot-link a:hover { color: var(--text-2); }
+
+    /* ────── 响应式 ────── */
+    @media (max-width: 600px) {
+      .price-main { font-size: 22px; }
+      .page-title  { font-size: 14px; }
+      .page-sub    { display: none; }
+      .toolbar-label { display: none; }
+      .footer      { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<noscript>
+  <div style="padding:40px;text-align:center;color:#d4a843;background:#0b0e15;font-family:sans-serif;">
+    ⚠️ 请启用 JavaScript 后刷新，图表需要脚本支持。
+  </div>
+</noscript>
+
+<div class="layout">
+
+  <!-- ══ Header ══ -->
+  <header class="header">
+    <div class="header-left">
+      <div class="accent-bar"></div>
+      <div>
+        <div class="page-title">国际黄金 XAU/CNY</div>
+        <div class="page-sub">Gold Spot · 数据来源 FreeGoldAPI + Frankfurter</div>
+      </div>
+    </div>
+
+    <div class="price-block">
+      <!-- 主价格（默认人民币） -->
+      <span class="price-main" id="priceMain">—</span>
+      <!-- 单位标签 -->
+      <span class="price-sub" id="priceUnit">元/盎司</span>
+      <!-- 涨跌额与百分比 -->
+      <span class="price-change" id="priceChange">加载中…</span>
+    </div>
+
+    <div class="badge loading" id="badge">
+      <span class="dot"></span>
+      <span id="badgeTxt">加载中</span>
+    </div>
+  </header>
+
+  <!-- ══ 工具栏 ══ -->
+  <div class="toolbar">
+    <span class="toolbar-label">区间</span>
+    <button class="rbtn"        data-days="30"   onclick="switchRange(this)">1月</button>
+    <button class="rbtn active" data-days="90"   onclick="switchRange(this)">3月</button>
+    <button class="rbtn"        data-days="180"  onclick="switchRange(this)">6月</button>
+    <button class="rbtn"        data-days="365"  onclick="switchRange(this)">1年</button>
+    <button class="rbtn"        data-days="1095" onclick="switchRange(this)">3年</button>
+
+    <!-- 货币切换 -->
+    <div class="cur-group">
+      <button class="cbtn active" data-cur="CNY" onclick="switchCurrency(this)">人民币</button>
+      <button class="cbtn"        data-cur="USD" onclick="switchCurrency(this)">美元</button>
+    </div>
+
+    <div class="toolbar-right">
+      <span class="upd-time" id="updTime">—</span>
+      <button class="ref-btn" id="refBtn" onclick="manualRefresh()">
+        <span class="ref-icon" id="refIcon">↻</span>刷新
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ 图表区 ══ -->
+  <main class="chart-wrap">
+    <div class="skeleton" id="skeleton">
+      <div class="skel-bar" style="width:28%"></div>
+      <div class="skel-bar" style="width:55%"></div>
+      <div class="skel-bar" style="width:42%"></div>
+      <div class="skel-bar" style="width:80%"></div>
+      <div class="skel-bar" style="width:60%"></div>
+      <div class="skel-bar" style="width:90%"></div>
+      <div class="skel-bar" style="width:72%"></div>
+    </div>
+
+    <div id="chart"></div>
+
+    <div class="err-layer" id="errLayer">
+      <div class="err-icon">📡</div>
+      <div class="err-title">数据加载失败</div>
+      <div class="err-desc" id="errDesc">
+        请检查网络连接后重试。<br>
+        如在中国大陆访问受阻，建议通过 HTTP 服务器打开本文件，<br>
+        而非直接双击（file:// 协议会触发更严格的 CORS 限制）。
+      </div>
+      <button class="err-btn" onclick="manualRefresh()">重新加载</button>
+    </div>
+  </main>
+
+  <!-- ══ Footer ══ -->
+  <footer class="footer">
+    <div class="foot-note">
+      数据：FreeGoldAPI（日线，延迟约1日）· 汇率：Frankfurter ECB · 仅供参考，不构成投资建议
+    </div>
+    <div class="foot-link">
+      <a href="https://freegoldapi.com" rel="noopener nofollow" target="_blank">FreeGoldAPI</a>
+      &nbsp;·&nbsp;
+      <a href="https://frankfurter.dev" rel="noopener nofollow" target="_blank">Frankfurter</a>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Lightweight Charts：来自 jsDelivr，在中国大陆有节点 -->
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+
+<script>
+'use strict';
+
+/* ============================================================
+   常量
+============================================================ */
+
+/**
+ * 金价历史数据接口 — FreeGoldAPI
+ * 优点：CORS 已启用，无需 API Key，每日自动更新
+ * 数据格式：[{ "date": "2025-01-02", "price": 2641.8, "source": "yahoo_finance" }, ...]
+ */
+var GOLD_API_URL = 'https://freegoldapi.com/data/latest.json';
+
+/**
+ * 汇率接口 — Frankfurter（欧洲央行数据，开源，无需 Key）
+ * 返回当日最新汇率，CNY 相对 USD 的值即为 USD→CNY 汇率
+ * 注意：Frankfurter base 默认 EUR，需要指定 base=USD
+ */
+var FX_API_URL = 'https://api.frankfurter.dev/v2/latest?base=USD&quotes=CNY';
+
+/** 备用汇率：若接口请求失败，使用这个硬编码近似值（可按需更新） */
+var FALLBACK_CNY_RATE = 7.28;
+
+/** 自动刷新间隔：30 分钟（数据每日更新一次，30分钟足够） */
+var AUTO_REFRESH_MS = 30 * 60 * 1000;
+
+/* ============================================================
+   状态
+============================================================ */
+
+/** @type {Array<{time:string, value:number}>} USD 原始历史数据（近年份的 USD 日线） */
+var rawUSD = [];
+
+/** @type {number} 当前 USD→CNY 汇率 */
+var cnyRate = FALLBACK_CNY_RATE;
+
+/** @type {'CNY'|'USD'} 当前显示货币 */
+var curCurrency = 'CNY';
+
+/** @type {number} 当前区间天数 */
+var curDays = 90;
+
+/** @type {boolean} 是否正在请求，防并发 */
+var fetching = false;
+
+/** @type {import('lightweight-charts').IChartApi|null} */
+var chart = null;
+
+/** @type {import('lightweight-charts').ISeriesApi<'Area'>|null} */
+var series = null;
+
+
+/* ============================================================
+   UI 工具
+============================================================ */
+
+/**
+ * 更新状态徽章
+ * @param {'loading'|'ok'|'err'} state
+ * @param {string} text
+ */
+function setBadge(state, text) {
+  var el = document.getElementById('badge');
+  el.className = 'badge ' + state;
+  document.getElementById('badgeTxt').textContent = text;
+}
+
+/**
+ * 更新顶部价格卡片
+ * 根据货币类型显示不同单位，涨跌色用绿/红区分
+ *
+ * @param {number} price    - 当前价（对应 curCurrency）
+ * @param {number} prevPrice - 前一条数据的价格，用于算涨跌
+ */
+function updatePriceCard(price, prevPrice) {
+  var diff = price - prevPrice;
+  var pct  = prevPrice > 0 ? diff / prevPrice * 100 : 0;
+  var dir  = diff >= 0 ? 'up' : 'down';
+  var sign = diff >= 0 ? '+' : '';
+
+  var mainEl   = document.getElementById('priceMain');
+  var unitEl   = document.getElementById('priceUnit');
+  var changeEl = document.getElementById('priceChange');
+
+  mainEl.textContent   = price.toFixed(2);
+  mainEl.className     = 'price-main ' + dir;
+
+  // 中文货币单位：人民币显示"元/盎司"，美元显示"USD/oz"
+  unitEl.textContent   = curCurrency === 'CNY' ? '元/盎司' : 'USD/oz';
+
+  changeEl.textContent = sign + diff.toFixed(2) + ' (' + sign + pct.toFixed(2) + '%)';
+  changeEl.className   = 'price-change ' + dir;
+}
+
+/**
+ * 控制刷新按钮旋转动画
+ * @param {boolean} on
+ */
+function setRefreshSpin(on) {
+  document.getElementById('refBtn').classList.toggle('spin', on);
+}
+
+/**
+ * 将 Date 对象格式化为 YYYY-MM-DD
+ * @param {Date} d
+ * @returns {string}
+ */
+function fmtDate(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+
+/* ============================================================
+   图表
+============================================================ */
+
+/**
+ * 初始化 Lightweight Charts 图表实例
+ * 只创建一次，后续数据变化通过 series.setData() 更新
+ */
+function initChart() {
+  var container = document.getElementById('chart');
+  chart = LightweightCharts.createChart(container, {
+    layout: {
+      background: { color: '#0b0e15' },
+      textColor:  '#7e7a70',
+    },
+    grid: {
+      vertLines: { color: '#1c2133' },
+      horzLines: { color: '#1c2133' },
+    },
+    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+    rightPriceScale:  { borderColor: '#1c2133' },
+    timeScale: {
+      borderColor:    '#1c2133',
+      timeVisible:    false,
+      secondsVisible: false,
+    },
+    autoSize: true,  // 跟随容器大小自动 resize
+  });
+
+  series = chart.addAreaSeries({
+    lineColor:        '#d4a843',
+    topColor:         'rgba(212,168,67,0.25)',
+    bottomColor:      'rgba(212,168,67,0.01)',
+    lineWidth:        2,
+    priceLineColor:   '#d4a843',
+    lastValueVisible: true,
+    priceLineVisible: true,
+    // 在价格标签格式化时加货币前缀
+    priceFormat: {
+      type:      'price',
+      precision: 2,
+      minMove:   0.01,
+    },
+  });
+}
+
+/**
+ * 将原始 USD 数据按当前货币和区间渲染到图表
+ * 每次切换货币或区间时调用，不重新请求接口
+ */
+function renderChart() {
+  if (!series || rawUSD.length === 0) return;
+
+  // 1. 按区间截取
+  var lastDate = new Date(rawUSD[rawUSD.length - 1].time + 'T00:00:00');
+  var cutoff = new Date(lastDate);
+  cutoff.setDate(cutoff.getDate() - curDays);
+  var cutStr = fmtDate(cutoff);
+
+  var sliced = [];
+  for (var i = 0; i < rawUSD.length; i++) {
+    if (rawUSD[i].time >= cutStr) sliced = rawUSD.slice(i);
+    if (rawUSD[i].time >= cutStr) break;
+  }
+  // 用 filter 更简洁，上面写法有逻辑 bug，重写：
+  sliced = rawUSD.filter(function(d) { return d.time >= cutStr; });
+
+  // 2. 若选人民币，对每条数据乘以汇率
+  var data = sliced;
+  if (curCurrency === 'CNY') {
+    data = sliced.map(function(d) {
+      return { time: d.time, value: +(d.value * cnyRate).toFixed(2) };
+    });
+  }
+
+  series.setData(data);
+  chart.timeScale().fitContent();
+
+  // 3. 更新价格卡片（取最后两条计算涨跌）
+  if (data.length >= 2) {
+    updatePriceCard(data[data.length - 1].value, data[data.length - 2].value);
+  } else if (data.length === 1) {
+    updatePriceCard(data[0].value, data[0].value);
+  }
+}
+
+
+/* ============================================================
+   数据获取
+============================================================ */
+
+/**
+ * 并行请求金价历史数据和 USD/CNY 汇率
+ * 金价接口：FreeGoldAPI（CORS 启用，无 Key）
+ * 汇率接口：Frankfurter（ECB 数据，无 Key，CORS 支持）
+ *
+ * 并行请求而非串行，减少等待时间；
+ * 汇率失败时降级使用硬编码兜底值，不影响图表展示
+ *
+ * @returns {Promise<void>}
+ */
+async function fetchAll() {
+  if (fetching) return;
+  fetching = true;
+  setBadge('loading', '加载中');
+  setRefreshSpin(true);
+
+  try {
+    // 并行请求，两个接口互不依赖
+    var [goldResp, fxResp] = await Promise.allSettled([
+      fetch(GOLD_API_URL,  { mode: 'cors', cache: 'no-cache' }),
+      fetch(FX_API_URL,    { mode: 'cors', cache: 'no-cache' }),
+    ]);
+
+    // —— 处理汇率 ——
+    if (fxResp.status === 'fulfilled' && fxResp.value.ok) {
+      try {
+        var fxJson = await fxResp.value.json();
+        // Frankfurter v2 /latest 返回格式：
+        // { "base":"USD", "date":"2026-06-04", "rates":{ "CNY": 7.28 } }
+        var rate = fxJson.rates && fxJson.rates.CNY;
+        if (rate && rate > 0) {
+          cnyRate = rate;
+        }
+      } catch(e) {
+        // 汇率解析失败，继续用 fallback
+        console.warn('[fx] 解析失败，使用备用汇率', FALLBACK_CNY_RATE);
+      }
+    } else {
+      console.warn('[fx] 请求失败，使用备用汇率', FALLBACK_CNY_RATE);
+    }
+
+    // —— 处理金价 ——
+    if (goldResp.status !== 'fulfilled' || !goldResp.value.ok) {
+      throw new Error('金价接口请求失败');
+    }
+
+    var goldJson = await goldResp.value.json();
+    var parsed = parseGoldData(goldJson);
+
+    if (parsed.length === 0) throw new Error('金价数据为空');
+
+    rawUSD = parsed;
+    renderChart();
+
+    // 隐藏骨架屏，如果之前有错误层也一并隐藏
+    document.getElementById('skeleton').style.display  = 'none';
+    document.getElementById('errLayer').style.display  = 'none';
+
+    // 更新时间戳
+    var now = new Date();
+    document.getElementById('updTime').textContent =
+      '更新于 ' + String(now.getHours()).padStart(2,'0') + ':' +
+      String(now.getMinutes()).padStart(2,'0');
+
+    setBadge('ok', '已更新');
+
+  } catch (err) {
+    console.error('[gold-chart] 数据加载失败:', err);
+    setBadge('err', '加载失败');
+    if (rawUSD.length === 0) {
+      // 首次失败，显示错误覆盖层
+      document.getElementById('skeleton').style.display = 'none';
+      document.getElementById('errLayer').style.display = 'flex';
+    }
+  } finally {
+    fetching = false;
+    setRefreshSpin(false);
+  }
+}
+
+/**
+ * 解析 FreeGoldAPI 返回的 JSON 数组
+ *
+ * 数据结构中混有多种来源：1258–1959 年为英镑年度数据，
+ * 1960年后转为 USD 月度/日度数据。这里只保留 source 包含
+ * "world_bank" 或 "yahoo_finance" 的 USD 记录，确保单位一致，
+ * 同时过滤掉无效价格（≤0）。
+ *
+ * @param {Array<{date:string, price:number, source:string}>} rawArr
+ * @returns {Array<{time:string, value:number}>} 升序时间序列
+ */
+function parseGoldData(rawArr) {
+  if (!Array.isArray(rawArr)) return [];
+
+  return rawArr
+    .filter(function(item) {
+      // 只保留世界银行和雅虎财经数据源（均为 USD 计价）
+      // measuringworth 早期数据是 GBP，混入会导致价格单位不一致
+      var src = (item.source || '').toLowerCase();
+      var isUSD = src.indexOf('world_bank') !== -1 || src.indexOf('yahoo') !== -1;
+      return isUSD && item.price > 0 && /^\d{4}-\d{2}-\d{2}$/.test(item.date);
+    })
+    .map(function(item) {
+      return { time: item.date, value: item.price };
+    })
+    .sort(function(a, b) { return a.time < b.time ? -1 : 1; });
+}
+
+
+/* ============================================================
+   交互
+============================================================ */
+
+/**
+ * 切换时间区间
+ * @param {HTMLElement} btn - 被点击的按钮
+ */
+function switchRange(btn) {
+  document.querySelectorAll('.rbtn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  curDays = parseInt(btn.dataset.days, 10);
+  renderChart();
+}
+
+/**
+ * 切换货币（CNY / USD）
+ * 不重新请求，本地用汇率乘除换算后重绘
+ * @param {HTMLElement} btn
+ */
+function switchCurrency(btn) {
+  document.querySelectorAll('.cbtn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  curCurrency = btn.dataset.cur;
+  renderChart();
+}
+
+/** 手动刷新 */
+function manualRefresh() { fetchAll(); }
+
+
+/* ============================================================
+   启动
+============================================================ */
+
+document.addEventListener('DOMContentLoaded', function() {
+  // 检查图表库是否正常加载（CDN 失败时全局变量不存在）
+  if (typeof LightweightCharts === 'undefined') {
+    setBadge('err', '图表库未加载');
+    document.getElementById('skeleton').style.display = 'none';
+    var el = document.getElementById('errLayer');
+    el.style.display = 'flex';
+    document.getElementById('errDesc').innerHTML =
+      '图表库 (Lightweight Charts) 加载失败<br>' +
+      '请确认 <b>cdn.jsdelivr.net</b> 可正常访问后刷新';
+    return;
+  }
+
+  initChart();
+  fetchAll();
+
+  // 每 30 分钟自动静默刷新一次
+  setInterval(fetchAll, AUTO_REFRESH_MS);
+});
+</script>
+</body>
+</html>
