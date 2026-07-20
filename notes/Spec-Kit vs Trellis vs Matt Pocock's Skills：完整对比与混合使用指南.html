@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spec-Kit vs Trellis vs mattpocock/skills：完整对比与混合使用指南</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #fafaf8;
+            color: #1e1e1e;
+            line-height: 1.7;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 2.5rem 3rem;
+            border-radius: 18px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            border-bottom: 3px solid #e6e6e6;
+            padding-bottom: 0.6rem;
+            margin-bottom: 1.8rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-top: 2.8rem;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            margin: 0.8rem 0 1.2rem 1.8rem;
+        }
+
+        li {
+            margin-bottom: 0.4rem;
+        }
+
+        blockquote {
+            border-left: 4px solid #d0d7de;
+            padding-left: 1.2rem;
+            margin: 1.2rem 0;
+            color: #4a5568;
+            background: #f6f8fa;
+            padding: 0.8rem 1.2rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        code {
+            font-family: "SF Mono", "Fira Code", "Menlo", "Consolas", monospace;
+            background: #f0f0f0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #c7254e;
+        }
+
+        pre {
+            background: #f6f8fa;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            border: 1px solid #eaeef2;
+            margin: 1.2rem 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        pre code {
+            background: transparent;
+            color: #1e1e1e;
+            padding: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            border: 1px solid #d0d7de;
+            padding: 0.7rem 1rem;
+            text-align: left !important;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f0f4f8;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background: #fafbfc;
+        }
+
+        .box {
+            background: #f6f9fc;
+            border-left: 4px solid #3b7cbf;
+            padding: 1rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+        }
+
+        .box.warning {
+            border-left-color: #d97706;
+            background: #fffbeb;
+        }
+
+        .box.success {
+            border-left-color: #0f7b3a;
+            background: #f0fdf4;
+        }
+
+        .box.gold {
+            border-left-color: #8b5cf6;
+            background: #f5f3ff;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.2rem 0;
+        }
+
+        .card {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .card h4 {
+            margin-top: 0;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px solid #eaeaea;
+            margin: 2.5rem 0;
+        }
+
+        .footer-note {
+            margin-top: 2.5rem;
+            font-size: 0.95rem;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1.8rem;
+            text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                padding: 1.5rem;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            h2 {
+                font-size: 1.4rem;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            table {
+                font-size: 0.85rem;
+            }
+            th, td {
+                padding: 0.5rem 0.6rem;
+            }
+            pre {
+                padding: 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* 术语块 */
+        .term-block {
+            background: #f1f5f9;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            border: 1px solid #d1d9e6;
+            margin: 0.8rem 0;
+            font-family: "SF Mono", "Fira Code", monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+            text-align: left !important;
+            display: block;
+            width: 100%;
+        }
+
+        .term-wrapper {
+            text-align: left !important;
+            width: 100%;
+        }
+
+        /* 目录样式 — 竖排 */
+        .toc {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.2rem 2rem;
+            margin: 1.5rem 0 2.5rem 0;
+        }
+
+        .toc-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1e293b;
+            margin-bottom: 0.6rem;
+            letter-spacing: 0.3px;
+        }
+
+        .toc ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .toc li {
+            margin: 0;
+            padding: 0;
+            font-size: 0.95rem;
+        }
+
+        .toc a {
+            color: #2563eb;
+            text-decoration: none;
+            border-bottom: 1px dotted transparent;
+            transition: border-color 0.2s;
+        }
+
+        .toc a:hover {
+            border-bottom-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>Spec-Kit vs Trellis vs mattpocock/skills：完整对比与混合使用指南</h1>
+
+    <!-- ===== 目录 ===== -->
+    <div class="toc">
+        <div class="toc-title">📑 本文目录</div>
+        <ul>
+            <li><a href="#part1">第一部分：三者核心定位</a></li>
+            <li><a href="#part2">第二部分：详细对比表</a></li>
+            <li><a href="#part3">第三部分：适用场景速查</a></li>
+            <li><a href="#part4">第四部分：混合使用分析</a></li>
+            <li><a href="#part5">第五部分：可能的坑与摩擦点</a></li>
+            <li><a href="#part6">第六部分：实操建议清单</a></li>
+            <li><a href="#part7">第七部分：一句话总结</a></li>
+        </ul>
+    </div>
+
+    <!-- 第一部分 -->
+    <h2 id="part1">第一部分：三者核心定位</h2>
+
+    <h3>Spec-Kit（GitHub 官方）</h3>
+    <p><strong>规范驱动开发（SDD）流程工具。</strong> 核心逻辑是把"写规格"当成主要工作，代码是规格的产物。</p>
+    <ul>
+        <li>提供一整套线性流程：<code>/speckit.constitution</code>（项目原则）→ <code>/speckit.specify</code>（需求规格）→ <code>/speckit.clarify</code>（澄清）→ <code>/speckit.plan</code>（技术方案）→ <code>/speckit.tasks</code>（任务拆分）→ <code>/speckit.implement</code>（执行）→ <code>/speckit.converge</code>（收敛评估）</li>
+        <li>三层定制体系：Extensions（新命令）→ Presets（模板覆盖）→ Bundles（角色包）</li>
+        <li>4 层模板优先级：Project Override &gt; Preset &gt; Extension &gt; Core</li>
+        <li>Python + uv 分发，支持 30+ agent 集成</li>
+        <li>MIT 协议</li>
+    </ul>
+
+    <h3>Trellis（Mindfold）</h3>
+    <p><strong>多平台 agent 工作流框架</strong>，给 agent 补"项目记忆 + 团队规范注入"能力。</p>
+    <ul>
+        <li>核心是 <code>.trellis/</code> 目录：<code>spec/</code>（团队约定）、<code>tasks/</code>（PRD/任务状态）、<code>workspace/</code>（每人的会话日志）</li>
+        <li>4 阶段循环：Plan（<code>trellis-brainstorm</code>）→ Implement（<code>trellis-implement</code> 子 Agent）→ Verify（<code>trellis-check</code> 子 Agent）→ Finish（<code>trellis-update-spec</code> 回写学习）</li>
+        <li>跨 14 种 agent 平台共享同一套 spec</li>
+        <li>Node.js CLI 分发，AGPL-3.0</li>
+    </ul>
+
+    <h3>mattpocock/skills</h3>
+    <p><strong>不是流程框架，是一组独立的工程技能。</strong> 作者明确反对"接管流程"的做法：</p>
+    <blockquote>
+        <p>"Approaches like GSD, BMAD, and Spec-Kit try to help by owning the process. But while doing so, they take away your control and make bugs in the process hard to resolve."</p>
+    </blockquote>
+    <ul>
+        <li>小颗粒、可拆开用、可魔改</li>
+        <li>区分 user-invoked（你主动敲命令，负责编排）和 model-invoked（agent 自己调用，负责具体实践）</li>
+        <li>核心解决三个问题：对齐（grill-me）、共享语言（CONTEXT.md）、代码质量（tdd/code-review）</li>
+        <li>skills.sh 安装或 Claude Code plugin 订阅</li>
+        <li>~60,000 newsletter 订阅者</li>
+    </ul>
+
+    <hr>
+
+    <!-- 第二部分 -->
+    <h2 id="part2">第二部分：详细对比表</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>维度</th>
+                <th>Spec-Kit</th>
+                <th>Trellis</th>
+                <th>mattpocock/skills</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>哲学</td><td>规格先行，流程线性、强约束</td><td>团队规范注入 + 会话记忆，流程半强制</td><td>反对固定流程，松散可组合的技能包</td></tr>
+            <tr><td>单位</td><td>完整 SDD 生命周期（feature spec 目录）</td><td><code>.trellis/</code> 目录 + task 为自包含单元</td><td>独立 SKILL.md，按需拆用</td></tr>
+            <tr><td>对"流程"的态度</td><td>重流程：五阶段线性链</td><td>中流程：四阶段自动循环</td><td>轻流程：每个 skill 独立，不强制顺序</td></tr>
+            <tr><td>项目记忆</td><td><code>.specify/memory/constitution.md</code></td><td><code>.trellis/workspace/</code> journals（最强，跨会话）</td><td><code>CONTEXT.md</code> + ADRs</td></tr>
+            <tr><td>领域语言/共享词汇</td><td>❌ 无专门机制</td><td>❌ 无专门机制</td><td>✅ 核心特色（grill-with-docs 构建领域模型）</td></tr>
+            <tr><td>TDD 支持</td><td>任务中可标记测试优先（任务级排序）</td><td>有 check 阶段（lint/type/test）</td><td>✅ 专门 <code>/tdd</code> skill，红绿重构（代码级循环）</td></tr>
+            <tr><td>代码审查</td><td>❌</td><td>✅ trellis-check 子 Agent</td><td>✅ <code>/code-review</code>（标准+规格双轴并行）</td></tr>
+            <tr><td>架构改进</td><td>❌</td><td>❌</td><td>✅ <code>/improve-codebase-architecture</code>（HTML 报告）</td></tr>
+            <tr><td>Bug 诊断</td><td>❌</td><td>❌</td><td>✅ <code>/diagnosing-bugs</code>（结构化诊断循环）</td></tr>
+            <tr><td>任务管理</td><td><code>/speckit.taskstoissues</code> → GitHub Issues</td><td><code>.trellis/tasks/</code>（prd.md + implement.jsonl + check.jsonl）</td><td><code>/triage</code> + <code>/to-tickets</code>（GitHub/Linear/本地）</td></tr>
+            <tr><td>研究/调研</td><td>research.md + 并行研究任务</td><td><code>trellis-research</code> 子 Agent</td><td><code>/research</code>（后台 Agent + 引用 Markdown）</td></tr>
+            <tr><td>合并冲突处理</td><td>❌</td><td>❌</td><td>✅ <code>/resolving-merge-conflicts</code></td></tr>
+            <tr><td>会话交接</td><td>❌</td><td>✅ <code>/trellis:finish-work</code> 归档</td><td>✅ <code>/handoff</code>（压缩为交接文档）</td></tr>
+            <tr><td>原型验证</td><td>❌</td><td>❌</td><td>✅ <code>/prototype</code>（一次性原型）</td></tr>
+            <tr><td>扩展机制</td><td>最丰富：Extensions + Presets + Bundles</td><td>中等：<code>.trellis/spec/</code> 自定义规格</td><td>最灵活：直接编辑 skill 文件</td></tr>
+            <tr><td>团队协作</td><td>✅ Bundles 按角色分发</td><td>✅ 共享 spec + 个人 journal 分离</td><td>⚠️ 偏个人使用</td></tr>
+            <tr><td>支持平台数</td><td>30+</td><td>14</td><td>Claude Code + Codex + Agent-Skills 标准</td></tr>
+            <tr><td>安装方式</td><td><code>uv tool install</code> / <code>pipx</code></td><td><code>npm install -g</code></td><td><code>npx skills@latest add</code> 或 plugin</td></tr>
+            <tr><td>运行依赖</td><td>Python 3.11+, uv, Git</td><td>Node.js ≥18, Python ≥3.9</td><td>无额外依赖</td></tr>
+            <tr><td>协议</td><td>MIT</td><td>AGPL-3.0</td><td>—</td></tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <!-- 第三部分 -->
+    <h2 id="part3">第三部分：适用场景速查</h2>
+    <table>
+        <thead><tr><th>场景</th><th>推荐</th></tr></thead>
+        <tbody>
+            <tr><td>🏢 企业/团队、需要合规和标准化流程</td><td><strong>Spec-Kit</strong>（Bundles + Presets + 审计链）</td></tr>
+            <tr><td>🔄 长期迭代项目、需要跨会话记忆</td><td><strong>Trellis</strong>（journals + 自动 spec 回写）</td></tr>
+            <tr><td>👨‍💻 个人开发者、重视代码质量和设计</td><td><strong>mattpocock/skills</strong>（TDD + 领域建模 + 架构改进）</td></tr>
+            <tr><td>🆕 从零开始的新项目（0→1）</td><td><strong>Spec-Kit</strong>（完整的规格→计划→任务→实现链）</td></tr>
+            <tr><td>🐛 已有代码库的改进/调试</td><td><strong>mattpocock/skills</strong>（/diagnosing-bugs + /improve-codebase-architecture）</td></tr>
+            <tr><td>🤝 需要与 Agent 深度对齐需求</td><td><strong>mattpocock/skills</strong>（/grill-me 是核心杀手锏）</td></tr>
+            <tr><td>🌐 需要跨多个 AI 工具统一工作流</td><td><strong>Spec-Kit</strong>（30+ 集成）或 <strong>Trellis</strong>（14 平台）</td></tr>
+            <tr><td>🤝 需求反复变更</td><td><strong>mattpocock/skills</strong> <code>/grill-me</code> 每轮都跑 + <strong>Trellis</strong> journals 记住变更历史</td></tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <!-- 第四部分 -->
+    <h2 id="part4">第四部分：混合使用分析</h2>
+
+    <h3>4.1 分层模型</h3>
+    <p>三个工具在不同层面工作：</p>
+    <pre>
+┌─────────────────────────────────────────────────┐
+│  第 1 层：需求对齐（"到底要做什么"）               │  ← mattpocock/skills 的 /grill-me 最强
+├─────────────────────────────────────────────────┤
+│  第 2 层：规格 &amp; 计划（"怎么拆解"）               │  ← Spec-Kit 最强
+├─────────────────────────────────────────────────┤
+│  第 3 层：工程纪律（"怎么写好代码"）              │  ← mattpocock/skills 的 /tdd /code-review 最强
+├─────────────────────────────────────────────────┤
+│  第 4 层：跨会话记忆（"上次做到哪了"）            │  ← Trellis 最强
+└─────────────────────────────────────────────────┘
+    </pre>
+
+    <h3>4.2 兼容性判断</h3>
+    <table>
+        <thead><tr><th>组合</th><th>兼容度</th><th>原因</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Trellis + mattpocock/skills</strong></td><td>⭐⭐⭐ 最高</td><td>目录不冲突（<code>.trellis/</code> vs <code>.claude/skills/</code>）；Trellis 不锁死流程；mattpocock/skills 设计哲学就是"不拥有流程"</td></tr>
+            <tr><td><strong>Spec-Kit + mattpocock/skills</strong></td><td>⭐⭐ 中等</td><td>implement 阶段可内嵌 /tdd；但 CONTEXT.md 与 constitution.md 存在"谁当真相来源"的潜在摩擦，<strong>优化后可通过 constitution 显式声明解决（见方案 A）</strong></td></tr>
+            <tr><td><strong>Spec-Kit + Trellis</strong></td><td>⭐ 最低</td><td>两者都控制任务来源、状态存储、session 上下文加载；tasks 目录冲突；slash command 入口冲突；上下文注入叠加爆炸</td></tr>
+        </tbody>
+    </table>
+
+    <h3>4.3 推荐混合方案</h3>
+
+    <h4>🥇 方案 A（优化版）：mattpocock/skills + Spec-Kit（最实用）</h4>
+    <p>此方案将 <code>grill-with-docs</code> 置于需求澄清之后、技术计划之前，确保术语提炼基于已稳定的需求，避免返工。同时，在 <code>constitution.md</code> 中显式声明术语权威，彻底消除两套工具的摩擦。</p>
+
+    <table>
+        <thead><tr><th>阶段</th><th>用谁</th><th>具体命令与说明</th></tr></thead>
+        <tbody>
+            <tr>
+                <td><strong>① 定原则</strong></td>
+                <td><strong>Spec-Kit</strong></td>
+                <td>
+                    <p><strong><code>/speckit.constitution</code></strong></p>
+                    <p>写入项目核心原则，<strong>必须包含以下术语权威条款</strong>（中英文均可）：</p>
+                    <div class="term-wrapper">
+                        <p style="font-weight:600; margin-bottom:0.2rem; text-align:left;">英文版：</p>
+                        <div class="term-block">## Terminology Authority
+
+Domain-specific terms used in this constitution and all downstream artifacts (specs, plans, tasks, code) follow the glossary in `CONTEXT.md`.
+
+When a term in `CONTEXT.md` conflicts with a principle stated here (e.g., the term's label obscures or contradicts a governed behavior), the principle governs. In that case, only the term's label in CONTEXT.md should be revised so it no longer conflicts — the underlying concept it refers to is not altered by this resolution.
+
+Until CONTEXT.md exists, this section is inactive; standard terminology in specs, plans, and tasks applies.</div>
+                        <p style="font-weight:600; margin:0.5rem 0 0.2rem; text-align:left;">中文版：</p>
+                        <div class="term-block">## 术语权威
+
+本 constitution 及所有下游产物（spec、plan、tasks、代码）中涉及的领域术语，以 `CONTEXT.md` 术语表为准。
+
+当 `CONTEXT.md` 中的某个术语与本文件所述原则产生冲突时（例如：该术语的标签遮蔽或矛盾了某条受治理的行为），以原则为准。此时，仅需修订 `CONTEXT.md` 中该术语的标签，使其不再与原则冲突——该术语所指代的底层概念本身不因本次裁定而改变。
+
+在 `CONTEXT.md` 尚未创建之前，本节不生效；spec、plan、tasks 中的术语按常规用法处理。</div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>② 写需求</strong></td>
+                <td><strong>Spec-Kit</strong></td>
+                <td><strong><code>/speckit.specify</code></strong><br>用纯自然语言描述需求，<strong>不需要</strong>提前构思技术术语或模块名。</td>
+            </tr>
+            <tr>
+                <td><strong>③ 消歧义</strong></td>
+                <td><strong>Spec-Kit</strong></td>
+                <td><strong><code>/speckit.clarify</code></strong><br>通过问答消除需求中的模糊点，确保"要做什么"完全锁定。</td>
+            </tr>
+            <tr>
+                <td><strong>④ 建词典</strong> 👈 <strong>核心改动</strong></td>
+                <td><strong>mattpocock/skills</strong></td>
+                <td><strong><code>/grill-with-docs</code></strong><br>需求已明确，此时专门针对业务概念进行"术语烧烤"，产出 <code>CONTEXT.md</code>（统一词汇） + ADRs（架构决策）。</td>
+            </tr>
+            <tr>
+                <td><strong>⑤ 定方案</strong></td>
+                <td><strong>Spec-Kit</strong></td>
+                <td><strong><code>/speckit.plan</code></strong><br>技术方案直接<strong>强制引用</strong> <code>CONTEXT.md</code> 中的术语。文件名、模块划分必须与术语表一致。</td>
+            </tr>
+            <tr>
+                <td><strong>⑥ 拆任务</strong></td>
+                <td><strong>Spec-Kit</strong></td>
+                <td><strong><code>/speckit.tasks</code></strong><br>任务中的文件路径、函数命名严格遵循 <code>CONTEXT.md</code>。</td>
+            </tr>
+            <tr>
+                <td><strong>⑦ 写代码</strong></td>
+                <td><strong>Spec-Kit + Skills</strong></td>
+                <td><strong><code>/speckit.implement</code></strong><br>执行时，内部针对每个函数/模块使用 <strong><code>/tdd</code></strong> 红绿重构循环。</td>
+            </tr>
+            <tr>
+                <td><strong>⑧ 守质量</strong></td>
+                <td><strong>mattpocock/skills</strong></td>
+                <td><strong><code>/code-review</code></strong><br>提交前最后一道闸，检查代码是否偏离了 <code>CONTEXT.md</code> 定义的统一语言。</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="box gold">
+        <p><strong>为什么这个顺序是"黄金顺序"？</strong></p>
+        <ul>
+            <li>Spec-Kit 的 <code>specify</code> → <code>clarify</code> 解决了 <strong>"做什么（What）"</strong>。</li>
+            <li><code>grill-with-docs</code> 紧接着解决了 <strong>"怎么称呼（Naming）"</strong>，且基于已稳定的需求，术语不会反复横跳。</li>
+            <li>带着明确的命名去跑 <code>plan</code>，Agent 生成的架构图和模块关系清晰，不会出现"概念对不上代码"的割裂感。</li>
+            <li><code>constitution.md</code> 中的显式声明让 Agent 在冲突时优先遵循 <code>CONTEXT.md</code>，彻底消除了两套工具的摩擦点。</li>
+        </ul>
+    </div>
+
+    <h4>🥈 方案 B：mattpocock/skills + Trellis（长期迭代项目）</h4>
+    <table>
+        <thead><tr><th>阶段</th><th>用谁</th><th>具体命令</th></tr></thead>
+        <tbody>
+            <tr><td>需求对齐</td><td><strong>mattpocock/skills</strong></td><td><code>/grill-me</code> / <code>/grill-with-docs</code></td></tr>
+            <tr><td>计划 &amp; 实现</td><td><strong>Trellis</strong></td><td><code>trellis-brainstorm</code> → <code>trellis-implement</code></td></tr>
+            <tr><td>验证</td><td><strong>Trellis</strong></td><td><code>trellis-check</code>（lint + type + test）</td></tr>
+            <tr><td>代码审查</td><td><strong>mattpocock/skills</strong></td><td><code>/code-review</code>（比 trellis-check 更深）</td></tr>
+            <tr><td>记忆 &amp; 交接</td><td><strong>Trellis</strong></td><td>journals + <code>/trellis:finish-work</code></td></tr>
+            <tr><td>Bug 调试</td><td><strong>mattpocock/skills</strong></td><td><code>/diagnosing-bugs</code></td></tr>
+            <tr><td>架构改进</td><td><strong>mattpocock/skills</strong></td><td><code>/improve-codebase-architecture</code></td></tr>
+        </tbody>
+    </table>
+    <div class="box success">
+        <p><strong>为什么好？</strong><br>Trellis 的 journals 是三者中唯一真正的跨会话记忆；mattpocock/skills 的 grilling + TDD 补上 Trellis 在需求对齐和测试纪律上的不足。</p>
+    </div>
+
+    <h4>⚠️ 方案 C：三个全使用 —— 不推荐</h4>
+    <table>
+        <thead><tr><th>问题</th><th>说明</th></tr></thead>
+        <tbody>
+            <tr><td>上下文爆炸</td><td>三套工具都向 Agent 注入指令和模板，token 消耗剧增</td></tr>
+            <tr><td>流程冲突</td><td>Spec-Kit 说"先 specify 再 plan 再 tasks"，Trellis 说"brainstorm → implement → check → finish"，mattpocock/skills 说"随便组合"——Agent 听谁的？</td></tr>
+            <tr><td>文件结构冗余</td><td><code>.specify/</code> + <code>.trellis/</code> + <code>CONTEXT.md</code> + ADRs</td></tr>
+            <tr><td>规格重复</td><td>Spec-Kit 的 <code>specs/xxx/spec.md</code> 和 Trellis 的 <code>.trellis/tasks/prd.md</code> 功能重叠</td></tr>
+        </tbody>
+    </table>
+
+    <h3>4.4 分层思路（核心原则）</h3>
+    <div class="box">
+        <p><strong>主干流程选一个，具体执行技能从 mattpocock/skills 里挑单点嵌入。</strong></p>
+        <ul>
+            <li><strong>主干流程</strong>选一个：Spec-Kit（若你偏好强规格约束）或 Trellis（若团队多工具、需要并行开发）</li>
+            <li><strong>具体执行技能</strong>从 mattpocock/skills 里挑单点技能嵌进主干的某一步：
+                <ul>
+                    <li>Spec-Kit 的 <code>/speckit.clarify</code> 后、<code>/speckit.plan</code> 前跑一次 <code>/grill-with-docs</code> 来建立术语表（方案 A 的精髓）</li>
+                    <li>Spec-Kit/Trellis 的 implement 阶段内部用 <code>/tdd</code> 循环</li>
+                    <li>提交前用 <code>/code-review</code>（独立于两者之外，纯粹是最后一道质量闸）</li>
+                </ul>
+            </li>
+        </ul>
+        <p>这样规避的是"两套系统抢着当单一真相来源"的问题，同时吃到 mattpocock/skills 里"对齐+质量"这两个和流程框架本身不冲突的能力。</p>
+    </div>
+
+    <hr>
+
+    <!-- 第五部分 -->
+    <h2 id="part5">第五部分：可能的坑与摩擦点</h2>
+
+    <h3>坑 1：CONTEXT.md vs constitution.md 的职责边界（已通过方案 A 解决）</h3>
+    <table>
+        <thead><tr><th>文档</th><th>管什么</th><th>类比</th></tr></thead>
+        <tbody>
+            <tr><td><code>constitution.md</code></td><td>决策原则（"我们怎么做选择"）</td><td>宪法</td></tr>
+            <tr><td><code>spec.md</code></td><td>需求定义（"我们要造什么"）</td><td>产品需求文档</td></tr>
+            <tr><td><code>CONTEXT.md</code></td><td>领域术语（"我们怎么称呼东西"）</td><td>词汇表 / DDD 统一语言</td></tr>
+        </tbody>
+    </table>
+    <div class="box warning">
+        <p><strong>传统摩擦</strong>：Agent 在 implement 阶段同时看到 constitution 里的"代码质量原则"和 CONTEXT.md 里的"命名规范"，如果两者对同一个概念用了不同措辞，Agent 会犹豫该用哪个词。</p>
+        <p><strong>方案 A 的解法</strong>：在 <code>constitution.md</code> 中显式写入术语权威条款（见上文），声明 <strong>"领域术语以 <code>CONTEXT.md</code> 为准"</strong>，并规定当术语标签与原则冲突时如何裁决。这样 Agent 遇到冲突时有了明确的判断依据，无需猜测。</p>
+    </div>
+
+    <h3>坑 2：Spec-Kit 的 TDD 排序 vs mattpocock/skills 的 /tdd 循环</h3>
+    <ul>
+        <li>Spec-Kit 的 <code>tasks.md</code> 会把测试任务排在实现任务前面（<strong>任务级</strong>排序）</li>
+        <li>mattpocock/skills 的 <code>/tdd</code> 是红-绿-重构循环（<strong>代码级</strong>循环）</li>
+    </ul>
+    <div class="box warning">
+        <p>两者不矛盾但粒度不同。如果让 Agent 自己判断"什么时候该用 TDD"，它可能在两个循环之间来回跳。</p>
+        <p><strong>解法</strong>：在 constitution.md 或 tasks.md 里显式写："每个实现任务内部使用 red-green-refactor 循环"，把 <code>/tdd</code> 从"Agent 自主判断"变成"显式规则"。</p>
+    </div>
+
+    <h3>坑 3：Spec-Kit + Trellis 的上下文注入叠加</h3>
+    <ul>
+        <li>Spec-Kit 在 implement 阶段注入 <code>constitution.md</code> + <code>spec.md</code> + <code>plan.md</code> + <code>tasks.md</code></li>
+        <li>Trellis 在每个 session 启动时自动注入 <code>.trellis/spec/</code> 下相关规格 + journals</li>
+    </ul>
+    <div class="box warning">
+        <p>两套系统同时往 prompt 里塞"项目规范"，token 预算被重复上下文吃掉，Agent 有效推理空间被压缩。</p>
+        <p><strong>解法</strong>：不要同时使用。选一个做主干。</p>
+    </div>
+
+    <h3>坑 4：任务管理重复</h3>
+    <ul>
+        <li>Spec-Kit：<code>specs/001-xxx/tasks.md</code></li>
+        <li>Trellis：<code>.trellis/tasks/</code>（prd.md + implement.jsonl + check.jsonl）</li>
+    </ul>
+    <div class="box warning">
+        <p>同一个功能会同时存在于两套目录里，Agent 该听哪个 tasks 的顺序执行会产生歧义。</p>
+        <p><strong>解法</strong>：只用一套任务管理。如果选 Spec-Kit 做主干，就不要同时用 Trellis 的 tasks。</p>
+    </div>
+
+    <h3>坑 5：Slash command 入口冲突</h3>
+    <ul>
+        <li>Spec-Kit：<code>/speckit.*</code></li>
+        <li>Trellis：<code>/trellis:*</code> 或 <code>trellis-*</code></li>
+    </ul>
+    <div class="box warning">
+        <p>两者都想成为"入口"，叠加使用意义不大。</p>
+        <p><strong>解法</strong>：选一个做主干，另一个只取单个功能（如只用 Trellis 的 journals 做记忆，不走它的完整命令链）。</p>
+    </div>
+
+    <hr>
+
+    <!-- 第六部分 -->
+    <h2 id="part6">第六部分：实操建议清单</h2>
+
+    <div class="grid-2">
+        <div class="card" style="border-left:4px solid #0f7b3a;">
+            <h4>✅ 该做的</h4>
+            <ol style="margin-left:1.2rem;">
+                <li><strong>只选一个"流程骨架"</strong>（Spec-Kit 或 Trellis），另一个只取单个功能。</li>
+                <li><strong>mattpocock/skills 永远可以叠加</strong>——它的设计哲学就是"不拥有流程"，和任何框架都不冲突。</li>
+                <li><strong>统一术语</strong>——如果使用方案 A，务必在 <code>constitution.md</code> 中加入术语权威条款，并确保后续所有 Spec-Kit 产物都引用 <code>CONTEXT.md</code>。</li>
+                <li><strong>显式声明规则</strong>——把"什么时候用 TDD""术语以谁为准"写进 constitution 或 spec，别让 Agent 自己猜。</li>
+                <li><strong>定期跑架构改进</strong>——<code>/improve-codebase-architecture</code> 每隔几天跑一次，对抗 Agent 加速的软件熵增。</li>
+            </ol>
+        </div>
+        <div class="card" style="border-left:4px solid #d97706;">
+            <h4>❌ 不该做的</h4>
+            <ol style="margin-left:1.2rem;">
+                <li><strong>不要同时跑两套任务管理</strong>。</li>
+                <li><strong>不要让两个框架同时注入系统提示</strong>。</li>
+                <li><strong>不要为了"全面"而全面</strong>——个人项目不需要 Bundles/Presets 体系。</li>
+                <li><strong>不要把 mattpocock/skills 当流程框架用</strong>——它是调味料，不是主菜。</li>
+                <li><strong>不要忽略 grilling</strong>——即使你用了 Spec-Kit 的 <code>/speckit.specify</code>，在 clarify 之后、plan 之前跑一次 <code>/grill-with-docs</code> 能大幅减少下游返工（方案 A 的核心）。</li>
+            </ol>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- 第七部分 -->
+    <h2 id="part7">第七部分：一句话总结</h2>
+    <table>
+        <thead><tr><th>工具</th><th>一句话</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Spec-Kit</strong></td><td>"先写清楚要什么，再让 AI 去造" —— 规格驱动的<strong>流程引擎</strong></td></tr>
+            <tr><td><strong>Trellis</strong></td><td>"让 AI 记住你的项目，按你的规矩办事" —— 带记忆的<strong>工程框架</strong></td></tr>
+            <tr><td><strong>mattpocock/skills</strong></td><td>"别让 AI 拥有流程，你拥有流程" —— 可组合的<strong>工程纪律工具箱</strong></td></tr>
+        </tbody>
+    </table>
+
+    <div class="box gold">
+        <p style="font-size:1.1rem; font-weight:500; margin-bottom:0.3rem;">💡 核心结论</p>
+        <p><strong>mattpocock/skills 是"调味料"，百搭不冲突；Spec-Kit 和 Trellis 是"主菜"，选一个做骨架。</strong><br>
+        最实用的组合是 <strong>mattpocock/skills（对齐 + 质量）+ Spec-Kit 或 Trellis（流程 + 记忆）</strong>，而不是三个全上。</p>
+    </div>
+
+    <div class="footer-note">
+        — 完 —
+    </div>
+
+</div>
+</body>
+</html>
