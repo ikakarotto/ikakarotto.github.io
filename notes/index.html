@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>笔记索引 · 逐光而行</title>
+  <style>
+    /* 主题变量：浅色为主，适配深色模式 */
+    :root {
+      --bg: #f5f7fa;
+      --text: #1f2937;
+      --text-soft: #4b5563;
+      --muted: #9ca3af;
+      --card-bg: #ffffff;
+      --card-border: #eef0f3;
+      --accent: #4f6df5;
+      --accent-soft: rgba(79, 109, 245, 0.1);
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.06);
+      --shadow-hover: 0 6px 14px rgba(15, 23, 42, 0.1), 0 14px 32px rgba(15, 23, 42, 0.12);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1115;
+        --text: #e5e7eb;
+        --text-soft: #cbd5e1;
+        --muted: #6b7280;
+        --card-bg: #171a21;
+        --card-border: #232733;
+        --accent: #7c93ff;
+        --accent-soft: rgba(124, 147, 255, 0.14);
+        --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+        --shadow-hover: 0 6px 14px rgba(0,0,0,0.45), 0 14px 32px rgba(0,0,0,0.5);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 56px 20px 72px;
+    }
+    /* 顶部标题 */
+    header.head {
+      margin-bottom: 28px;
+    }
+    header.head h1 {
+      margin: 0 0 6px;
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    header.head p {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 0.98rem;
+    }
+    .back-home {
+      display: inline-block;
+      margin-top: 14px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.92rem;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+    .back-home:hover { opacity: 0.8; transform: translateX(-2px); }
+
+    /* 统计条 */
+    .meta-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 2px 16px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    /* 卡片网格 */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+    article.card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    article.card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--accent);
+    }
+    .card-tag {
+      align-self: flex-start;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1.08rem;
+      font-weight: 600;
+      line-height: 1.45;
+      color: var(--text);
+    }
+    .card .desc {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      flex: 1;
+    }
+    .card .foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--card-border);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .card .read {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.16s ease;
+    }
+    .card .read:hover { opacity: 0.8; }
+
+    /* 空状态 */
+    .empty {
+      text-align: center;
+      padding: 48px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="head">
+      <h1>📝 笔记索引</h1>
+      <p>这里收录了整理与收藏的学习笔记，点击卡片即可阅读。</p>
+      <a class="back-home" href="../index.html">← 返回首页</a>
+    </header>
+
+    <div class="meta-bar">
+      <span id="count-text">共 0 篇笔记</span>
+      <span>按收录时间倒序</span>
+    </div>
+
+    <!-- 笔记列表容器：由 JS 数据驱动渲染 -->
+    <main class="grid" id="notes-grid" aria-live="polite"></main>
+  </div>
+
+  <script>
+    (function () {
+      /**
+       * 笔记清单：新增笔记只需在此追加一项即可，页面会自动渲染卡片。
+       * file  字段为 notes 目录下的文件名，渲染时会做 URI 编码以兼容含
+       *       空格、全角冒号、单引号等特殊字符的文件名。
+       */
+      var notes = [
+        {
+          file: "Spec-Kit vs Trellis vs Matt Pocock's Skills：完整对比与混合使用指南.html",
+          title: "Spec-Kit vs Trellis vs Matt Pocock's Skills",
+          tag: "对比指南",
+          desc: "对比 Spec-Kit、Trellis 与 Matt Pocock's Skills 三套技能方案，并给出混合使用指南。",
+          date: "2026-07-20"
+        },
+        {
+          file: "deepseek_html_20260503_03c4ec.html",
+          title: "Claude Code 完全入门指南",
+          tag: "入门教程",
+          desc: "Claude Code 的入门操作与使用指南，源自 Claude How To。",
+          date: "2026-05-03"
+        }
+      ];
+
+      // 安全获取元素
+      var grid = document.getElementById('notes-grid');
+      var countText = document.getElementById('count-text');
+      if (!grid) { console.error('未找到笔记列表容器'); return; }
+
+      // 按收录时间倒序排列
+      notes.sort(function (a, b) {
+        return (b.date || '').localeCompare(a.date || '');
+      });
+
+      countText.textContent = '共 ' + notes.length + ' 篇笔记';
+
+      if (notes.length === 0) {
+        var empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = '暂无笔记。';
+        grid.appendChild(empty);
+        return;
+      }
+
+      // 逐条生成卡片节点，使用 textContent 避免字符串拼接风险
+      notes.forEach(function (n) {
+        var card = document.createElement('article');
+        card.className = 'card';
+
+        var tag = document.createElement('span');
+        tag.className = 'card-tag';
+        tag.textContent = n.tag || '笔记';
+
+        var h2 = document.createElement('h2');
+        h2.textContent = n.title;
+
+        var desc = document.createElement('p');
+        desc.className = 'desc';
+        desc.textContent = n.desc || '';
+
+        var foot = document.createElement('div');
+        foot.className = 'foot';
+
+        var date = document.createElement('span');
+        date.textContent = n.date || '';
+
+        var read = document.createElement('a');
+        read.className = 'read';
+        // 对文件名做 URI 编码，兼容空格/全角冒号/单引号等特殊字符
+        read.href = encodeURI(n.file);
+        read.textContent = '阅读 ->';
+
+        foot.appendChild(date);
+        foot.appendChild(read);
+
+        card.appendChild(tag);
+        card.appendChild(h2);
+        card.appendChild(desc);
+        card.appendChild(foot);
+
+        grid.appendChild(card);
+      });
+    })();
+  </script>
+</body>
+</html>
