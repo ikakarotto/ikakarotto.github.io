@@ -296,10 +296,11 @@
             <li><a href="#part1">第一部分：三者核心定位</a></li>
             <li><a href="#part2">第二部分：详细对比表</a></li>
             <li><a href="#part3">第三部分：适用场景速查</a></li>
-            <li><a href="#part4">第四部分：混合使用分析</a></li>
-            <li><a href="#part5">第五部分：可能的坑与摩擦点</a></li>
-            <li><a href="#part6">第六部分：实操建议清单</a></li>
-            <li><a href="#part7">第七部分：一句话总结</a></li>
+            <li><a href="#part4">第四部分：安装与更新</a></li>
+            <li><a href="#part5">第五部分：混合使用分析</a></li>
+            <li><a href="#part6">第六部分：可能的坑与摩擦点</a></li>
+            <li><a href="#part7">第七部分：实操建议清单</a></li>
+            <li><a href="#part8">第八部分：一句话总结</a></li>
         </ul>
     </div>
 
@@ -405,8 +406,131 @@
 
     <hr>
 
-    <!-- 第四部分 -->
-    <h2 id="part4">第四部分：混合使用分析</h2>
+    <!-- 第四部分：安装与更新 -->
+    <h2 id="part4">第四部分：安装与更新</h2>
+
+    <h3>4.1 Spec-Kit</h3>
+    <div class="card" style="margin-bottom:1.2rem;">
+        <p><strong>GitHub：</strong><a href="https://github.com/github/spec-kit" target="_blank" rel="noopener">https://github.com/github/spec-kit</a></p>
+        <p><strong>协议：</strong>MIT</p>
+    </div>
+
+    <h4>环境要求</h4>
+    <ul>
+        <li>Python 3.11+</li>
+        <li><a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener">uv</a>（推荐）或 pipx</li>
+        <li>Git</li>
+    </ul>
+
+    <h4>安装</h4>
+    <p><strong>方式一：uv（推荐，从 GitHub 安装最新版）</strong></p>
+    <pre><code>uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@vX.Y.Z</code></pre>
+    <p>将 <code>vX.Y.Z</code> 替换为 <a href="https://github.com/github/spec-kit/releases" target="_blank" rel="noopener">Releases 页面</a> 上的最新版本号。</p>
+
+    <p><strong>方式二：PyPI</strong></p>
+    <pre><code>uv tool install specify-cli</code></pre>
+
+    <h4>初始化项目</h4>
+    <pre><code>specify init my-project --integration copilot
+cd my-project</code></pre>
+    <p>初始化后，agent 中即可使用 <code>/speckit.constitution</code>、<code>/speckit.specify</code>、<code>/speckit.plan</code>、<code>/speckit.tasks</code>、<code>/speckit.implement</code> 等 slash 命令。</p>
+
+    <h4>更新</h4>
+    <pre><code># 检查是否有新版本（只读，不安装）
+specify self check
+
+# 预览升级内容（不实际安装）
+specify self upgrade --dry-run
+
+# 升级到最新稳定版
+specify self upgrade
+
+# 固定到指定版本
+specify self upgrade --tag vX.Y.Z</code></pre>
+
+    <h4>扩展管理</h4>
+    <pre><code>specify extension search          # 搜索扩展
+specify extension add &lt;name&gt;      # 安装扩展
+specify preset search             # 搜索预设
+specify preset add &lt;name&gt;        # 安装预设
+specify bundle search             # 搜索角色包
+specify bundle install &lt;name&gt;    # 安装角色包
+specify bundle update             # 更新角色包</code></pre>
+
+    <hr style="margin:1.5rem 0;">
+
+    <h3>4.2 Trellis</h3>
+    <div class="card" style="margin-bottom:1.2rem;">
+        <p><strong>GitHub：</strong><a href="https://github.com/mindfold-ai/trellis" target="_blank" rel="noopener">https://github.com/mindfold-ai/trellis</a></p>
+        <p><strong>文档：</strong><a href="https://docs.trytrellis.app/start/install-and-first-task" target="_blank" rel="noopener">https://docs.trytrellis.app</a></p>
+        <p><strong>协议：</strong>AGPL-3.0</p>
+    </div>
+
+    <h4>环境要求</h4>
+    <ul>
+        <li>Node.js ≥ 18</li>
+        <li>Python ≥ 3.9</li>
+    </ul>
+
+    <h4>安装</h4>
+    <pre><code># 全局安装 Trellis CLI
+npm install -g @mindfoldhq/trellis@latest
+
+# 在项目中初始化（-u 指定你的用户名）
+trellis init -u your-name
+
+# 或指定目标平台初始化
+trellis init --cursor --opencode --codex -u your-name</code></pre>
+    <p>初始化后会在项目根目录生成 <code>.trellis/</code> 目录，包含 <code>spec/</code>（团队约定）、<code>tasks/</code>（PRD/任务状态）、<code>workspace/</code>（会话日志）等子目录。</p>
+
+    <h4>更新</h4>
+    <pre><code>npm install -g @mindfoldhq/trellis@latest</code></pre>
+    <p>重新执行全局安装即可更新到最新版本。更新后，已有项目的 <code>.trellis/</code> 目录不受影响。</p>
+
+    <hr style="margin:1.5rem 0;">
+
+    <h3>4.3 mattpocock/skills</h3>
+    <div class="card" style="margin-bottom:1.2rem;">
+        <p><strong>GitHub：</strong><a href="https://github.com/mattpocock/skills" target="_blank" rel="noopener">https://github.com/mattpocock/skills</a></p>
+    </div>
+
+    <h4>环境要求</h4>
+    <ul>
+        <li>无额外运行依赖（skills 是纯 Markdown 文件）</li>
+        <li>需要 Claude Code、Codex 或其他支持 Agent Skills 标准的工具</li>
+    </ul>
+
+    <h4>安装</h4>
+    <p><strong>方式一：Claude Code 插件（推荐，自动更新）</strong></p>
+    <pre><code># 在终端中
+claude plugins install mattpocock-skills
+
+# 或在 Claude Code 会话内
+/plugin install mattpocock-skills</code></pre>
+    <p>以只读插件形式安装，由 Claude Code 官方 marketplace 分发，<strong>自动更新</strong>。</p>
+
+    <p><strong>方式二：skills.sh（可编辑副本）</strong></p>
+    <pre><code>npx skills@latest add mattpocock/skills</code></pre>
+    <p>将 skill 文件复制到项目 <code>.claude/skills/</code> 目录中，可以自由修改。安装过程中可以选择要包含哪些 skill。<strong>确保勾选 <code>setup-matt-pocock-skills</code>。</strong></p>
+
+    <div class="box warning">
+        <p><strong>⚠️ 不要同时安装两种方式</strong>——否则每个 skill 都会出现两份，导致重复和混乱。选一种即可。</p>
+    </div>
+
+    <h4>初始化</h4>
+    <pre><code>/setup-matt-pocock-skills</code></pre>
+    <p>安装后每个仓库执行一次，用于配置 issue 追踪器（GitHub / Linear / 本地文件）、triage 标签和文档位置。</p>
+
+    <h4>更新</h4>
+    <ul>
+        <li><strong>插件方式：</strong>更新自动推送，无需手动操作。</li>
+        <li><strong>skills.sh 方式：</strong>执行 <code>npx skills update</code> 拉取最新版本。</li>
+    </ul>
+
+    <hr>
+
+    <!-- 第五部分 -->
+    <h2 id="part5">第五部分：混合使用分析</h2>
 
     <h3>4.1 分层模型</h3>
     <p>三个工具在不同层面工作：</p>
@@ -563,8 +687,8 @@ Until CONTEXT.md exists, this section is inactive; standard terminology in specs
 
     <hr>
 
-    <!-- 第五部分 -->
-    <h2 id="part5">第五部分：可能的坑与摩擦点</h2>
+    <!-- 第六部分 -->
+    <h2 id="part6">第六部分：可能的坑与摩擦点</h2>
 
     <h3>坑 1：CONTEXT.md vs constitution.md 的职责边界（已通过方案 A 解决）</h3>
     <table>
@@ -622,8 +746,8 @@ Until CONTEXT.md exists, this section is inactive; standard terminology in specs
 
     <hr>
 
-    <!-- 第六部分 -->
-    <h2 id="part6">第六部分：实操建议清单</h2>
+    <!-- 第七部分 -->
+    <h2 id="part7">第七部分：实操建议清单</h2>
 
     <div class="grid-2">
         <div class="card" style="border-left:4px solid #0f7b3a;">
@@ -650,8 +774,8 @@ Until CONTEXT.md exists, this section is inactive; standard terminology in specs
 
     <hr>
 
-    <!-- 第七部分 -->
-    <h2 id="part7">第七部分：一句话总结</h2>
+    <!-- 第八部分 -->
+    <h2 id="part8">第八部分：一句话总结</h2>
     <table>
         <thead><tr><th>工具</th><th>一句话</th></tr></thead>
         <tbody>
