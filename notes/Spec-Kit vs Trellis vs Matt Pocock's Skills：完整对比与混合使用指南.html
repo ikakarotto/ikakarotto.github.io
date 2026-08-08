@@ -484,8 +484,25 @@ trellis init --cursor --opencode --codex -u your-name</code></pre>
     <p>初始化后会在项目根目录生成 <code>.trellis/</code> 目录，包含 <code>spec/</code>（团队约定）、<code>tasks/</code>（PRD/任务状态）、<code>workspace/</code>（会话日志）等子目录。</p>
 
     <h4>更新</h4>
-    <pre><code>npm install -g @mindfoldhq/trellis@latest</code></pre>
-    <p>重新执行全局安装即可更新到最新版本。更新后，已有项目的 <code>.trellis/</code> 目录不受影响。</p>
+    <p>Trellis 的更新涉及三个相互独立的版本，先理清它们各是什么：</p>
+    <ul>
+        <li><strong>① npm 上的最新版本</strong>——发布到 registry 的最新稳定版</li>
+        <li><strong>② 本地 CLI 的版本</strong>——通过 <code>trellis -v</code> 查到、全局装在你机器上的那一份</li>
+        <li><strong>③ repo 里 trellis 的版本</strong>——随项目提交的 <code>.trellis/</code> 配置与命令</li>
+    </ul>
+    <p>两条命令各管一段升级链路，方向不能搞反：</p>
+    <pre><code># 把本地 CLI 升级到 npm 最新（② → ①）
+trellis upgrade
+
+# 把 repo 里的 .trellis/ 同步到与本地 CLI 一致（③ → ②）
+trellis update --migrate</code></pre>
+    <p>一次完整的升级通常是：先 <code>trellis upgrade</code> 更新本地 CLI，再进入项目目录执行 <code>trellis update --migrate</code> 把 repo 配置跟上。<code>update --migrate</code> 以本地 CLI 版本为基准，所以必须先升 CLI、再同步 repo，顺序反不了。</p>
+    <div class="card" style="border-left:4px solid #d97706; margin-top:1rem;">
+        <h4>注意：upgrade 命令从 0.6 beta 起才有</h4>
+        <p>本地 CLI 若仍是 0.5.x，执行 <code>trellis upgrade</code> 会报 <code>unknown command 'upgrade'</code>。先用 npm 手动把本地 CLI 升到 0.6+，之后就能正常用 <code>trellis upgrade</code> 了：</p>
+        <pre><code>npm install -g @mindfoldhq/trellis@latest</code></pre>
+        <p>这一步只动全局 CLI，<code>.trellis/</code> 里的项目数据不受影响。</p>
+    </div>
 
     <hr style="margin:1.5rem 0;">
 
